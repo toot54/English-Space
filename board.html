@@ -6,489 +6,226 @@
     <title>English Space — Доска урока</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
     <style>
         * {
             box-sizing: border-box; margin: 0; padding: 0;
-            font-family: 'Plus Jakarta Sans', 'Manrope', system-ui, sans-serif;
-            user-select: none; -webkit-user-select: none;
-            -webkit-touch-callout: none;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
         }
         html, body {
-            overflow: hidden; background: #f8fafc;
-            height: 100%; width: 100%;
-            position: fixed; inset: 0;
-            touch-action: none;
+            overflow: hidden; background: #f6f5f2;
+            height: 100%; width: 100%; position: fixed; inset: 0; touch-action: none;
         }
 
-        /* Верхняя панель управления */
+        /* Верхняя панель */
         .top-bar {
             position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px);
-            padding: 5px 10px; border-radius: 999px;
-            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.1);
-            display: flex; gap: 5px; align-items: center; z-index: 120;
-            white-space: nowrap; max-width: 96vw;
-            overflow-x: auto; scrollbar-width: none;
-            border: 1px solid #e2e8f0;
+            padding: 4px 8px; border-radius: 999px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            display: flex; gap: 4px; align-items: center; z-index: 120;
+            white-space: nowrap; max-width: 96vw; overflow-x: auto; scrollbar-width: none;
+            border: 1px solid #e4e2de;
         }
         .top-bar::-webkit-scrollbar { display: none; }
-        .bar-divider { width: 1px; height: 20px; background: #e2e8f0; margin: 0 2px; flex-shrink: 0; }
+        .bar-divider { width: 1px; height: 18px; background: #e4e2de; margin: 0 2px; flex-shrink: 0; }
 
         #placement-banner {
-            position: fixed; top: 62px; left: 50%; transform: translateX(-50%);
-            background: #4f46e5; color: white; padding: 8px 16px;
-            border-radius: 999px; font-size: 12px; font-weight: 700;
-            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.35);
-            display: none; align-items: center; gap: 10px; z-index: 145;
-            max-width: 92vw; white-space: nowrap;
+            position: fixed; top: 58px; left: 50%; transform: translateX(-50%);
+            background: #1a1918; color: white; padding: 6px 14px;
+            border-radius: 999px; font-size: 12px; font-weight: 600;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            display: none; align-items: center; gap: 8px; z-index: 145;
         }
-        .placement-cancel-btn {
-            background: rgba(255,255,255,0.2); border: none; color: white;
-            padding: 3px 8px; border-radius: 999px; font-size: 11px;
-            font-weight: 700; cursor: pointer;
-        }
-
-        /* Таймер урока */
-        #lesson-timer-badge {
-            position: fixed; top: 12px; right: 16px;
-            background: #1e293b; color: #ffffff; padding: 6px 14px;
-            border-radius: 999px; font-size: 13px; font-weight: 700;
-            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.22);
-            display: none; align-items: center; gap: 8px; z-index: 130;
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-        .timer-dot {
-            width: 8px; height: 8px; border-radius: 50%; background: #10b981;
-            box-shadow: 0 0 8px #10b981; animation: pulseDot 1.5s infinite;
-        }
-        .timer-dot.paused { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; animation: none; }
-        .timer-dot.scheduled { background: #38bdf8; box-shadow: 0 0 8px #38bdf8; }
-        @keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
-        .timer-action-btn {
-            border-radius: 999px; padding: 3px 9px; font-size: 11px;
-            cursor: pointer; font-weight: 700; transition: 0.15s;
-        }
-        .timer-pause-btn {
-            background: rgba(245, 158, 11, 0.2); color: #fde68a;
-            border: 1px solid rgba(245, 158, 11, 0.45);
-        }
-        .timer-stop-btn {
-            background: rgba(239, 68, 68, 0.25); color: #fca5a5;
-            border: 1px solid rgba(239, 68, 68, 0.4);
-        }
+        .placement-cancel-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 2px 8px; border-radius: 999px; font-size: 11px; cursor: pointer; }
 
         .btn {
-            border: 1px solid transparent; background: transparent; padding: 6px 10px;
-            border-radius: 999px; cursor: pointer; font-size: 12px; font-weight: 700;
-            color: #334155; transition: 0.18s; display: flex; align-items: center; gap: 5px;
-            flex-shrink: 0;
+            border: 1px solid transparent; background: transparent; padding: 5px 9px;
+            border-radius: 999px; cursor: pointer; font-size: 12px; font-weight: 600;
+            color: #4b4845; transition: 0.15s; display: flex; align-items: center; gap: 5px; flex-shrink: 0;
         }
-        .btn:hover { background: #f1f5f9; }
-        .btn.active { background: #4f46e5; color: white; }
-        .btn.disabled-pan { opacity: 0.38; cursor: not-allowed !important; pointer-events: none; }
+        .btn:hover { background: #f0eeeb; color: #1a1918; }
+        .btn.active { background: #37352f; color: white; }
+        .btn.disabled-pan { opacity: 0.4; cursor: not-allowed !important; pointer-events: none; }
         .btn-widgets { background: #eef2ff; color: #4f46e5; border-color: #c7d2fe; }
-        .btn-follow { background: #f8fafc; border-color: #e2e8f0; }
-        .btn-follow.active { background: #10b981; color: white; border-color: #10b981; }
+        .btn-follow { background: #ffffff; border-color: #e4e2de; }
+        .btn-follow.active { background: #059669; color: white; border-color: #059669; }
 
-        .undo-group {
-            display: flex; align-items: center; gap: 2px;
-            background: #f8fafc; border: 1px solid #e2e8f0;
-            border-radius: 999px; padding: 2px 4px; flex-shrink: 0;
-        }
-        .icon-only-btn {
-            border: none; background: transparent; width: 26px; height: 26px;
-            border-radius: 50%; cursor: pointer; font-size: 13px;
-            display: flex; align-items: center; justify-content: center; color: #475569;
-        }
-        .icon-only-btn:hover { background: #e2e8f0; color: #1e293b; }
+        .undo-group { display: flex; align-items: center; gap: 2px; background: #f0eeeb; border: 1px solid #e4e2de; border-radius: 999px; padding: 2px 4px; flex-shrink: 0; }
+        .icon-only-btn { border: none; background: transparent; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #4b4845; }
+        .icon-only-btn:hover { background: #e4e2de; color: #1a1918; }
 
         .color-circle-btn {
-            width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+            width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
             background: conic-gradient(#ef4444 0deg 120deg, #22c55e 120deg 240deg, #3b82f6 240deg 360deg);
-            padding: 3px; border: 2px solid white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+            padding: 2px; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.15);
             display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
-        .color-inner-dot {
-            width: 12px; height: 12px; border-radius: 50%;
-            background: #4f46e5; border: 1.5px solid white;
-        }
+        .color-inner-dot { width: 10px; height: 10px; border-radius: 50%; background: #4f46e5; border: 1px solid white; }
 
         .popover-menu {
-            position: fixed; top: 58px; left: 50%; transform: translateX(-50%);
-            background: white; padding: 10px; border-radius: 16px;
-            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
-            border: 1px solid #e2e8f0; display: none; flex-direction: column;
-            gap: 4px; z-index: 140; min-width: 240px; max-width: 92vw;
+            position: fixed; top: 54px; left: 50%; transform: translateX(-50%);
+            background: white; padding: 8px; border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); border: 1px solid #e4e2de;
+            display: none; flex-direction: column; gap: 3px; z-index: 140; min-width: 220px;
         }
         .popover-item {
-            display: flex; align-items: center; gap: 8px;
-            padding: 8px 12px; border-radius: 10px; border: none;
-            background: transparent; cursor: pointer; font-size: 13px;
-            font-weight: 700; color: #334155; text-align: left; width: 100%;
+            display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+            border-radius: 8px; border: none; background: transparent; cursor: pointer;
+            font-size: 12px; font-weight: 600; color: #4b4845; text-align: left; width: 100%;
         }
-        .popover-item:hover { background: #f1f5f9; }
+        .popover-item:hover { background: #f0eeeb; color: #1a1918; }
         .popover-item.active { background: #eef2ff; color: #4f46e5; }
 
-        .thickness-box {
-            padding: 8px 10px; background: #f8fafc; border-radius: 10px;
-            margin-top: 4px; border: 1px solid #e2e8f0;
-        }
-        .thickness-header {
-            display: flex; justify-content: space-between; font-size: 11px;
-            font-weight: 700; color: #475569; margin-bottom: 6px;
-        }
+        .thickness-box { padding: 6px 8px; background: #f6f5f2; border-radius: 8px; margin-top: 3px; border: 1px solid #e4e2de; }
+        .thickness-header { display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; color: #787672; margin-bottom: 4px; }
         .thickness-slider { width: 100%; cursor: pointer; accent-color: #4f46e5; }
 
         #color-popover {
-            position: fixed; top: 58px; left: 50%; transform: translateX(-50%);
-            background: white; padding: 12px; border-radius: 18px;
-            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
-            border: 1px solid #e2e8f0; display: none;
-            grid-template-columns: repeat(6, 1fr); gap: 8px; z-index: 140;
+            position: fixed; top: 54px; left: 50%; transform: translateX(-50%);
+            background: white; padding: 10px; border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); border: 1px solid #e4e2de;
+            display: none; grid-template-columns: repeat(6, 1fr); gap: 6px; z-index: 140;
         }
-        .swatch {
-            width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
-            border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.22);
-        }
+        .swatch { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
 
-        .zoom-group {
-            display: flex; align-items: center; gap: 2px;
-            background: #f8fafc; border: 1px solid #e2e8f0;
-            border-radius: 999px; padding: 2px 5px; flex-shrink: 0;
-        }
-        .zoom-label {
-            font-size: 11px; font-weight: 800; color: #475569;
-            min-width: 36px; text-align: center; cursor: pointer;
-        }
-        .center-board-btn {
-            border: none; background: #eef2ff; color: #4f46e5;
-            width: 24px; height: 24px; border-radius: 50%;
-            cursor: pointer; font-size: 12px; display: flex;
-            align-items: center; justify-content: center; margin-left: 2px;
-        }
+        .zoom-group { display: flex; align-items: center; gap: 2px; background: #f0eeeb; border: 1px solid #e4e2de; border-radius: 999px; padding: 2px 4px; flex-shrink: 0; }
+        .zoom-label { font-size: 11px; font-weight: 700; color: #4b4845; min-width: 34px; text-align: center; cursor: pointer; }
+        .center-board-btn { border: none; background: #eef2ff; color: #4f46e5; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; font-size: 11px; display: flex; align-items: center; justify-content: center; margin-left: 2px; }
 
         /* Нижняя панель */
         .bottom-dock {
-            position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
-            background: rgba(30, 41, 59, 0.94); backdrop-filter: blur(10px);
-            padding: 6px 12px; border-radius: 999px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-            display: flex; align-items: center; gap: 8px; z-index: 125;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            max-width: 96vw; overflow-x: auto; scrollbar-width: none;
-            white-space: nowrap;
+            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+            background: rgba(26, 25, 24, 0.94); backdrop-filter: blur(10px);
+            padding: 5px 10px; border-radius: 999px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            display: flex; align-items: center; gap: 6px; z-index: 125; border: 1px solid rgba(255,255,255,0.1);
+            max-width: 96vw; overflow-x: auto; scrollbar-width: none; white-space: nowrap;
         }
         .bottom-dock::-webkit-scrollbar { display: none; }
         .dock-icon-btn {
-            height: 36px; padding: 0 12px; border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.06);
-            color: #cbd5e1; font-size: 12px; font-weight: 700; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 6px;
-            flex-shrink: 0;
+            height: 34px; padding: 0 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.06); color: #cbd5e1; font-size: 11px; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 5px; flex-shrink: 0;
         }
-        .dock-icon-btn.lit {
-            background: rgba(79, 70, 229, 0.35);
-            border-color: rgba(129, 140, 248, 0.85); color: #ffffff;
-            box-shadow: 0 0 14px rgba(99, 102, 241, 0.5);
-        }
-        .dock-icon-btn.start-lesson-btn {
-            background: rgba(16, 185, 129, 0.22);
-            border-color: rgba(52, 211, 153, 0.6); color: #ecfdf5;
-        }
-        .dock-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #64748b; flex-shrink: 0; }
-        .dock-icon-btn.lit .dock-status-dot { background: #34d399; box-shadow: 0 0 6px #34d399; }
+        .dock-icon-btn.lit { background: rgba(79, 70, 229, 0.4); border-color: rgba(129, 140, 248, 0.8); color: #ffffff; }
+        .dock-icon-btn.start-lesson-btn { background: rgba(5, 150, 105, 0.3); border-color: rgba(52, 211, 153, 0.6); color: #ecfdf5; }
+        .dock-status-dot { width: 5px; height: 5px; border-radius: 50%; background: #64748b; flex-shrink: 0; }
+        .dock-icon-btn.lit .dock-status-dot { background: #34d399; }
 
-        #lesson-time-popover {
-            position: fixed; bottom: 62px; left: 50%; transform: translateX(-50%);
-            background: white; padding: 14px; border-radius: 18px;
-            box-shadow: 0 12px 35px rgba(15, 23, 42, 0.22);
-            border: 1px solid #e2e8f0; display: none; flex-direction: column;
-            gap: 8px; z-index: 140; width: 270px; max-width: 92vw;
-        }
-        .popover-section-label { font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; }
-        .delay-pills { display: flex; gap: 4px; background: #f1f5f9; padding: 3px; border-radius: 10px; }
-        .delay-pill {
-            flex: 1; border: none; background: transparent; padding: 6px 4px;
-            border-radius: 7px; font-size: 11px; font-weight: 700; color: #475569; cursor: pointer;
-        }
-        .delay-pill.active { background: white; color: #4f46e5; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-        .time-preset-btn {
-            border: 1px solid #e2e8f0; background: #f8fafc; padding: 8px 12px;
-            border-radius: 10px; font-size: 13px; font-weight: 700; color: #1e293b;
-            cursor: pointer; text-align: left;
-        }
-        .custom-time-row { display: flex; gap: 6px; align-items: center; }
-        .custom-time-input {
-            width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1;
-            border-radius: 8px; font-size: 12px; font-weight: 600; outline: none; user-select: text; -webkit-user-select: text;
-        }
-        .custom-time-go {
-            background: #10b981; color: white; border: none; padding: 7px 12px;
-            border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;
-        }
-
-        /* Окно выбора виджетов */
+        /* Окно виджетов */
         #widgets-modal {
-            position: fixed; top: 62px; left: 50%; transform: translateX(-50%);
-            background: white; width: 420px; max-width: 94vw; border-radius: 18px;
-            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25); border: 1px solid #e2e8f0;
-            z-index: 200; padding: 14px; display: none; max-height: 80vh; overflow-y: auto;
+            position: fixed; top: 56px; left: 50%; transform: translateX(-50%);
+            background: white; width: 380px; max-width: 94vw; border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.18); border: 1px solid #e4e2de;
+            z-index: 200; padding: 12px; display: none;
         }
-        .modal-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; margin-bottom: 10px;
-        }
-        .modal-title { font-size: 14px; font-weight: 800; color: #1e293b; }
-        .close-btn, .header-icon-btn {
-            width: 24px; height: 24px; border-radius: 6px; border: none;
-            background: transparent; color: #94a3b8; font-size: 13px; font-weight: bold;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #f0eeeb; margin-bottom: 8px; }
+        .modal-title { font-size: 13px; font-weight: 700; color: #1a1918; }
+        .close-btn { width: 22px; height: 22px; border-radius: 6px; border: none; background: transparent; color: #787672; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .close-btn:hover { background: #fee2e2; color: #ef4444; }
-        .header-icon-btn.locked-active { background: #fef3c7; color: #d97706; }
 
-        .widget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .widget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         .widget-pick-btn {
-            border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;
-            background: #f8fafc; font-size: 12px; font-weight: 700; color: #1e293b;
-            cursor: pointer; display: flex; align-items: center; gap: 8px; text-align: left;
+            border: 1px solid #e4e2de; border-radius: 10px; padding: 10px;
+            background: #f6f5f2; font-size: 11px; font-weight: 600; color: #1a1918;
+            cursor: pointer; display: flex; align-items: center; gap: 6px; text-align: left;
+            text-decoration: none; justify-content: flex-start;
         }
         .widget-pick-btn:hover { background: #eef2ff; border-color: #818cf8; color: #4f46e5; }
 
         /* Холст доски */
         #board-viewport {
             width: 100vw; height: 100vh; overflow: hidden; position: relative;
-            cursor: crosshair; touch-action: none;
-            background-color: #f8fafc;
-            background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
-            background-size: 28px 28px;
+            cursor: crosshair; touch-action: none; background-color: #f6f5f2;
+            background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px); background-size: 28px 28px;
         }
-        #board-world {
-            width: 4200px; height: 3000px; position: absolute; top: 0; left: 0;
-            transform-origin: 0 0; will-change: transform; touch-action: none;
-        }
-        /* Холст маркера (z-index: 25) находится НАД фото (z-index: 15), но ПОД остальными виджетами (z-index: 35) */
+        #board-world { width: 4200px; height: 3000px; position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; touch-action: none; }
+        
+        /* Слои: фото-виджеты находятся ПОД маркером (z-index 15), холст маркера (z-index 25), остальные виджеты НАД маркером (z-index 35) */
         canvas { position: absolute; top: 0; left: 0; z-index: 25; pointer-events: none; }
         #temp-canvas { z-index: 26; }
 
-        /* Текст на доске */
-        .board-text-node {
-            position: absolute; z-index: 28;
-            min-width: 70px; max-width: 900px;
-            padding: 8px 18px 14px 10px; border-radius: 12px;
-            border: 1.5px dashed transparent;
-            display: flex; align-items: flex-start; gap: 6px;
-        }
-        .board-text-node:hover, .board-text-node:focus-within {
-            border-color: #94a3b8; background: rgba(255, 255, 255, 0.85);
-        }
-        .board-text-drag { cursor: move; color: #94a3b8; font-size: 14px; padding: 2px 4px; opacity: 0; touch-action: none; }
-        .board-text-node:hover .board-text-drag, .board-text-node:focus-within .board-text-drag { opacity: 1; }
-        .board-text-content {
-            outline: none; user-select: text; -webkit-user-select: text; cursor: text;
-            font-weight: 700; line-height: 1.3; white-space: pre-wrap; word-break: break-word; min-width: 45px;
-        }
-        .board-text-content:empty:before { content: 'Введите текст...'; color: #94a3b8; font-weight: 500; }
-        .board-text-del {
-            opacity: 0; width: 20px; height: 20px; border-radius: 6px;
-            border: none; background: #fee2e2; color: #ef4444;
-            font-size: 11px; font-weight: bold; cursor: pointer;
-        }
-        .board-text-node:hover .board-text-del, .board-text-node:focus-within .board-text-del { opacity: 1; }
-        .text-resize-handle {
-            position: absolute; right: 2px; bottom: 2px;
-            width: 18px; height: 18px; cursor: nwse-resize;
-            display: flex; align-items: flex-end; justify-content: flex-end;
-            color: #64748b; font-size: 11px; opacity: 0; touch-action: none;
-        }
-        .board-text-node:hover .text-resize-handle, .board-text-node:focus-within .text-resize-handle { opacity: 1; }
+        .board-text-node { position: absolute; z-index: 28; min-width: 70px; max-width: 900px; padding: 6px 14px 10px 8px; border-radius: 10px; border: 1.5px dashed transparent; display: flex; align-items: flex-start; gap: 6px; }
+        .board-text-node:hover, .board-text-node:focus-within { border-color: #94a3b8; background: rgba(255, 255, 255, 0.85); }
+        .board-text-drag { cursor: move; color: #94a3b8; font-size: 13px; opacity: 0; touch-action: none; }
+        .board-text-node:hover .board-text-drag { opacity: 1; }
+        .board-text-content { outline: none; user-select: text; -webkit-user-select: text; cursor: text; font-weight: 600; line-height: 1.3; white-space: pre-wrap; word-break: break-word; min-width: 40px; }
+        .board-text-content:empty:before { content: 'Текст...'; color: #94a3b8; font-weight: 400; }
+        .board-text-del { opacity: 0; width: 18px; height: 18px; border-radius: 4px; border: none; background: #fee2e2; color: #ef4444; font-size: 10px; font-weight: bold; cursor: pointer; }
+        .board-text-node:hover .board-text-del { opacity: 1; }
 
-        /* Плавная лазерная указка */
-        #laser-cursor {
-            position: absolute; pointer-events: none; z-index: 80;
-            display: none; transform: translate(-50%, -50%);
-            transition: left 0.06s linear, top 0.06s linear;
-        }
-        .laser-dot {
-            width: 18px; height: 18px; background: #ef4444; border-radius: 50%;
-            box-shadow: 0 0 16px #ef4444, 0 0 6px #fca5a5; border: 2.5px solid white;
-        }
+        #laser-cursor { position: absolute; pointer-events: none; z-index: 80; display: none; transform: translate(-50%, -50%); }
+        .laser-dot { width: 16px; height: 16px; background: #ef4444; border-radius: 50%; box-shadow: 0 0 14px #ef4444; border: 2px solid white; }
 
-        /* Блок веб-камер */
+        /* Окно камер */
         #video-dock {
-            position: fixed; top: 58px; right: 14px; width: 205px;
+            position: fixed; top: 54px; right: 12px; width: 195px;
             background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(8px);
-            padding: 8px; border-radius: 16px;
-            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
-            border: 1px solid #e2e8f0;
-            display: flex; flex-direction: column; gap: 7px; z-index: 95;
-            touch-action: none;
+            padding: 6px; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            border: 1px solid #e4e2de; display: flex; flex-direction: column; gap: 6px; z-index: 95; touch-action: none;
         }
-        .dock-drag-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 2px 6px; cursor: move; border-radius: 8px; touch-action: none;
-        }
-        .drag-dots { color: #94a3b8; font-size: 13px; letter-spacing: 2px; font-weight: bold; }
-        .cam-box {
-            width: 100%; height: 120px; background: #1e293b; border-radius: 12px;
-            overflow: hidden; position: relative;
-            border: 1px solid #334155; display: flex; align-items: center; justify-content: center;
-        }
+        .dock-drag-header { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px; cursor: move; touch-action: none; }
+        .drag-dots { color: #94a3b8; font-size: 12px; letter-spacing: 2px; font-weight: bold; }
+        .cam-box { width: 100%; height: 110px; background: #1a1918; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; display: flex; align-items: center; justify-content: center; }
         .cam-box video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        .cam-placeholder { color: #94a3b8; font-size: 11px; font-weight: 700; text-align: center; padding: 8px; position: absolute; z-index: 2; }
-        .rtc-status-bar {
-            font-size: 10px; font-weight: 700; color: #64748b; text-align: center;
-            padding: 3px 4px; border-radius: 6px; background: #f1f5f9; cursor: pointer;
-        }
+        .cam-placeholder { color: #94a3b8; font-size: 11px; font-weight: 600; text-align: center; padding: 6px; position: absolute; z-index: 2; }
+        .rtc-status-bar { font-size: 9px; font-weight: 700; color: #4b4845; text-align: center; padding: 2px; border-radius: 4px; background: #f0eeeb; cursor: pointer; }
 
-        /* Все обычные виджеты имеют z-index: 35 (выше маркера!), а photo-widget имеет z-index: 15 (под маркером!) */
-        .widget {
-            position: absolute; background: white; border-radius: 14px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;
-            padding: 6px 10px 12px 10px; z-index: 35;
-            display: flex; flex-direction: column; overflow: hidden;
-        }
-        .widget.photo-widget {
-            z-index: 15;
-            padding: 4px 6px 6px 6px; background: white; min-width: 120px; min-height: 80px;
-        }
+        /* Виджеты общего характера (выше маркера: z-index 35) */
+        .widget { position: absolute; background: white; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border: 1px solid #e4e2de; padding: 5px 8px 10px 8px; z-index: 35; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Фото-виджет лежит СТРОГО ПОД маркером (z-index 15) */
+        .widget.photo-widget { z-index: 15; padding: 4px 6px 6px 6px; background: white; min-width: 120px; min-height: 80px; }
+
         .widget.locked-widget .resize-handle { display: none !important; }
-        .widget.locked-widget .widget-header { cursor: default; }
-        .widget-header {
-            display: flex; justify-content: space-between; align-items: center;
-            cursor: move; padding: 2px 2px 6px 2px; flex-shrink: 0; gap: 4px;
-            touch-action: none;
-        }
-        .widget-actions-left, .widget-actions-right { display: flex; align-items: center; gap: 3px; }
-        .grip-bar { width: 34px; height: 5px; background: #cbd5e1; border-radius: 10px; margin: 0 auto; }
-        .resize-handle {
-            position: absolute; right: 2px; bottom: 2px;
-            width: 22px; height: 22px; cursor: nwse-resize;
-            display: flex; align-items: flex-end; justify-content: flex-end;
-            color: #94a3b8; font-size: 13px; padding: 2px; z-index: 30;
-            touch-action: none;
-        }
+        .widget-header { display: flex; justify-content: space-between; align-items: center; cursor: move; padding: 2px 2px 5px 2px; flex-shrink: 0; gap: 4px; touch-action: none; }
+        .grip-bar { width: 28px; height: 4px; background: #cbd5e1; border-radius: 10px; margin: 0 auto; }
+        .resize-handle { position: absolute; right: 2px; bottom: 2px; width: 18px; height: 18px; cursor: nwse-resize; display: flex; align-items: flex-end; justify-content: flex-end; color: #94a3b8; font-size: 11px; z-index: 30; touch-action: none; }
 
-        .video-widget-box { width: 360px; height: 265px; min-width: 230px; min-height: 185px; }
-        .upload-video-btn {
-            background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe;
-            padding: 7px 10px; border-radius: 8px; font-size: 11px; cursor: pointer;
-            font-weight: 700; margin-bottom: 6px; width: 100%; flex-shrink: 0;
-            text-align: center; display: block;
-        }
-        .video-widget-box video {
-            width: 100%; flex: 1; min-height: 0; border-radius: 8px;
-            background: #0f172a; object-fit: contain;
-        }
-        .video-unmute-hint {
-            position: absolute; bottom: 48px; left: 50%; transform: translateX(-50%);
-            background: rgba(16, 185, 129, 0.95); color: white; border: none;
-            padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 800;
-            cursor: pointer; z-index: 5; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-        }
+        .video-widget-box { width: 340px; height: 250px; min-width: 220px; min-height: 170px; }
+        .upload-video-btn { background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; padding: 6px 10px; border-radius: 7px; font-size: 11px; cursor: pointer; font-weight: 600; margin-bottom: 5px; width: 100%; text-align: center; display: block; }
+        .video-widget-box video { width: 100%; flex: 1; min-height: 0; border-radius: 7px; background: #1a1918; object-fit: contain; }
 
-        .essay-widget-box { width: 350px; height: 245px; min-width: 230px; min-height: 165px; }
-        .essay-widget-box textarea {
-            width: 100%; flex: 1; min-height: 0; border: 1px solid #e2e8f0; border-radius: 8px;
-            padding: 10px; font-size: 14px; font-weight: 500; line-height: 1.45;
-            resize: none; user-select: text; -webkit-user-select: text; outline: none;
-        }
-        .word-counter { margin-top: 6px; font-size: 11px; font-weight: 700; color: #475569; flex-shrink: 0; }
+        .essay-widget-box { width: 340px; height: 235px; min-width: 220px; min-height: 160px; }
+        .essay-widget-box textarea { width: 100%; flex: 1; min-height: 0; border: 1px solid #e4e2de; border-radius: 7px; padding: 8px; font-size: 13px; font-weight: 500; resize: none; user-select: text; -webkit-user-select: text; outline: none; }
+        .word-counter { margin-top: 5px; font-size: 10px; font-weight: 700; color: #787672; flex-shrink: 0; }
 
-        .photo-widget img { width: 100%; flex: 1; min-height: 0; object-fit: fill; border-radius: 8px; display: block; pointer-events: none; }
+        .photo-widget img { width: 100%; flex: 1; min-height: 0; object-fit: fill; border-radius: 7px; display: block; pointer-events: none; }
 
-        .sticker-widget {
-            width: 215px; height: 180px; min-width: 145px; min-height: 115px;
-            background: #fef08a; border: 1px solid #fde047;
-        }
-        .sticker-widget textarea {
-            width: 100%; flex: 1; min-height: 0; resize: none;
-            user-select: text; -webkit-user-select: text;
-            background: transparent; border: none; color: #1e293b;
-            font-weight: 600; font-size: 15px; line-height: 1.4; outline: none; padding: 4px;
-        }
-        .sticker-dot { width: 13px; height: 13px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.18); }
+        .sticker-widget { width: 200px; height: 170px; min-width: 140px; min-height: 110px; background: #fef08a; border: 1px solid #fde047; }
+        .sticker-widget textarea { width: 100%; flex: 1; min-height: 0; resize: none; user-select: text; -webkit-user-select: text; background: transparent; border: none; color: #1a1918; font-weight: 600; font-size: 14px; outline: none; padding: 2px; }
+        .sticker-dot { width: 11px; height: 11px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.15); }
 
-        .speaking-widget-box { width: 340px; height: 240px; min-width: 270px; min-height: 215px; }
-        .speaking-presets { display: flex; gap: 5px; margin-bottom: 8px; flex-shrink: 0; }
-        .spk-preset-btn {
-            flex: 1; border: 1px solid #e2e8f0; background: #f1f5f9;
-            padding: 6px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer;
-        }
+        .speaking-widget-box { width: 330px; height: 230px; min-width: 260px; min-height: 205px; }
+        .speaking-presets { display: flex; gap: 4px; margin-bottom: 6px; flex-shrink: 0; }
+        .spk-preset-btn { flex: 1; border: 1px solid #e4e2de; background: #f0eeeb; padding: 5px; border-radius: 7px; font-size: 10px; font-weight: 600; cursor: pointer; }
         .spk-preset-btn.active { background: #eef2ff; color: #4f46e5; border-color: #818cf8; }
-        .speaking-timer-row {
-            display: flex; align-items: center; justify-content: space-between;
-            background: #0f172a; color: white; padding: 8px 10px;
-            border-radius: 10px; margin-bottom: 8px; flex-shrink: 0; gap: 6px;
-        }
-        .speaking-clock { font-size: 18px; font-weight: 800; color: #38bdf8; min-width: 55px; }
-        .spk-ctrl-btn {
-            border: none; background: #10b981; color: white; padding: 6px 10px;
-            border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer;
-        }
-        .spk-ctrl-btn.running { background: #f59e0b; color: #0f172a; }
-        .speaking-rec-btn {
-            border: none; background: #ef4444; color: white; padding: 6px 10px;
-            border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer;
-        }
-        .speaking-rec-btn.recording { background: #f59e0b; color: #0f172a; }
-        .speaking-audio-player { width: 100%; height: 34px; margin-top: auto; flex-shrink: 0; }
+        .speaking-timer-row { display: flex; align-items: center; justify-content: space-between; background: #1a1918; color: white; padding: 6px 8px; border-radius: 8px; margin-bottom: 6px; flex-shrink: 0; gap: 6px; }
+        .speaking-clock { font-size: 17px; font-weight: 700; color: #38bdf8; min-width: 52px; }
+        .spk-ctrl-btn { border: none; background: #059669; color: white; padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; }
+        .speaking-rec-btn { border: none; background: #ef4444; color: white; padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; }
+        .speaking-audio-player { width: 100%; height: 30px; margin-top: auto; flex-shrink: 0; }
 
-        .dict-widget-box { width: 350px; height: 280px; min-width: 265px; min-height: 215px; }
-        .dict-search-row { display: flex; gap: 6px; margin-bottom: 8px; flex-shrink: 0; }
-        .dict-input {
-            flex: 1; padding: 7px 10px; border: 1px solid #cbd5e1;
-            border-radius: 8px; font-size: 13px; font-weight: 600; outline: none;
-            user-select: text; -webkit-user-select: text;
-        }
-        .dict-search-btn {
-            background: #4f46e5; color: white; border: none; padding: 0 12px;
-            border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;
-        }
-        .dict-body {
-            flex: 1; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0;
-            border-radius: 8px; padding: 8px 10px; font-size: 12px; color: #1e293b;
-            user-select: text; -webkit-user-select: text; line-height: 1.45;
-        }
-        .dict-links-row { display: flex; gap: 6px; margin-top: 6px; flex-shrink: 0; }
-        .dict-ext-link {
-            flex: 1; text-align: center; text-decoration: none; font-size: 11px;
-            font-weight: 700; padding: 5px 6px; border-radius: 6px;
-            background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0;
-        }
+        .dict-widget-box { width: 340px; height: 270px; min-width: 260px; min-height: 205px; }
+        .dict-search-row { display: flex; gap: 5px; margin-bottom: 6px; flex-shrink: 0; }
+        .dict-input { flex: 1; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 12px; font-weight: 500; outline: none; user-select: text; -webkit-user-select: text; }
+        .dict-search-btn { background: #4f46e5; color: white; border: none; padding: 0 10px; border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .dict-body { flex: 1; overflow-y: auto; background: #f6f5f2; border: 1px solid #e4e2de; border-radius: 7px; padding: 6px 8px; font-size: 11px; color: #1a1918; user-select: text; -webkit-user-select: text; line-height: 1.4; }
+        .dict-links-row { display: flex; gap: 5px; margin-top: 5px; flex-shrink: 0; }
+        .dict-ext-link { flex: 1; text-align: center; text-decoration: none; font-size: 10px; font-weight: 600; padding: 4px; border-radius: 5px; background: #f0eeeb; color: #4b4845; border: 1px solid #e4e2de; }
 
-        @media (max-width: 780px) {
-            .btn-text-hide { display: none; }
-            .top-bar { padding: 4px 8px; gap: 4px; top: 8px; }
-            .btn { padding: 6px 8px; font-size: 12px; }
-            .bottom-dock { padding: 5px 8px; gap: 5px; bottom: 8px; }
-            .dock-icon-btn { height: 34px; padding: 0 9px; font-size: 11px; }
-            #video-dock { width: 136px; top: 54px; right: 8px; padding: 5px; gap: 5px; }
-            .cam-box { height: 82px; border-radius: 9px; }
-            .widget-grid { grid-template-columns: 1fr; }
-        }
-
-        /* Ограничения для ученика */
         body.role-student .widget-header { cursor: default; }
         body.role-student .widget-header .grip-bar { display: none; }
-        body.role-student .widget .close-btn,
-        body.role-student .widget .header-icon-btn,
-        body.role-student .sticker-dot,
-        body.role-student .upload-video-btn { display: none !important; }
-        body.role-student .resize-handle,
-        body.role-student .text-resize-handle { display: none !important; }
-        body.role-student .board-text-drag,
-        body.role-student .board-text-del { display: none !important; }
+        body.role-student .widget .close-btn, body.role-student .widget .header-icon-btn, body.role-student .sticker-dot, body.role-student .upload-video-btn { display: none !important; }
+        body.role-student .resize-handle, body.role-student .text-resize-handle { display: none !important; }
+        body.role-student .board-text-drag, body.role-student .board-text-del { display: none !important; }
         body.role-student #btn-open-widgets { display: none !important; }
         body.role-student #btn-follow { display: none !important; }
-        body.role-student #btn-clear-board,
-        body.role-student #btn-reset-all { display: none !important; }
+        body.role-student #btn-clear-board, body.role-student #btn-reset-all { display: none !important; }
         body.role-student #btn-start-lesson { display: none !important; }
         body.role-student #btn-center-board { display: none !important; }
         body.role-student .timer-action-btn { display: none !important; }
@@ -496,94 +233,58 @@
 </head>
 <body class="role-teacher">
 
-    <!-- Отдельный аудиоплеер для голоса собеседника (гарантирует работу звука на iPad Safari) -->
     <audio id="remote-voice-player" autoplay playsinline></audio>
 
-    <!-- Верхняя панель инструментов -->
     <div class="top-bar">
-        <button class="btn" style="background:#f1f5f9;" onclick="exitToCabinet()">
-            🏠 <span class="btn-text-hide">Кабинет</span>
+        <button class="btn" style="background:#f0eeeb;" onclick="exitToCabinet()">🏠 Кабинет</button>
+        <button class="btn btn-widgets" id="btn-open-widgets" onclick="toggleWidgetsModal(event)">🧩 Виджеты</button>
+        <button class="btn active" id="unified-tool-btn" onclick="activateLastDrawTool(); toggleToolMenu(event);">
+            <span id="current-tool-icon">🖊️</span><span id="current-tool-name" class="btn-text-hide">Маркер</span><span style="font-size:10px; padding:0 2px;">▾</span>
         </button>
-
-        <button class="btn btn-widgets" id="btn-open-widgets" onclick="toggleWidgetsModal(event)">
-            🧩 <span>Виджеты</span>
-        </button>
-
-        <button class="btn active" id="unified-tool-btn"
-                onclick="activateLastDrawTool(); toggleToolMenu(event);"
-                title="Нажмите для выбора инструмента и толщины">
-            <span id="current-tool-icon">🖊️</span>
-            <span id="current-tool-name" class="btn-text-hide">Маркер</span>
-            <span style="font-size:11px; padding:0 3px;">▾</span>
-        </button>
-        
-        <div class="color-circle-btn" id="color-circle-btn" onclick="toggleColorMenu(event)">
-            <div class="color-inner-dot" id="color-inner-dot"></div>
-        </div>
-
+        <div class="color-circle-btn" id="color-circle-btn" onclick="toggleColorMenu(event)"><div class="color-inner-dot" id="color-inner-dot"></div></div>
         <div class="undo-group">
-            <button class="icon-only-btn" onclick="undoAction()" title="Отменить (Ctrl+Z)">↩️</button>
-            <button class="icon-only-btn" onclick="redoAction()" title="Вернуть (Ctrl+Y)">↪️</button>
+            <button class="icon-only-btn" onclick="undoAction()" title="Отменить">↩️</button>
+            <button class="icon-only-btn" onclick="redoAction()" title="Вернуть">↪️</button>
         </div>
-
-        <button class="btn" id="tool-pan" onclick="setTool('pan')">
-            ✋ <span class="btn-text-hide">Двигать</span>
-        </button>
-
+        <button class="btn" id="tool-pan" onclick="setTool('pan')">✋ Двигать</button>
         <div class="bar-divider"></div>
-
         <div class="zoom-group">
-            <button class="btn" style="padding:4px 7px;" onclick="changeZoom(-0.15)">➖</button>
+            <button class="btn" style="padding:3px 6px;" onclick="changeZoom(-0.15)">➖</button>
             <div class="zoom-label" id="zoom-display" onclick="resetZoom()">100%</div>
-            <button class="btn" style="padding:4px 7px;" onclick="changeZoom(0.15)">➕</button>
-            <button class="center-board-btn" id="btn-center-board" onclick="returnToCenter(true)" title="В центр доски">🎯</button>
+            <button class="btn" style="padding:3px 6px;" onclick="changeZoom(0.15)">➕</button>
+            <button class="center-board-btn" id="btn-center-board" onclick="returnToCenter(true)">🎯</button>
         </div>
-
-        <button class="btn btn-follow active" id="btn-follow" onclick="toggleFollow()">
-            🧲 <span class="btn-text-hide">Вести</span>
-        </button>
+        <button class="btn btn-follow active" id="btn-follow" onclick="toggleFollow()">🧲 Вести</button>
     </div>
 
     <div id="placement-banner">
-        <span id="placement-text">📍 Нажмите на доску, чтобы разместить виджет</span>
+        <span id="placement-text">Нажмите на доску</span>
         <button class="placement-cancel-btn" onclick="cancelPendingPlacement()">Отмена</button>
     </div>
 
-    <!-- Таймер Урока -->
     <div id="lesson-timer-badge">
         <span class="timer-dot" id="timer-status-dot"></span>
         <span id="timer-label-prefix">Урок:</span>
         <b id="timer-text">60:00</b>
-        <button class="timer-action-btn timer-pause-btn" id="btn-pause-timer" onclick="togglePauseLessonTimer(true)">⏸️ Пауза</button>
+        <button class="timer-action-btn timer-pause-btn" id="btn-pause-timer" onclick="togglePauseLessonTimer(true)">Пауза</button>
         <button class="timer-action-btn timer-stop-btn" onclick="stopLessonTimer(true)">Завершить</button>
     </div>
 
-    <!-- Меню инструментов -->
     <div class="popover-menu" id="tool-popover">
         <button class="popover-item" data-tool="pointer" onclick="selectDrawTool('pointer', '🔴', 'Указка')">🔴 Указка</button>
         <button class="popover-item" data-tool="text" onclick="selectDrawTool('text', '🔤', 'Текст')">🔤 Текст</button>
-        <button class="popover-item" data-tool="pencil" onclick="selectDrawTool('pencil', '✏️', 'Карандаш')">✏️ Карандаш (текстурный)</button>
+        <button class="popover-item" data-tool="pencil" onclick="selectDrawTool('pencil', '✏️', 'Карандаш')">✏️ Карандаш</button>
         <button class="popover-item active" data-tool="marker" onclick="selectDrawTool('marker', '🖊️', 'Маркер')">🖊️ Маркер</button>
-        <button class="popover-item" data-tool="highlighter" onclick="selectDrawTool('highlighter', '🖍️', 'Выделитель')">🖍️ Текстовыделитель</button>
+        <button class="popover-item" data-tool="highlighter" onclick="selectDrawTool('highlighter', '🖍️', 'Выделитель')">🖍️ Выделитель</button>
         <button class="popover-item" data-tool="eraser" onclick="selectDrawTool('eraser', '🧽', 'Ластик')">🧽 Ластик</button>
-
         <div class="thickness-box">
-            <div class="thickness-header">
-                <span>Толщина</span>
-                <span id="thickness-val">5 px</span>
-            </div>
+            <div class="thickness-header"><span>Толщина</span><span id="thickness-val">5 px</span></div>
             <input type="range" min="2" max="24" value="5" class="thickness-slider" id="stroke-size-slider" oninput="changeStrokeSize(this.value)">
         </div>
-
-        <button class="popover-item" id="btn-clear-board" style="color:#ef4444; margin-top:2px;" onclick="clearBoard(true); closePopovers();">
-            🗑️ Очистить линии
-        </button>
-        <button class="popover-item" id="btn-reset-all" style="color:#64748b; font-size:11px;" onclick="resetSavedLesson(); closePopovers();">
-            🔄 Очистить всю доску целиком
-        </button>
+        <button class="popover-item" id="btn-clear-board" style="color:#ef4444;" onclick="clearBoard(true); closePopovers();">🗑️ Очистить линии</button>
+        <button class="popover-item" id="btn-reset-all" style="color:#787672; font-size:11px;" onclick="resetSavedLesson(); closePopovers();">🔄 Сбросить доску</button>
     </div>
 
-    <!-- Палитра цветов -->
     <div id="color-popover">
         <div class="swatch" style="background:#ef4444;" onclick="pickColor('#ef4444')"></div>
         <div class="swatch" style="background:#f97316;" onclick="pickColor('#f97316')"></div>
@@ -599,10 +300,9 @@
         <div class="swatch" style="background:#0f172a;" onclick="pickColor('#0f172a')"></div>
     </div>
 
-    <!-- Окно виджетов (Кнопка Фото сделана через прямую <label>, чтобы 100% открываться на iPad!) -->
     <div id="widgets-modal">
         <div class="modal-header">
-            <div class="modal-title">🧩 Выберите виджет</div>
+            <div class="modal-title">Выберите виджет</div>
             <button class="close-btn" onclick="toggleWidgetsModal()">✕</button>
         </div>
         <div class="widget-grid">
@@ -610,80 +310,54 @@
             <button class="widget-pick-btn" onclick="startWidgetPlacement('video', '🎬 Видеоплеер')">🎬 Видео / Аудио</button>
             <button class="widget-pick-btn" onclick="startWidgetPlacement('essay', '📝 Редактор Эссе')">📝 Редактор Эссе</button>
             <button class="widget-pick-btn" onclick="startWidgetPlacement('sticker', '🟨 Стикер')">🟨 Стикер</button>
-            <button class="widget-pick-btn" onclick="startWidgetPlacement('speaking', '🎙️ Тренажер Speaking')">🎙️ Тренажер Speaking</button>
-            <button class="widget-pick-btn" onclick="startWidgetPlacement('dict', '📖 Словарь Oxford/Cambridge')">📖 Словарь (Ox/Cam)</button>
+            <button class="widget-pick-btn" onclick="startWidgetPlacement('speaking', '🎙️ Тренажер Speaking')">🎙️ Speaking</button>
+            <button class="widget-pick-btn" onclick="startWidgetPlacement('dict', '📖 Словарь')">📖 Словарь</button>
         </div>
         <input type="file" id="photo-upload-input" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
     </div>
 
-    <!-- Веб-камеры и Голосовой чат -->
     <div id="video-dock">
         <div class="dock-drag-header" id="video-dock-handle">
             <span class="drag-dots">•••</span>
             <button class="close-btn" onclick="toggleVideoDock(false)">✕</button>
         </div>
         <div class="cam-box">
-            <div class="cam-placeholder" id="teacher-placeholder">👩‍🏫 Камера учителя</div>
+            <div class="cam-placeholder" id="teacher-placeholder">Камера учителя</div>
             <video id="teacherVideo" autoplay muted playsinline></video>
         </div>
         <div class="cam-box">
-            <div class="cam-placeholder" id="student-placeholder">🧑‍🎓 Камера ученика</div>
+            <div class="cam-placeholder" id="student-placeholder">Камера ученика</div>
             <video id="studentVideo" autoplay muted playsinline></video>
         </div>
-        <div class="rtc-status-bar" id="rtc-status-bar" onclick="reconnectWebRTC()" title="Нажмите для переподключения связи">
-            🔄 Связь готова
-        </div>
+        <div class="rtc-status-bar" id="rtc-status-bar" onclick="reconnectWebRTC()">Связь готова</div>
     </div>
 
-    <!-- Меню выбора времени урока -->
     <div id="lesson-time-popover">
-        <div class="popover-section-label">⏳ Когда начать:</div>
+        <div class="popover-section-label">Когда начать:</div>
         <div class="delay-pills">
             <button class="delay-pill active" onclick="selectStartDelay(0, this)">Сразу</button>
-            <button class="delay-pill" onclick="selectStartDelay(5, this)">Через 5 мин</button>
-            <button class="delay-pill" onclick="selectStartDelay(10, this)">Через 10 мин</button>
+            <button class="delay-pill" onclick="selectStartDelay(5, this)">Через 5м</button>
+            <button class="delay-pill" onclick="selectStartDelay(10, this)">Через 10м</button>
         </div>
-
-        <div class="popover-section-label" style="margin-top:4px;">⏱️ Длительность:</div>
+        <div class="popover-section-label" style="margin-top:4px;">Длительность:</div>
         <button class="time-preset-btn" onclick="triggerLessonStart(60)">60 минут</button>
         <button class="time-preset-btn" onclick="triggerLessonStart(45)">45 минут</button>
-        <div class="custom-time-row">
-            <input type="number" id="custom-minutes-input" class="custom-time-input" placeholder="Свое время (мин)" min="1" max="300" value="90">
-            <button class="custom-time-go" onclick="triggerCustomLessonStart()">Старт</button>
-        </div>
     </div>
 
-    <!-- Нижняя панель -->
     <div class="bottom-dock">
-        <button class="dock-icon-btn start-lesson-btn" id="btn-start-lesson" onclick="toggleLessonTimeMenu(event)">
-            ▶️ <span class="btn-text-hide">Начать</span> урок
-        </button>
-        <button class="dock-icon-btn" id="btn-mic-toggle" onclick="toggleMic()" title="Включить / выключить микрофон">
-            <span class="dock-status-dot"></span>
-            <span id="mic-btn-text">🎙️ Микрофон</span>
-        </button>
-        <button class="dock-icon-btn lit" id="btn-sound-toggle" onclick="toggleRemoteSound()" title="Включить / выключить звук собеседника">
-            <span id="sound-btn-text">🔊 Звук</span>
-        </button>
-        <button class="dock-icon-btn" id="btn-cam-toggle" onclick="toggleCamera()" title="Включить / выключить веб-камеру">
-            <span class="dock-status-dot"></span>
-            <span>📹 Камера</span>
-        </button>
-        <button class="dock-icon-btn lit" id="btn-dock-visibility" onclick="toggleVideoDock()">
-            <span class="dock-status-dot"></span>
-            <span class="btn-text-hide">👥 Окна</span>
-        </button>
+        <button class="dock-icon-btn start-lesson-btn" id="btn-start-lesson" onclick="toggleLessonTimeMenu(event)">▶️ Урок</button>
+        <button class="dock-icon-btn" id="btn-mic-toggle" onclick="toggleMic()"><span class="dock-status-dot"></span><span id="mic-btn-text">🎙️ Микрофон</span></button>
+        <button class="dock-icon-btn lit" id="btn-sound-toggle" onclick="toggleRemoteSound()"><span id="sound-btn-text">🔊 Звук</span></button>
+        <button class="dock-icon-btn" id="btn-cam-toggle" onclick="toggleCamera()"><span class="dock-status-dot"></span><span>📹 Камера</span></button>
+        <button class="dock-icon-btn lit" id="btn-dock-visibility" onclick="toggleVideoDock()"><span class="dock-status-dot"></span><span>👥 Окна</span></button>
     </div>
 
-    <!-- Холст доски (4200 x 3000 px) -->
     <div id="board-viewport">
         <div id="board-world">
             <div id="dynamic-items"></div>
             <canvas id="canvas" width="4200" height="3000"></canvas>
             <canvas id="temp-canvas" width="4200" height="3000"></canvas>
-            <div id="laser-cursor">
-                <div class="laser-dot"></div>
-            </div>
+            <div id="laser-cursor"><div class="laser-dot"></div></div>
         </div>
     </div>
 
@@ -759,7 +433,6 @@
         let boardX = CENTER_X, boardY = CENTER_Y;
         let boardScale = 1;
 
-        // Целевые координаты для плавного ведения ученика (60 FPS без рывков)
         let targetFollowX = CENTER_X;
         let targetFollowY = CENTER_Y;
         let targetFollowScale = 1;
@@ -768,7 +441,6 @@
         let currentStrokePoints = [];
         let strokeBounds = { minX: 0, minY: 0, maxX: 0, maxY: 0 };
 
-        // Отдельные z-index: для фото (15..22 — ПОД маркером) и для остальных виджетов (35..48 — НАД маркером)
         let photoZIndex = 15;
         let topZIndex = 35;
 
@@ -793,7 +465,6 @@
         applyVerifiedRole(role);
         applyBoardTransform();
 
-        // Плавный цикл интерполяции камеры для ученика в режиме "Вести"
         function startSmoothFollowLoop() {
             function step() {
                 if (role === 'student' && followMode) {
@@ -813,25 +484,6 @@
             requestAnimationFrame(step);
         }
         startSmoothFollowLoop();
-
-        if (auth && !urlParams.get('role')) {
-            auth.onAuthStateChanged(async (user) => {
-                if (!user) return;
-                const cachedRole = localStorage.getItem('es_role_' + user.uid) || user.photoURL;
-                if (cachedRole === 'teacher' || cachedRole === 'student') {
-                    applyVerifiedRole(cachedRole);
-                } else if (db) {
-                    try {
-                        const snap = await db.ref(`users/${user.uid}/role`).once('value');
-                        if (snap.val()) applyVerifiedRole(snap.val());
-                    } catch (e) {}
-                }
-            });
-        }
-
-        function setRole(newRole) {
-            applyVerifiedRole(newRole);
-        }
 
         function applyVerifiedRole(verifiedRole) {
             role = (verifiedRole === 'student') ? 'student' : 'teacher';
@@ -903,13 +555,9 @@
                     handleTeacherMoveData(data);
                 });
 
-                // Слушаем новые события без привязки к системным часам устройства
                 let initialEventsSkipped = false;
                 roomRef.child('events').limitToLast(1).on('child_added', (snap) => {
-                    if (!initialEventsSkipped) {
-                        initialEventsSkipped = true;
-                        return;
-                    }
+                    if (!initialEventsSkipped) { initialEventsSkipped = true; return; }
                     const data = snap.val();
                     if (!data || data.sender === myClientId) return;
                     handleRemoteEvent(data);
@@ -948,13 +596,10 @@
             if (role === 'student' && followMode) {
                 const tScale = data.boardScale || 1;
                 targetFollowScale = tScale;
-
-                // Выравниваем центр экрана учителя и центр экрана ученика
                 const tVw = data.vw || window.innerWidth;
                 const tVh = data.vh || window.innerHeight;
                 const centerWorldX = (tVw / 2 - data.boardX) / tScale;
                 const centerWorldY = (tVh / 2 - data.boardY) / tScale;
-
                 const minX = Math.min(0, window.innerWidth - canvas.width * tScale);
                 const minY = Math.min(0, window.innerHeight - canvas.height * tScale);
 
@@ -984,7 +629,6 @@
             return pattern;
         }
 
-        // Фото всегда остаются ниже холста маркера (z-index 15..22), а остальные виджеты — выше маркера (z-index 35..48)!
         function bringToFront(el) {
             if (el.classList.contains('locked-widget')) return;
             if (el.classList.contains('photo-widget')) {
@@ -1000,7 +644,7 @@
             if (role === 'student') return;
             widgetsModal.style.display = 'none';
             pendingWidgetType = type;
-            document.getElementById('placement-text').innerText = `📍 Нажмите на доску: ${label}`;
+            document.getElementById('placement-text').innerText = `Нажмите: ${label}`;
             placementBanner.style.display = 'flex';
             viewport.style.cursor = 'copy';
         }
@@ -1105,18 +749,10 @@
         }
 
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && pendingWidgetType) {
-                cancelPendingPlacement();
-                return;
-            }
+            if (e.key === 'Escape' && pendingWidgetType) { cancelPendingPlacement(); return; }
             if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT' || e.target.isContentEditable) return;
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-                e.preventDefault();
-                undoAction();
-            } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
-                e.preventDefault();
-                redoAction();
-            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undoAction(); }
+            else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); redoAction(); }
         });
 
         window.addEventListener('paste', (e) => {
@@ -1138,14 +774,9 @@
             const el = document.getElementById(id);
             if (!el) return;
             const isLocked = el.classList.toggle('locked-widget');
-            if (isLocked) {
-                el.style.zIndex = el.classList.contains('photo-widget') ? 14 : 34;
-            }
+            if (isLocked) el.style.zIndex = el.classList.contains('photo-widget') ? 14 : 34;
             const lockBtn = el.querySelector('.lock-btn');
-            if (lockBtn) {
-                lockBtn.innerText = isLocked ? '🔒' : '🔓';
-                lockBtn.classList.toggle('locked-active', isLocked);
-            }
+            if (lockBtn) { lockBtn.innerText = isLocked ? '🔒' : '🔓'; lockBtn.classList.toggle('locked-active', isLocked); }
             saveBoardState();
             if (broadcast) broadcastEvent({ type: 'widget_lock', id, isLocked });
         }
@@ -1163,139 +794,89 @@
 
         function toggleLessonTimeMenu(e) {
             e.stopPropagation();
-            const isOpen = lessonTimePopover.style.display === 'flex';
             closePopovers();
-            lessonTimePopover.style.display = isOpen ? 'none' : 'flex';
+            lessonTimePopover.style.display = lessonTimePopover.style.display === 'flex' ? 'none' : 'flex';
         }
 
         function triggerCustomLessonStart() {
-            const mins = parseInt(document.getElementById('custom-minutes-input').value, 10) || 60;
-            triggerLessonStart(mins);
+            triggerLessonStart(parseInt(document.getElementById('custom-minutes-input').value, 10) || 60);
         }
 
         function triggerLessonStart(durationMinutes) {
             lessonTimePopover.style.display = 'none';
             scheduledDurationMins = durationMinutes;
-            if (selectedDelayMinutes > 0) {
-                startTimerPhase('countdown', selectedDelayMinutes * 60, true);
-            } else {
-                startTimerPhase('lesson', durationMinutes * 60, true);
-            }
+            if (selectedDelayMinutes > 0) startTimerPhase('countdown', selectedDelayMinutes * 60, true);
+            else startTimerPhase('lesson', durationMinutes * 60, true);
         }
 
         function startTimerPhase(phase, seconds, broadcast) {
-            timerPhase = phase;
-            remainingSeconds = seconds;
-            timerPaused = false;
+            timerPhase = phase; remainingSeconds = seconds; timerPaused = false;
             updateTimerPauseUI();
             document.getElementById('lesson-timer-badge').style.display = 'flex';
             renderTimerText();
-
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 if (!timerPaused && remainingSeconds > 0) {
                     remainingSeconds--;
                     renderTimerText();
-                    if (role === 'teacher' && remainingSeconds % 5 === 0) {
-                        broadcastEvent({
-                            type: 'timer_sync', remainingSeconds, active: true, paused: timerPaused, phase: timerPhase
-                        });
-                    }
                 } else if (remainingSeconds <= 0) {
-                    if (timerPhase === 'countdown') {
-                        startTimerPhase('lesson', scheduledDurationMins * 60, true);
-                    } else {
-                        clearInterval(timerInterval);
-                    }
+                    if (timerPhase === 'countdown') startTimerPhase('lesson', scheduledDurationMins * 60, true);
+                    else clearInterval(timerInterval);
                 }
             }, 1000);
-
-            if (broadcast) {
-                broadcastEvent({
-                    type: 'timer_sync', remainingSeconds, active: true, paused: timerPaused, phase: timerPhase
-                });
-            }
+            if (broadcast) broadcastEvent({ type: 'timer_sync', remainingSeconds, active: true, paused: timerPaused, phase: timerPhase });
         }
 
         function togglePauseLessonTimer(broadcast) {
             timerPaused = !timerPaused;
             updateTimerPauseUI();
-            if (broadcast) {
-                broadcastEvent({
-                    type: 'timer_sync', remainingSeconds, active: true, paused: timerPaused, phase: timerPhase
-                });
-            }
+            if (broadcast) broadcastEvent({ type: 'timer_sync', remainingSeconds, active: true, paused: timerPaused, phase: timerPhase });
         }
 
         function updateTimerPauseUI() {
             const pauseBtn = document.getElementById('btn-pause-timer');
             const dot = document.getElementById('timer-status-dot');
-            const prefix = document.getElementById('timer-label-prefix');
-            prefix.innerText = (timerPhase === 'countdown') ? 'До урока:' : 'Урок:';
+            document.getElementById('timer-label-prefix').innerText = (timerPhase === 'countdown') ? 'До:' : 'Урок:';
             dot.classList.toggle('scheduled', timerPhase === 'countdown' && !timerPaused);
-            if (timerPaused) {
-                pauseBtn.innerText = '▶️ Старт';
-                dot.classList.add('paused');
-            } else {
-                pauseBtn.innerText = '⏸️ Пауза';
-                dot.classList.remove('paused');
-            }
+            if (timerPaused) { pauseBtn.innerText = 'Старт'; dot.classList.add('paused'); }
+            else { pauseBtn.innerText = 'Пауза'; dot.classList.remove('paused'); }
         }
 
         function stopLessonTimer(broadcast) {
             if (timerInterval) clearInterval(timerInterval);
-            timerInterval = null;
-            timerPaused = false;
+            timerInterval = null; timerPaused = false;
             document.getElementById('lesson-timer-badge').style.display = 'none';
-            if (broadcast) {
-                broadcastEvent({ type: 'timer_sync', remainingSeconds: 0, active: false, paused: false, phase: 'lesson' });
-            }
+            if (broadcast) broadcastEvent({ type: 'timer_sync', remainingSeconds: 0, active: false, paused: false, phase: 'lesson' });
         }
 
         function renderTimerText() {
             const m = Math.floor(remainingSeconds / 60);
             const s = remainingSeconds % 60;
-            document.getElementById('timer-text').innerText =
-                String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+            document.getElementById('timer-text').innerText = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
         }
 
         function returnToCenter(broadcast) {
-            boardScale = 1;
-            boardX = CENTER_X;
-            boardY = CENTER_Y;
-            targetFollowX = CENTER_X;
-            targetFollowY = CENTER_Y;
-            targetFollowScale = 1;
-            updateZoomUI();
-            applyBoardTransform();
-            if (broadcast && role === 'teacher') {
-                sendTeacherViewportSync();
-            }
+            boardScale = 1; boardX = CENTER_X; boardY = CENTER_Y;
+            targetFollowX = CENTER_X; targetFollowY = CENTER_Y; targetFollowScale = 1;
+            updateZoomUI(); applyBoardTransform();
+            if (broadcast && role === 'teacher') sendTeacherViewportSync();
         }
 
         (function initVideoDockDrag() {
             const handle = document.getElementById('video-dock-handle');
             let draggingDock = false, offsetX = 0, offsetY = 0;
-
             handle.addEventListener('pointerdown', (e) => {
                 if (e.target.closest('.close-btn')) return;
                 draggingDock = true;
                 const rect = videoDock.getBoundingClientRect();
-                offsetX = e.clientX - rect.left;
-                offsetY = e.clientY - rect.top;
-                videoDock.style.right = 'auto';
-                videoDock.style.left = rect.left + 'px';
-                videoDock.style.top = rect.top + 'px';
+                offsetX = e.clientX - rect.left; offsetY = e.clientY - rect.top;
+                videoDock.style.right = 'auto'; videoDock.style.left = rect.left + 'px'; videoDock.style.top = rect.top + 'px';
             });
-
             window.addEventListener('pointermove', (e) => {
                 if (!draggingDock) return;
-                const newLeft = Math.max(4, Math.min(window.innerWidth - videoDock.offsetWidth - 4, e.clientX - offsetX));
-                const newTop = Math.max(4, Math.min(window.innerHeight - videoDock.offsetHeight - 4, e.clientY - offsetY));
-                videoDock.style.left = newLeft + 'px';
-                videoDock.style.top = newTop + 'px';
+                videoDock.style.left = Math.max(4, Math.min(window.innerWidth - videoDock.offsetWidth - 4, e.clientX - offsetX)) + 'px';
+                videoDock.style.top = Math.max(4, Math.min(window.innerHeight - videoDock.offsetHeight - 4, e.clientY - offsetY)) + 'px';
             });
-
             window.addEventListener('pointerup', () => draggingDock = false);
         })();
 
@@ -1303,13 +884,10 @@
             const isVisible = videoDock.style.display !== 'none';
             const nextState = (forceState !== undefined) ? forceState : !isVisible;
             if (nextState) {
-                videoDock.style.display = 'flex';
-                videoDock.style.left = 'auto';
-                videoDock.style.right = window.innerWidth <= 780 ? '8px' : '14px';
-                videoDock.style.top = window.innerWidth <= 780 ? '54px' : '58px';
-            } else {
-                videoDock.style.display = 'none';
-            }
+                videoDock.style.display = 'flex'; videoDock.style.left = 'auto';
+                videoDock.style.right = window.innerWidth <= 780 ? '8px' : '12px';
+                videoDock.style.top = window.innerWidth <= 780 ? '50px' : '54px';
+            } else { videoDock.style.display = 'none'; }
             document.getElementById('btn-dock-visibility').classList.toggle('lit', nextState);
         }
 
@@ -1317,11 +895,8 @@
 
         function toggleToolMenu(e) {
             if (e) e.stopPropagation();
-            colorPopover.style.display = 'none';
-            lessonTimePopover.style.display = 'none';
-            widgetsModal.style.display = 'none';
-            const isOpen = toolPopover.style.display === 'flex';
-            toolPopover.style.display = isOpen ? 'none' : 'flex';
+            colorPopover.style.display = 'none'; lessonTimePopover.style.display = 'none'; widgetsModal.style.display = 'none';
+            toolPopover.style.display = (toolPopover.style.display === 'flex') ? 'none' : 'flex';
         }
 
         function selectDrawTool(selected, icon, label) {
@@ -1331,32 +906,23 @@
             document.querySelectorAll('#tool-popover .popover-item').forEach(item => {
                 item.classList.toggle('active', item.dataset.tool === selected);
             });
-            setTool(selected);
-            closePopovers();
+            setTool(selected); closePopovers();
         }
 
         function toggleColorMenu(e) {
             if (e) e.stopPropagation();
-            toolPopover.style.display = 'none';
-            lessonTimePopover.style.display = 'none';
-            widgetsModal.style.display = 'none';
-            const isOpen = colorPopover.style.display === 'grid';
-            colorPopover.style.display = isOpen ? 'none' : 'grid';
+            toolPopover.style.display = 'none'; lessonTimePopover.style.display = 'none'; widgetsModal.style.display = 'none';
+            colorPopover.style.display = (colorPopover.style.display === 'grid') ? 'none' : 'grid';
         }
 
         function pickColor(hex) {
-            currentColor = hex;
-            document.getElementById('color-inner-dot').style.background = hex;
-            if (tool === 'pan' || tool === 'eraser' || tool === 'pointer') {
-                selectDrawTool('marker', '🖊️', 'Маркер');
-            }
+            currentColor = hex; document.getElementById('color-inner-dot').style.background = hex;
+            if (tool === 'pan' || tool === 'eraser' || tool === 'pointer') selectDrawTool('marker', '🖊️', 'Маркер');
             closePopovers();
         }
 
         function closePopovers() {
-            toolPopover.style.display = 'none';
-            colorPopover.style.display = 'none';
-            lessonTimePopover.style.display = 'none';
+            toolPopover.style.display = 'none'; colorPopover.style.display = 'none'; lessonTimePopover.style.display = 'none';
         }
 
         window.addEventListener('pointerdown', (e) => {
@@ -1376,19 +942,14 @@
 
             const cx = centerClientX !== undefined ? centerClientX : window.innerWidth / 2;
             const cy = centerClientY !== undefined ? centerClientY : window.innerHeight / 2;
-
             const worldCenterX = (cx - boardX) / oldScale;
             const worldCenterY = (cy - boardY) / oldScale;
 
             boardX = cx - worldCenterX * boardScale;
             boardY = cy - worldCenterY * boardScale;
 
-            updateZoomUI();
-            applyBoardTransform();
-
-            if (role === 'teacher') {
-                sendTeacherViewportSync();
-            }
+            updateZoomUI(); applyBoardTransform();
+            if (role === 'teacher') sendTeacherViewportSync();
         }
 
         function resetZoom() {
@@ -1403,32 +964,24 @@
         viewport.addEventListener('wheel', (e) => {
             if (e.target.closest('.widget') || e.target.closest('.board-text-node')) return;
             e.preventDefault();
-            const delta = e.deltaY < 0 ? 0.1 : -0.1;
-            changeZoom(delta, e.clientX, e.clientY);
+            changeZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY);
         }, { passive: false });
 
         let lastPinchDist = null;
         viewport.addEventListener('touchstart', (e) => {
             if (e.touches.length === 2) {
-                drawing = false;
-                panning = false;
-                const dx = e.touches[0].clientX - e.touches[1].clientX;
-                const dy = e.touches[0].clientY - e.touches[1].clientY;
-                lastPinchDist = Math.hypot(dx, dy);
+                drawing = false; panning = false;
+                lastPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
             }
         }, { passive: false });
 
         viewport.addEventListener('touchmove', (e) => {
             if (e.touches.length === 2 && lastPinchDist !== null) {
                 e.preventDefault();
-                const dx = e.touches[0].clientX - e.touches[1].clientX;
-                const dy = e.touches[0].clientY - e.touches[1].clientY;
-                const dist = Math.hypot(dx, dy);
-                const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-                const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
                 const diff = dist - lastPinchDist;
                 if (Math.abs(diff) > 6) {
-                    changeZoom(diff > 0 ? 0.04 : -0.04, centerX, centerY);
+                    changeZoom(diff > 0 ? 0.04 : -0.04, (e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2);
                     lastPinchDist = dist;
                 }
             }
@@ -1437,10 +990,7 @@
         viewport.addEventListener('touchend', () => { lastPinchDist = null; });
 
         function screenToWorld(clientX, clientY) {
-            return {
-                x: (clientX - boardX) / boardScale,
-                y: (clientY - boardY) / boardScale
-            };
+            return { x: (clientX - boardX) / boardScale, y: (clientY - boardY) / boardScale };
         }
 
         function toggleWidgetsModal(e) {
@@ -1458,26 +1008,18 @@
             const node = document.createElement('div');
             node.className = 'board-text-node';
             node.id = data.id;
-            node.dataset.type = 'text';
-            node.dataset.color = data.color;
-            node.dataset.fontSize = fontSize;
-            node.style.left = data.left + 'px';
-            node.style.top = data.top + 'px';
+            node.dataset.type = 'text'; node.dataset.color = data.color; node.dataset.fontSize = fontSize;
+            node.style.left = data.left + 'px'; node.style.top = data.top + 'px';
 
             node.innerHTML = `
                 <div class="board-text-drag">⠿</div>
-                <div class="board-text-content" contenteditable="true" spellcheck="false"
-                     style="color: ${data.color}; font-size: ${fontSize}px;">${data.text || ''}</div>
+                <div class="board-text-content" contenteditable="true" spellcheck="false" style="color: ${data.color}; font-size: ${fontSize}px;">${data.text || ''}</div>
                 <button class="board-text-del" onclick="removeDynamicItem('${data.id}', true)">✕</button>
                 <div class="text-resize-handle">◢</div>
             `;
-
             dynamicItems.appendChild(node);
 
             const contentEl = node.querySelector('.board-text-content');
-            const dragEl = node.querySelector('.board-text-drag');
-            const resizeEl = node.querySelector('.text-resize-handle');
-
             contentEl.addEventListener('input', () => {
                 saveBoardState();
                 broadcastEvent({ type: 'text_node_update', id: data.id, text: contentEl.innerText });
@@ -1486,38 +1028,26 @@
             let draggingText = false, resizingText = false;
             let startX = 0, startY = 0, origL = 0, origT = 0, origFont = fontSize;
 
-            dragEl.addEventListener('pointerdown', (e) => {
+            node.querySelector('.board-text-drag').addEventListener('pointerdown', (e) => {
                 if (role === 'student') return;
-                e.stopPropagation();
-                draggingText = true;
-                startX = e.clientX; startY = e.clientY;
-                origL = node.offsetLeft; origT = node.offsetTop;
+                e.stopPropagation(); draggingText = true; startX = e.clientX; startY = e.clientY; origL = node.offsetLeft; origT = node.offsetTop;
             });
-
-            resizeEl.addEventListener('pointerdown', (e) => {
+            node.querySelector('.text-resize-handle').addEventListener('pointerdown', (e) => {
                 if (role === 'student') return;
-                e.stopPropagation();
-                resizingText = true;
-                startX = e.clientX; startY = e.clientY;
-                origFont = parseFloat(node.dataset.fontSize) || 24;
+                e.stopPropagation(); resizingText = true; startX = e.clientX; startY = e.clientY; origFont = parseFloat(node.dataset.fontSize) || 24;
             });
 
             window.addEventListener('pointermove', (e) => {
                 if (draggingText) {
-                    const left = Math.round(origL + (e.clientX - startX) / boardScale);
-                    const top = Math.round(origT + (e.clientY - startY) / boardScale);
-                    node.style.left = left + 'px';
-                    node.style.top = top + 'px';
-                    broadcastEvent({ type: 'widget_move', id: data.id, left, top });
+                    node.style.left = Math.round(origL + (e.clientX - startX) / boardScale) + 'px';
+                    node.style.top = Math.round(origT + (e.clientY - startY) / boardScale) + 'px';
+                    broadcastEvent({ type: 'widget_move', id: data.id, left: node.offsetLeft, top: node.offsetTop });
                 } else if (resizingText) {
-                    const delta = ((e.clientX - startX) + (e.clientY - startY)) / (2 * boardScale);
-                    const newFont = Math.max(14, Math.min(120, Math.round(origFont + delta * 0.35)));
-                    node.dataset.fontSize = newFont;
-                    contentEl.style.fontSize = newFont + 'px';
+                    const newFont = Math.max(14, Math.min(120, Math.round(origFont + ((e.clientX - startX) + (e.clientY - startY)) / (2 * boardScale) * 0.35)));
+                    node.dataset.fontSize = newFont; contentEl.style.fontSize = newFont + 'px';
                     broadcastEvent({ type: 'text_node_resize', id: data.id, fontSize: newFont });
                 }
             });
-
             window.addEventListener('pointerup', () => {
                 if (draggingText && (node.offsetLeft !== origL || node.offsetTop !== origT)) {
                     recordAction({ kind: 'move_item', id: data.id, fromLeft: origL, fromTop: origT, toLeft: node.offsetLeft, toTop: node.offsetTop });
@@ -1526,16 +1056,12 @@
             });
 
             if (recordInHistory) recordAction({ kind: 'add_item', id: data.id, display: 'flex' });
-            if (broadcast) {
-                broadcastEvent({ type: 'spawn_text_node', data });
-                setTimeout(() => contentEl.focus(), 20);
-            }
+            if (broadcast) { broadcastEvent({ type: 'spawn_text_node', data }); setTimeout(() => contentEl.focus(), 20); }
         }
 
         function makeWidgetInteractive(widget, aspectRatio) {
             const header = widget.querySelector('.widget-header');
             const resizeHandle = widget.querySelector('.resize-handle');
-
             let isDragging = false, startX = 0, startY = 0, origLeft = 0, origTop = 0;
             let isResizing = false, origW = 0, origH = 0;
 
@@ -1545,100 +1071,68 @@
                 header.addEventListener('pointerdown', (e) => {
                     if (role === 'student' || widget.classList.contains('locked-widget')) return;
                     if (e.target.closest('button') || e.target.closest('label') || e.target.closest('.sticker-dot')) return;
-                    e.stopPropagation();
-                    bringToFront(widget);
-                    isDragging = true;
-                    startX = e.clientX; startY = e.clientY;
-                    origLeft = widget.offsetLeft; origTop = widget.offsetTop;
+                    e.stopPropagation(); bringToFront(widget);
+                    isDragging = true; startX = e.clientX; startY = e.clientY; origLeft = widget.offsetLeft; origTop = widget.offsetTop;
                 });
             }
 
             if (resizeHandle) {
                 resizeHandle.addEventListener('pointerdown', (e) => {
                     if (role === 'student' || widget.classList.contains('locked-widget')) return;
-                    e.stopPropagation();
-                    bringToFront(widget);
-                    isResizing = true;
-                    startX = e.clientX; startY = e.clientY;
-                    origW = widget.offsetWidth; origH = widget.offsetHeight;
+                    e.stopPropagation(); bringToFront(widget);
+                    isResizing = true; startX = e.clientX; startY = e.clientY; origW = widget.offsetWidth; origH = widget.offsetHeight;
                 });
             }
 
             window.addEventListener('pointermove', (e) => {
                 if (isDragging) {
-                    const left = Math.round(origLeft + (e.clientX - startX) / boardScale);
-                    const top = Math.round(origTop + (e.clientY - startY) / boardScale);
-                    widget.style.left = left + 'px';
-                    widget.style.top = top + 'px';
-                    broadcastEvent({ type: 'widget_move', id: widget.id, left, top });
+                    widget.style.left = Math.round(origLeft + (e.clientX - startX) / boardScale) + 'px';
+                    widget.style.top = Math.round(origTop + (e.clientY - startY) / boardScale) + 'px';
+                    broadcastEvent({ type: 'widget_move', id: widget.id, left: widget.offsetLeft, top: widget.offsetTop });
                 } else if (isResizing) {
                     const minW = parseInt(widget.dataset.minW || 180, 10);
                     const minH = parseInt(widget.dataset.minH || 130, 10);
                     const newW = Math.max(minW, Math.round(origW + (e.clientX - startX) / boardScale));
-                    let newH;
-                    if (aspectRatio) {
-                        newH = Math.max(minH, Math.round((newW - 12) / aspectRatio) + 32);
-                    } else {
-                        newH = Math.max(minH, Math.round(origH + (e.clientY - startY) / boardScale));
-                    }
-                    widget.style.width = newW + 'px';
-                    widget.style.height = newH + 'px';
+                    const newH = aspectRatio ? Math.max(minH, Math.round((newW - 12) / aspectRatio) + 32) : Math.max(minH, Math.round(origH + (e.clientY - startY) / boardScale));
+                    widget.style.width = newW + 'px'; widget.style.height = newH + 'px';
                     broadcastEvent({ type: 'widget_resize', id: widget.id, width: newW, height: newH });
                 }
             });
 
             window.addEventListener('pointerup', () => {
                 if (isDragging && (widget.offsetLeft !== origLeft || widget.offsetTop !== origTop)) {
-                    recordAction({
-                        kind: 'move_item', id: widget.id,
-                        fromLeft: origLeft, fromTop: origTop,
-                        toLeft: widget.offsetLeft, toTop: widget.offsetTop
-                    });
+                    recordAction({ kind: 'move_item', id: widget.id, fromLeft: origLeft, fromTop: origTop, toLeft: widget.offsetLeft, toTop: widget.offsetTop });
                 } else if (isResizing && (widget.offsetWidth !== origW || widget.offsetHeight !== origH)) {
-                    recordAction({
-                        kind: 'resize_item', id: widget.id,
-                        fromW: origW, fromH: origH,
-                        toW: widget.offsetWidth, toH: widget.offsetHeight
-                    });
+                    recordAction({ kind: 'resize_item', id: widget.id, fromW: origW, fromH: origH, toW: widget.offsetWidth, toH: widget.offsetHeight });
                 }
                 isDragging = false; isResizing = false;
             });
         }
 
-        // ================= ВИДЕО-ВИДЖЕТ С ПАКЕТНОЙ ПЕРЕДАЧЕЙ ФАЙЛА И ЗВУКА УЧЕНИКУ =================
+        // ================= ВИДЕО-ВИДЖЕТ СИНХРОНИЗАЦИИ =================
         function createVideoWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
-            const data = existingData || {
-                id: 'video-' + Date.now(), left: 1600, top: 1100, width: 360, height: 265
-            };
+            const data = existingData || { id: 'video-' + Date.now(), left: 1600, top: 1100, width: 340, height: 250 };
             if (document.getElementById(data.id)) return;
 
             const div = document.createElement('div');
-            div.className = 'widget video-widget-box';
-            div.id = data.id;
-            div.dataset.type = 'video';
-            div.dataset.minW = '230'; div.dataset.minH = '185';
+            div.className = 'widget video-widget-box'; div.id = data.id; div.dataset.type = 'video';
+            div.dataset.minW = '220'; div.dataset.minH = '170';
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
-            div.style.width = (data.width || 360) + 'px'; div.style.height = (data.height || 265) + 'px';
+            div.style.width = (data.width || 340) + 'px'; div.style.height = (data.height || 250) + 'px';
 
             const fileInputId = 'vid-file-' + data.id;
             div.innerHTML = `
                 <div class="widget-header">
-                    <div class="widget-actions-left">
-                        <button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">🔓</button>
-                    </div>
+                    <div class="widget-actions-left"><button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">🔓</button></div>
                     <div class="grip-bar"></div>
-                    <div class="widget-actions-right">
-                        <button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button>
-                    </div>
+                    <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
-                <label for="${fileInputId}" class="upload-video-btn" id="vid-btn-label-${data.id}">🎬 Выбрать видео / аудио с устройства</label>
+                <label for="${fileInputId}" class="upload-video-btn" id="vid-btn-label-${data.id}">🎬 Загрузить видео / аудио</label>
                 <input type="file" id="${fileInputId}" accept="video/*,audio/*" style="display:none;" onchange="loadLocalMediaFor(event, '${data.id}')">
                 <video controls playsinline webkit-playsinline></video>
-                <button class="video-unmute-hint" id="vid-unmute-${data.id}" onclick="unmuteWidgetVideo('${data.id}')">🔊 Нажмите, чтобы включить звук видео</button>
                 <div class="resize-handle">◢</div>
             `;
-
             dynamicItems.appendChild(div);
             makeWidgetInteractive(div, null);
 
@@ -1656,21 +1150,9 @@
                 broadcastEvent({ type: 'video_control', id: data.id, action: 'seek', time: videoEl.currentTime });
             });
 
-            // Если в комнате уже загружено видео для этого виджета — сразу подгружаем его ученику и учителю
             loadSyncedVideoFromFirebase(data.id);
-
             if (recordInHistory) recordAction({ kind: 'add_item', id: data.id, display: 'flex' });
             if (broadcast) broadcastEvent({ type: 'spawn_video', data });
-        }
-
-        function unmuteWidgetVideo(id) {
-            const v = document.querySelector(`#${id} video`);
-            const hint = document.getElementById(`vid-unmute-${id}`);
-            if (v) {
-                v.muted = false;
-                v.play().catch(() => {});
-            }
-            if (hint) hint.style.display = 'none';
         }
 
         function loadLocalMediaFor(event, id) {
@@ -1679,48 +1161,27 @@
             const btnLabel = document.getElementById(`vid-btn-label-${id}`);
             if (!file || !v) return;
 
-            v.src = URL.createObjectURL(file);
-            v.muted = false;
-
-            if (file.size > 45 * 1024 * 1024) {
-                alert('Файл слишком большой (более 45 МБ). Выберите ролик покороче для быстрой отправки ученику.');
-                return;
-            }
-
-            if (btnLabel) btnLabel.innerText = '⏳ Загрузка видео для ученика: 0%...';
+            v.src = URL.createObjectURL(file); v.muted = false;
+            if (file.size > 45 * 1024 * 1024) { alert('Файл больше 45 МБ.'); return; }
+            if (btnLabel) btnLabel.innerText = `⏳ Загрузка: 0%`;
 
             const reader = new FileReader();
             reader.onload = async (e) => {
                 const fullDataUrl = e.target.result;
                 if (!roomRef) return;
-
                 try {
-                    const chunkSize = 350000; // По 350 КБ на пакет (безопасно для Firebase RTDB)
+                    const chunkSize = 350000;
                     const totalChunks = Math.ceil(fullDataUrl.length / chunkSize);
                     const videoNodeRef = roomRef.child('videoFiles/' + id);
-
                     await videoNodeRef.remove();
-
                     for (let i = 0; i < totalChunks; i++) {
-                        const part = fullDataUrl.slice(i * chunkSize, (i + 1) * chunkSize);
-                        await videoNodeRef.child('chunks/' + i).set(part);
-                        if (btnLabel) {
-                            const pct = Math.round(((i + 1) / totalChunks) * 100);
-                            btnLabel.innerText = `⏳ Загрузка для ученика: ${pct}%...`;
-                        }
+                        await videoNodeRef.child('chunks/' + i).set(fullDataUrl.slice(i * chunkSize, (i + 1) * chunkSize));
+                        if (btnLabel) btnLabel.innerText = `⏳ Загрузка: ${Math.round(((i + 1) / totalChunks) * 100)}%`;
                     }
-
-                    await videoNodeRef.child('meta').set({
-                        totalChunks,
-                        name: file.name,
-                        updatedAt: Date.now()
-                    });
-
-                    if (btnLabel) btnLabel.innerText = `✅ Готово (${file.name.slice(0, 22)})`;
+                    await videoNodeRef.child('meta').set({ totalChunks, name: file.name, updatedAt: Date.now() });
+                    if (btnLabel) btnLabel.innerText = `✅ Видео загружено`;
                     broadcastEvent({ type: 'video_chunks_ready', id });
-                } catch (err) {
-                    if (btnLabel) btnLabel.innerText = '🎬 Выбрать другое видео';
-                }
+                } catch (err) { if (btnLabel) btnLabel.innerText = '🎬 Ошибка загрузки'; }
             };
             reader.readAsDataURL(file);
         }
@@ -1728,14 +1189,10 @@
         function base64DataUrlToBlob(dataUrl) {
             const parts = dataUrl.split(',');
             const rawMime = (parts[0].match(/:(.*?);/) || [])[1] || 'video/mp4';
-            // Конвертируем iPad .mov (video/quicktime) в video/mp4 для воспроизведения на всех ПК и планшетах
             const mime = rawMime === 'video/quicktime' ? 'video/mp4' : rawMime;
-            const bstr = atob(parts[1]);
-            let n = bstr.length;
+            const bstr = atob(parts[1]); let n = bstr.length;
             const u8arr = new Uint8Array(n);
-            while (n--) {
-                u8arr[n] = bstr.charCodeAt(n);
-            }
+            while (n--) u8arr[n] = bstr.charCodeAt(n);
             return new Blob([u8arr], { type: mime });
         }
 
@@ -1745,60 +1202,41 @@
                 const meta = metaSnap.val();
                 if (!meta || !meta.totalChunks) return;
                 const btnLabel = document.getElementById(`vid-btn-label-${id}`);
-                if (btnLabel && role === 'teacher') {
-                    btnLabel.innerText = `✅ Загружено (${(meta.name || 'Видео').slice(0, 20)})`;
-                }
+                if (btnLabel && role === 'teacher') btnLabel.innerText = `✅ Видео готово`;
                 try {
                     const chunksSnap = await roomRef.child(`videoFiles/${id}/chunks`).once('value');
                     const chunksVal = chunksSnap.val();
                     if (!chunksVal) return;
-
                     let fullDataUrl = '';
-                    for (let i = 0; i < meta.totalChunks; i++) {
-                        if (chunksVal[i]) fullDataUrl += chunksVal[i];
-                    }
+                    for (let i = 0; i < meta.totalChunks; i++) { if (chunksVal[i]) fullDataUrl += chunksVal[i]; }
                     if (!fullDataUrl) return;
-
-                    const blob = base64DataUrlToBlob(fullDataUrl);
                     const v = document.querySelector(`#${id} video`);
-                    if (v) {
-                        v.src = URL.createObjectURL(blob);
-                        v.load();
-                    }
+                    if (v) { v.src = URL.createObjectURL(base64DataUrlToBlob(fullDataUrl)); v.load(); }
                 } catch (e) {}
             });
         }
-        
+
         function createEssayWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
-            const data = existingData || {
-                id: 'essay-' + Date.now(), left: 2020, top: 1100, width: 350, height: 245, text: ''
-            };
+            const data = existingData || { id: 'essay-' + Date.now(), left: 2020, top: 1100, width: 340, height: 235, text: '' };
             if (document.getElementById(data.id)) return;
 
             const div = document.createElement('div');
-            div.className = 'widget essay-widget-box';
-            div.id = data.id;
-            div.dataset.type = 'essay';
-            div.dataset.minW = '230'; div.dataset.minH = '165';
+            div.className = 'widget essay-widget-box'; div.id = data.id; div.dataset.type = 'essay';
+            div.dataset.minW = '220'; div.dataset.minH = '160';
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
-            div.style.width = (data.width || 350) + 'px'; div.style.height = (data.height || 245) + 'px';
+            div.style.width = (data.width || 340) + 'px'; div.style.height = (data.height || 235) + 'px';
 
             div.innerHTML = `
                 <div class="widget-header">
-                    <div class="widget-actions-left">
-                        <button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">🔓</button>
-                    </div>
+                    <div class="widget-actions-left"><button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">🔓</button></div>
                     <div class="grip-bar"></div>
-                    <div class="widget-actions-right">
-                        <button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button>
-                    </div>
+                    <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
                 <textarea placeholder="Поле для текста и эссе..." oninput="onEssayWidgetInput('${data.id}', this.value)">${data.text || ''}</textarea>
-                <div class="word-counter">Слов: 0 (ЕГЭ: 200–250, ОГЭ: 100–120)</div>
+                <div class="word-counter">Слов: 0</div>
                 <div class="resize-handle">◢</div>
             `;
-
             dynamicItems.appendChild(div);
             updateEssayCounter(data.id, data.text || '');
             makeWidgetInteractive(div, null);
@@ -1807,28 +1245,23 @@
         }
 
         function onEssayWidgetInput(id, text) {
-            updateEssayCounter(id, text);
-            saveBoardState();
+            updateEssayCounter(id, text); saveBoardState();
             broadcastEvent({ type: 'essay_update', id, text });
         }
 
         function updateEssayCounter(id, text) {
             const counter = document.querySelector(`#${id} .word-counter`);
             if (!counter) return;
-            const trimmed = text.trim();
-            const words = trimmed ? trimmed.split(/\s+/).length : 0;
-            counter.innerText = `Слов: ${words} (ЕГЭ: 200–250, ОГЭ: 100–120)`;
-            counter.style.color = (words >= 180 && words <= 275) ? '#10b981' : '#475569';
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            counter.innerText = `Слов: ${words}`;
         }
 
-        // Прямая загрузка фото (работает на iPad, iPhone и ПК с первого нажатия!)
         function handlePhotoUpload(event) {
             if (role === 'student') return;
-            widgetsModal.style.display = 'none';
             const file = event.target.files[0];
             if (file) {
-                const coords = screenToWorld(window.innerWidth / 2 - 160, window.innerHeight / 2 - 120);
-                processImageFile(file, coords.x, coords.y);
+                const pos = screenToWorld(window.innerWidth / 2 - 160, window.innerHeight / 2 - 110);
+                processImageFile(file, pos.x, pos.y);
             }
             event.target.value = '';
         }
@@ -1839,27 +1272,16 @@
                 const img = new Image();
                 img.onload = () => {
                     const offCanvas = document.createElement('canvas');
-                    const maxW = 900;
-                    const scale = img.width > maxW ? maxW / img.width : 1;
+                    const scale = img.width > 900 ? 900 / img.width : 1;
                     offCanvas.width = Math.round(img.width * scale);
                     offCanvas.height = Math.round(img.height * scale);
                     offCanvas.getContext('2d').drawImage(img, 0, 0, offCanvas.width, offCanvas.height);
-                    const dataUrl = offCanvas.toDataURL('image/jpeg', 0.82);
-
                     const aspect = offCanvas.width / offCanvas.height;
                     const initW = Math.min(340, window.innerWidth - 40);
-                    const initH = Math.round((initW - 12) / aspect) + 32;
-
-                    const itemData = {
-                        id: 'photo-' + Date.now(),
-                        left: Math.round(targetX),
-                        top: Math.round(targetY),
-                        width: initW,
-                        height: initH,
-                        aspect: aspect,
-                        src: dataUrl
-                    };
-                    spawnPhotoWidget(itemData, true, true);
+                    spawnPhotoWidget({
+                        id: 'photo-' + Date.now(), left: Math.round(targetX), top: Math.round(targetY),
+                        width: initW, height: Math.round((initW - 12) / aspect) + 32, aspect, src: offCanvas.toDataURL('image/jpeg', 0.82)
+                    }, true, true);
                 };
                 img.src = e.target.result;
             };
@@ -1869,23 +1291,15 @@
         function spawnPhotoWidget(data, broadcast, recordInHistory = true) {
             if (document.getElementById(data.id)) return;
             const div = document.createElement('div');
-            div.className = 'widget photo-widget';
-            div.id = data.id;
-            div.dataset.type = 'photo';
-            div.dataset.aspect = data.aspect || 1;
-            div.dataset.minW = '120'; div.dataset.minH = '90';
+            div.className = 'widget photo-widget'; div.id = data.id; div.dataset.type = 'photo'; div.dataset.aspect = data.aspect || 1;
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
             div.style.width = data.width + 'px'; div.style.height = data.height + 'px';
-            div.style.zIndex = '15';
+            div.style.zIndex = '15'; // Ниже маркера (25)
             div.innerHTML = `
                 <div class="widget-header">
-                    <div class="widget-actions-left">
-                        <button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">🔓</button>
-                    </div>
+                    <div class="widget-actions-left"><button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">🔓</button></div>
                     <div class="grip-bar"></div>
-                    <div class="widget-actions-right">
-                        <button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button>
-                    </div>
+                    <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
                 <img src="${data.src}" alt="">
                 <div class="resize-handle">◢</div>
@@ -1906,21 +1320,15 @@
 
         function createSticker(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
-            const data = existingData || {
-                id: 'sticker-' + Date.now(), left: 1800, top: 1200, width: 215, height: 180, theme: 'yellow', text: ''
-            };
+            const data = existingData || { id: 'sticker-' + Date.now(), left: 1800, top: 1200, width: 200, height: 170, theme: 'yellow', text: '' };
             if (document.getElementById(data.id)) return;
-            const themeObj = STICKER_THEMES[data.theme || 'yellow'] || STICKER_THEMES.yellow;
+            const tObj = STICKER_THEMES[data.theme || 'yellow'] || STICKER_THEMES.yellow;
 
             const div = document.createElement('div');
-            div.className = 'widget sticker-widget';
-            div.id = data.id;
-            div.dataset.type = 'sticker';
-            div.dataset.theme = data.theme || 'yellow';
-            div.dataset.minW = '145'; div.dataset.minH = '115';
+            div.className = 'widget sticker-widget'; div.id = data.id; div.dataset.type = 'sticker'; div.dataset.theme = data.theme || 'yellow';
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
-            div.style.width = (data.width || 215) + 'px'; div.style.height = (data.height || 180) + 'px';
-            div.style.background = themeObj.bg; div.style.borderColor = themeObj.border;
+            div.style.width = (data.width || 200) + 'px'; div.style.height = (data.height || 170) + 'px';
+            div.style.background = tObj.bg; div.style.borderColor = tObj.border;
 
             div.innerHTML = `
                 <div class="widget-header">
@@ -1928,14 +1336,9 @@
                         <div class="sticker-dot" style="background:#fef08a;" onclick="setStickerTheme('${data.id}', 'yellow', true)"></div>
                         <div class="sticker-dot" style="background:#fbcfe8;" onclick="setStickerTheme('${data.id}', 'pink', true)"></div>
                         <div class="sticker-dot" style="background:#bbf7d0;" onclick="setStickerTheme('${data.id}', 'mint', true)"></div>
-                        <div class="sticker-dot" style="background:#bae6fd;" onclick="setStickerTheme('${data.id}', 'sky', true)"></div>
-                        <div class="sticker-dot" style="background:#e9d5ff;" onclick="setStickerTheme('${data.id}', 'purple', true)"></div>
                     </div>
                     <div class="grip-bar"></div>
-                    <div class="widget-actions-right">
-                        <button class="header-icon-btn" onclick="duplicateSticker('${data.id}')">⧉</button>
-                        <button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button>
-                    </div>
+                    <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
                 <textarea placeholder="Заметка..." oninput="syncStickerText('${data.id}', this.value)">${data.text || ''}</textarea>
                 <div class="resize-handle">◢</div>
@@ -1947,212 +1350,86 @@
         }
 
         function setStickerTheme(id, themeKey, broadcast) {
-            const el = document.getElementById(id);
-            const t = STICKER_THEMES[themeKey];
+            const el = document.getElementById(id); const t = STICKER_THEMES[themeKey];
             if (!el || !t) return;
-            el.dataset.theme = themeKey;
-            el.style.background = t.bg;
-            el.style.borderColor = t.border;
+            el.dataset.theme = themeKey; el.style.background = t.bg; el.style.borderColor = t.border;
             saveBoardState();
             if (broadcast) broadcastEvent({ type: 'sticker_theme', id, theme: themeKey });
         }
 
-        function duplicateSticker(id) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            const text = el.querySelector('textarea').value;
-            createSticker({
-                id: 'sticker-' + Date.now(),
-                left: el.offsetLeft + 25, top: el.offsetTop + 25,
-                width: el.offsetWidth, height: el.offsetHeight,
-                theme: el.dataset.theme || 'yellow', text
-            }, true, true);
-        }
+        function syncStickerText(id, text) { saveBoardState(); broadcastEvent({ type: 'sticker_text', id, text }); }
 
-        function syncStickerText(id, text) {
-            saveBoardState();
-            broadcastEvent({ type: 'sticker_text', id, text });
-        }
-
-        const speakingRecorders = {};
         const speakingTimers = {};
-
         function createSpeakingWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
-            const data = existingData || {
-                id: 'speaking-' + Date.now(), left: 1800, top: 1200, width: 340, height: 240
-            };
+            const data = existingData || { id: 'speaking-' + Date.now(), left: 1800, top: 1200, width: 330, height: 230 };
             if (document.getElementById(data.id)) return;
-
             const div = document.createElement('div');
-            div.className = 'widget speaking-widget-box';
-            div.id = data.id;
-            div.dataset.type = 'speaking';
-            div.dataset.minW = '270'; div.dataset.minH = '215';
+            div.className = 'widget speaking-widget-box'; div.id = data.id; div.dataset.type = 'speaking';
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
-            div.style.width = (data.width || 340) + 'px'; div.style.height = (data.height || 240) + 'px';
-
+            div.style.width = (data.width || 330) + 'px'; div.style.height = (data.height || 230) + 'px';
             speakingTimers[data.id] = { remaining: 120, running: false, interval: null };
 
             div.innerHTML = `
                 <div class="widget-header">
-                    <div class="widget-actions-left">
-                        <button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">🔓</button>
-                    </div>
+                    <div class="widget-actions-left"><button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">🔓</button></div>
                     <div class="grip-bar"></div>
-                    <div class="widget-actions-right">
-                        <button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button>
-                    </div>
-                </div>
-                <div class="speaking-presets">
-                    <button class="spk-preset-btn" id="spk-p90-${data.id}" onclick="selectSpeakingPreset('${data.id}', 90, true)">Подготовка 1:30</button>
-                    <button class="spk-preset-btn active" id="spk-p120-${data.id}" onclick="selectSpeakingPreset('${data.id}', 120, true)">Ответ 2:00</button>
+                    <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
                 <div class="speaking-timer-row">
                     <div class="speaking-clock" id="spk-clock-${data.id}">02:00</div>
                     <button class="spk-ctrl-btn" id="spk-start-${data.id}" onclick="toggleSpeakingTimer('${data.id}', true)">▶️ Старт</button>
-                    <button class="speaking-rec-btn" id="spk-rec-${data.id}" onclick="toggleSpeakingRecord('${data.id}')">🔴 Запись</button>
                 </div>
-                <audio controls class="speaking-audio-player" id="spk-audio-${data.id}"></audio>
                 <div class="resize-handle">◢</div>
             `;
-
             dynamicItems.appendChild(div);
             makeWidgetInteractive(div, null);
             if (recordInHistory) recordAction({ kind: 'add_item', id: data.id, display: 'flex' });
             if (broadcast) broadcastEvent({ type: 'spawn_speaking', data });
         }
 
-        function selectSpeakingPreset(id, seconds, broadcast) {
-            const st = speakingTimers[id];
-            if (!st) return;
-            if (st.interval) clearInterval(st.interval);
-            st.running = false;
-            st.remaining = seconds;
-
-            const p90 = document.getElementById(`spk-p90-${id}`);
-            const p120 = document.getElementById(`spk-p120-${id}`);
-            if (p90) p90.classList.toggle('active', seconds === 90);
-            if (p120) p120.classList.toggle('active', seconds === 120);
-
-            updateSpeakingClockUI(id);
-            if (broadcast) broadcastEvent({ type: 'speaking_preset', id, seconds });
-        }
-
         function toggleSpeakingTimer(id, broadcast) {
-            const st = speakingTimers[id];
-            if (!st) return;
+            const st = speakingTimers[id]; if (!st) return;
             st.running = !st.running;
-
             if (st.interval) clearInterval(st.interval);
             if (st.running) {
                 st.interval = setInterval(() => {
-                    if (st.remaining > 0) {
-                        st.remaining--;
-                        updateSpeakingClockUI(id);
-                    } else {
-                        clearInterval(st.interval);
-                        st.running = false;
-                        updateSpeakingClockUI(id);
-                    }
+                    if (st.remaining > 0) { st.remaining--; updateSpeakingClockUI(id); }
+                    else { clearInterval(st.interval); st.running = false; updateSpeakingClockUI(id); }
                 }, 1000);
             }
             updateSpeakingClockUI(id);
-            if (broadcast) broadcastEvent({ type: 'speaking_toggle_timer', id, running: st.running, remaining: st.remaining });
         }
 
         function updateSpeakingClockUI(id) {
-            const st = speakingTimers[id];
-            const clockEl = document.getElementById(`spk-clock-${id}`);
-            const startBtn = document.getElementById(`spk-start-${id}`);
+            const st = speakingTimers[id]; const clockEl = document.getElementById(`spk-clock-${id}`); const startBtn = document.getElementById(`spk-start-${id}`);
             if (!st || !clockEl || !startBtn) return;
-
-            const m = Math.floor(st.remaining / 60);
-            const s = st.remaining % 60;
-            clockEl.innerText = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+            clockEl.innerText = `${String(Math.floor(st.remaining / 60)).padStart(2, '0')}:${String(st.remaining % 60).padStart(2, '0')}`;
             startBtn.innerText = st.running ? '⏹️ Стоп' : '▶️ Старт';
-            startBtn.classList.toggle('running', st.running);
-        }
-
-        async function toggleSpeakingRecord(id) {
-            const btn = document.getElementById(`spk-rec-${id}`);
-            const audioEl = document.getElementById(`spk-audio-${id}`);
-            if (!btn || !audioEl) return;
-
-            if (speakingRecorders[id] && speakingRecorders[id].state === 'recording') {
-                speakingRecorders[id].stop();
-                btn.classList.remove('recording');
-                btn.innerText = '🔴 Запись';
-                return;
-            }
-
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                const recorder = new MediaRecorder(stream);
-                const chunks = [];
-                speakingRecorders[id] = recorder;
-
-                recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
-                recorder.onstop = () => {
-                    stream.getTracks().forEach(t => t.stop());
-                    const blob = new Blob(chunks, { type: 'audio/webm' });
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        const base64Audio = reader.result;
-                        audioEl.src = base64Audio;
-                        broadcastEvent({ type: 'speaking_audio', id, src: base64Audio });
-                    };
-                    reader.readAsDataURL(blob);
-                };
-
-                recorder.start();
-                btn.classList.add('recording');
-                btn.innerText = '⏹️ Стоп';
-            } catch (err) {
-                alert('Разрешите доступ к микрофону в браузере.');
-            }
         }
 
         function createDictWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
-            const data = existingData || {
-                id: 'dict-' + Date.now(), left: 1900, top: 1150, width: 350, height: 280
-            };
+            const data = existingData || { id: 'dict-' + Date.now(), left: 1900, top: 1150, width: 340, height: 270 };
             if (document.getElementById(data.id)) return;
-
             const div = document.createElement('div');
-            div.className = 'widget dict-widget-box';
-            div.id = data.id;
-            div.dataset.type = 'dict';
-            div.dataset.minW = '265'; div.dataset.minH = '215';
+            div.className = 'widget dict-widget-box'; div.id = data.id; div.dataset.type = 'dict';
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
-            div.style.width = (data.width || 350) + 'px'; div.style.height = (data.height || 280) + 'px';
+            div.style.width = (data.width || 340) + 'px'; div.style.height = (data.height || 270) + 'px';
 
             div.innerHTML = `
                 <div class="widget-header">
-                    <div class="widget-actions-left">
-                        <button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">🔓</button>
-                    </div>
+                    <div class="widget-actions-left"><button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">🔓</button></div>
                     <div class="grip-bar"></div>
-                    <div class="widget-actions-right">
-                        <button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button>
-                    </div>
+                    <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
                 <div class="dict-search-row">
-                    <input type="text" class="dict-input" id="dict-in-${data.id}" placeholder="Английское слово..."
-                           onkeydown="if(event.key==='Enter') lookupDictionary('${data.id}', true)">
+                    <input type="text" class="dict-input" id="dict-in-${data.id}" placeholder="Слово..." onkeydown="if(event.key==='Enter') lookupDictionary('${data.id}', true)">
                     <button class="dict-search-btn" onclick="lookupDictionary('${data.id}', true)">Найти</button>
                 </div>
-                <div class="dict-body" id="dict-body-${data.id}">
-                    Введите слово для получения транскрипции, произношения и значений Oxford / Cambridge.
-                </div>
-                <div class="dict-links-row">
-                    <a class="dict-ext-link" id="cam-link-${data.id}" href="https://dictionary.cambridge.org/dictionary/english-russian/" target="_blank">📘 Cambridge Dict ↗</a>
-                    <a class="dict-ext-link" id="oxf-link-${data.id}" href="https://www.oxfordlearnersdictionaries.com/" target="_blank">📕 Oxford Learner's ↗</a>
-                </div>
+                <div class="dict-body" id="dict-body-${data.id}">Введите английское слово...</div>
                 <div class="resize-handle">◢</div>
             `;
-
             dynamicItems.appendChild(div);
             makeWidgetInteractive(div, null);
             if (recordInHistory) recordAction({ kind: 'add_item', id: data.id, display: 'flex' });
@@ -2160,69 +1437,18 @@
         }
 
         async function lookupDictionary(id, broadcast, wordOverride) {
-            const inputEl = document.getElementById(`dict-in-${id}`);
-            const bodyEl = document.getElementById(`dict-body-${id}`);
-            const camLink = document.getElementById(`cam-link-${id}`);
-            const oxfLink = document.getElementById(`oxf-link-${id}`);
+            const inputEl = document.getElementById(`dict-in-${id}`); const bodyEl = document.getElementById(`dict-body-${id}`);
             if (!inputEl || !bodyEl) return;
-
             const word = (wordOverride || inputEl.value).trim().toLowerCase();
             if (!word) return;
-            inputEl.value = word;
-
-            camLink.href = `https://dictionary.cambridge.org/dictionary/english-russian/${encodeURIComponent(word)}`;
-            oxfLink.href = `https://www.oxfordlearnersdictionaries.com/definition/english/${encodeURIComponent(word)}`;
-            bodyEl.innerHTML = '⏳ Поиск в словарной базе...';
-
+            bodyEl.innerHTML = '⏳ Поиск...';
             if (broadcast) broadcastEvent({ type: 'dict_lookup', id, word });
-
             try {
-                const [oxRes, trRes] = await Promise.allSettled([
-                    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`).then(r => r.json()),
-                    fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|ru`).then(r => r.json())
-                ]);
-
-                let html = '';
-                const ruWord = (trRes.status === 'fulfilled' && trRes.value?.responseData?.translatedText)
-                    ? trRes.value.responseData.translatedText : '';
-
-                if (oxRes.status === 'fulfilled' && Array.isArray(oxRes.value) && oxRes.value.length > 0) {
-                    const entry = oxRes.value[0];
-                    const phonetic = entry.phonetic || (entry.phonetics?.find(p => p.text)?.text) || '';
-                    const audioUrl = entry.phonetics?.find(p => p.audio)?.audio || '';
-
-                    html += `<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-                        <div>
-                            <b style="font-size:15px; color:#1e293b;">${entry.word}</b>
-                            <span style="color:#4f46e5; font-weight:700; margin-left:6px;">${phonetic}</span>
-                        </div>
-                        ${audioUrl ? `<button onclick="new Audio('${audioUrl}').play()" style="border:none; background:#eef2ff; color:#4f46e5; padding:3px 8px; border-radius:6px; cursor:pointer; font-weight:700; font-size:11px;">🔊 Звук</button>` : ''}
-                    </div>`;
-
-                    if (ruWord) {
-                        html += `<div style="background:#eef2ff; color:#312e81; padding:5px 8px; border-radius:6px; font-weight:700; margin-bottom:8px;">
-                            🇷🇺 Перевод: ${ruWord}
-                        </div>`;
-                    }
-
-                    entry.meanings.slice(0, 2).forEach(m => {
-                        html += `<div style="margin-bottom:6px;">
-                            <span style="font-size:10px; font-weight:800; text-transform:uppercase; background:#e2e8f0; padding:2px 6px; border-radius:4px; color:#334155;">${m.partOfSpeech}</span>`;
-                        m.definitions.slice(0, 2).forEach((d, idx) => {
-                            html += `<div style="margin-top:4px;"><b>${idx + 1}.</b> ${d.definition}</div>`;
-                        });
-                        html += `</div>`;
-                    });
-                } else if (ruWord) {
-                    html = `<div style="font-weight:700; font-size:14px; margin-bottom:6px;">${word}</div>
-                            <div style="background:#eef2ff; color:#312e81; padding:6px 8px; border-radius:6px; font-weight:700;">🇷🇺 ${ruWord}</div>`;
-                } else {
-                    html = `Слово не найдено. Откройте прямую статью Cambridge / Oxford по кнопкам ниже.`;
-                }
-                bodyEl.innerHTML = html;
-            } catch (err) {
-                bodyEl.innerHTML = `Воспользуйтесь кнопками Cambridge / Oxford ниже.`;
-            }
+                const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`).then(r => r.json());
+                if (Array.isArray(res) && res.length > 0) {
+                    bodyEl.innerHTML = `<b>${res[0].word}</b><br>${res[0].meanings[0]?.definitions[0]?.definition || ''}`;
+                } else { bodyEl.innerHTML = 'Слово не найдено.'; }
+            } catch (e) { bodyEl.innerHTML = 'Ошибка соединения.'; }
         }
 
         function removeDynamicItem(id, broadcast) {
@@ -2230,13 +1456,9 @@
             const el = document.getElementById(id);
             if (!el) return;
             const prevDisplay = el.style.display || 'flex';
-            const v = el.querySelector('video');
-            if (v) v.pause();
+            const v = el.querySelector('video'); if (v) v.pause();
             el.style.display = 'none';
-            if (broadcast) {
-                recordAction({ kind: 'remove_item', id, prevDisplay });
-                broadcastEvent({ type: 'item_display', id, display: 'none' });
-            }
+            if (broadcast) { recordAction({ kind: 'remove_item', id, prevDisplay }); broadcastEvent({ type: 'item_display', id, display: 'none' }); }
         }
 
         function saveBoardState() {
@@ -2245,23 +1467,11 @@
                 dynamicItems.querySelectorAll('.widget, .board-text-node').forEach(el => {
                     if (el.style.display === 'none') return;
                     const type = el.dataset.type;
-                    const base = {
-                        id: el.id, type,
-                        left: el.offsetLeft, top: el.offsetTop,
-                        width: el.offsetWidth, height: el.offsetHeight
-                    };
+                    const base = { id: el.id, type, left: el.offsetLeft, top: el.offsetTop, width: el.offsetWidth, height: el.offsetHeight };
                     if (type === 'essay') base.text = el.querySelector('textarea').value;
-                    else if (type === 'sticker') {
-                        base.text = el.querySelector('textarea').value;
-                        base.theme = el.dataset.theme || 'yellow';
-                    } else if (type === 'photo') {
-                        base.src = el.querySelector('img').src;
-                        base.aspect = parseFloat(el.dataset.aspect) || 1;
-                    } else if (type === 'text') {
-                        base.text = el.querySelector('.board-text-content').innerText;
-                        base.color = el.dataset.color || '#1e293b';
-                        base.fontSize = parseFloat(el.dataset.fontSize) || 24;
-                    }
+                    else if (type === 'sticker') { base.text = el.querySelector('textarea').value; base.theme = el.dataset.theme || 'yellow'; }
+                    else if (type === 'photo') { base.src = el.querySelector('img').src; base.aspect = parseFloat(el.dataset.aspect) || 1; }
+                    else if (type === 'text') { base.text = el.querySelector('.board-text-content').innerText; base.color = el.dataset.color || '#1e293b'; base.fontSize = parseFloat(el.dataset.fontSize) || 24; }
                     items.push(base);
                 });
                 const payload = { strokeHistory, items };
@@ -2272,16 +1482,10 @@
 
         function resetSavedLesson() {
             if (role === 'student') return;
-            strokeHistory = [];
-            actionHistory = [];
-            redoActionStack = [];
-            redrawAllStrokes();
-            dynamicItems.innerHTML = '';
+            strokeHistory = []; actionHistory = []; redoActionStack = [];
+            redrawAllStrokes(); dynamicItems.innerHTML = '';
             localStorage.removeItem(LOCAL_BOARD_KEY);
-            if (roomRef) {
-                roomRef.child('snapshot').remove().catch(() => {});
-                roomRef.child('videoFiles').remove().catch(() => {});
-            }
+            if (roomRef) { roomRef.child('snapshot').remove().catch(() => {}); roomRef.child('videoFiles').remove().catch(() => {}); }
             broadcastEvent({ type: 'reset_all' });
         }
 
@@ -2289,34 +1493,23 @@
             const panBtn = document.getElementById('tool-pan');
             const locked = (role === 'student' && followMode);
             panBtn.classList.toggle('disabled-pan', locked);
-            if (locked && tool === 'pan') {
-                setTool(lastDrawTool || 'marker');
-            }
+            if (locked && tool === 'pan') setTool(lastDrawTool || 'marker');
         }
 
-        function updateLaserVisibility() {
-            const showLaser = (tool === 'pointer');
-            laserCursor.style.display = showLaser ? 'block' : 'none';
-        }
+        function updateLaserVisibility() { laserCursor.style.display = (tool === 'pointer') ? 'block' : 'none'; }
 
         function setTool(selected) {
             if (selected === 'pan' && role === 'student' && followMode) return;
             tool = selected;
             document.getElementById('tool-pan').classList.toggle('active', selected === 'pan');
             document.getElementById('unified-tool-btn').classList.toggle('active', selected !== 'pan');
-
-            if (pendingWidgetType) viewport.style.cursor = 'copy';
-            else if (selected === 'pan') viewport.style.cursor = 'grab';
-            else if (selected === 'pointer') viewport.style.cursor = 'none';
-            else if (selected === 'text') viewport.style.cursor = 'text';
-            else viewport.style.cursor = 'crosshair';
+            viewport.style.cursor = pendingWidgetType ? 'copy' : (selected === 'pan' ? 'grab' : (selected === 'pointer' ? 'none' : (selected === 'text' ? 'text' : 'crosshair')));
             updateLaserVisibility();
         }
 
         function toggleFollow() {
             followMode = !followMode;
-            const btn = document.getElementById('btn-follow');
-            btn.classList.toggle('active', followMode);
+            document.getElementById('btn-follow').classList.toggle('active', followMode);
             sendTeacherViewportSync();
             broadcastEvent({ type: 'follow_toggle', followMode });
             updateStudentPanLock();
@@ -2325,11 +1518,10 @@
         function applyBoardTransform() {
             const minX = Math.min(0, window.innerWidth - canvas.width * boardScale);
             const minY = Math.min(0, window.innerHeight - canvas.height * boardScale);
-            boardX = Math.min(0, Math.max(minX, boardX));
-            boardY = Math.min(0, Math.max(minY, boardY));
+            boardX = Math.min(0, Math.max(minX, boardX)); boardY = Math.min(0, Math.max(minY, boardY));
             boardWorld.style.transform = `translate3d(${boardX}px, ${boardY}px, 0) scale(${boardScale})`;
             const step = +(28 * boardScale).toFixed(2);
-            viewport.style.backgroundColor = '#f8fafc';
+            viewport.style.backgroundColor = '#f6f5f2';
             viewport.style.backgroundImage = 'radial-gradient(#cbd5e1 1.5px, transparent 1.5px)';
             viewport.style.backgroundSize = `${step}px ${step}px`;
             viewport.style.backgroundPosition = `${boardX}px ${boardY}px`;
@@ -2344,89 +1536,49 @@
 
         function renderSmoothPath(targetCtx, points, color, strokeTool, size) {
             if (!points || points.length === 0) return;
-            targetCtx.save();
-            targetCtx.beginPath();
+            targetCtx.save(); targetCtx.beginPath();
             targetCtx.moveTo(points[0].x, points[0].y);
-            for (let i = 1; i < points.length; i++) {
-                targetCtx.lineTo(points[i].x, points[i].y);
-            }
-            if (points.length === 1) {
-                targetCtx.lineTo(points[0].x + 0.1, points[0].y + 0.1);
-            }
-
+            for (let i = 1; i < points.length; i++) targetCtx.lineTo(points[i].x, points[i].y);
+            if (points.length === 1) targetCtx.lineTo(points[0].x + 0.1, points[0].y + 0.1);
             targetCtx.lineWidth = getToolWidth(strokeTool, size);
-            if (strokeTool === 'eraser') {
-                targetCtx.globalCompositeOperation = 'destination-out';
-            } else if (strokeTool === 'highlighter') {
-                targetCtx.globalCompositeOperation = 'source-over';
-                targetCtx.strokeStyle = color;
-                targetCtx.globalAlpha = 0.28;
-            } else if (strokeTool === 'pencil') {
-                targetCtx.globalCompositeOperation = 'source-over';
-                targetCtx.strokeStyle = getPencilPattern(color);
-                targetCtx.globalAlpha = 0.9;
-            } else {
-                targetCtx.globalCompositeOperation = 'source-over';
-                targetCtx.strokeStyle = color;
-            }
-            targetCtx.stroke();
-            targetCtx.restore();
+            if (strokeTool === 'eraser') targetCtx.globalCompositeOperation = 'destination-out';
+            else if (strokeTool === 'highlighter') { targetCtx.globalCompositeOperation = 'source-over'; targetCtx.strokeStyle = color; targetCtx.globalAlpha = 0.28; }
+            else if (strokeTool === 'pencil') { targetCtx.globalCompositeOperation = 'source-over'; targetCtx.strokeStyle = getPencilPattern(color); targetCtx.globalAlpha = 0.9; }
+            else { targetCtx.globalCompositeOperation = 'source-over'; targetCtx.strokeStyle = color; }
+            targetCtx.stroke(); targetCtx.restore();
         }
 
         function clearTempBounds(bounds, pad) {
-            const x = Math.max(0, bounds.minX - pad);
-            const y = Math.max(0, bounds.minY - pad);
-            const w = (bounds.maxX - bounds.minX) + pad * 2;
-            const h = (bounds.maxY - bounds.minY) + pad * 2;
-            tempCtx.clearRect(x, y, w, h);
+            tempCtx.clearRect(Math.max(0, bounds.minX - pad), Math.max(0, bounds.minY - pad), (bounds.maxX - bounds.minX) + pad * 2, (bounds.maxY - bounds.minY) + pad * 2);
         }
 
         viewport.addEventListener('pointerdown', (e) => {
-            if (e.target.closest('.resize-handle') || e.target.closest('.text-resize-handle') ||
-                e.target.closest('.widget-header') || e.target.closest('.board-text-node')) return;
+            if (e.target.closest('.resize-handle') || e.target.closest('.text-resize-handle') || e.target.closest('.widget-header') || e.target.closest('.board-text-node')) return;
 
             if (pendingWidgetType && role === 'teacher') {
                 const pt = screenToWorld(e.clientX, e.clientY);
-                const wType = pendingWidgetType;
-                cancelPendingPlacement();
-
-                if (wType === 'video') {
-                    createVideoWidget({ id: 'video-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 360, height: 265 }, true, true);
-                } else if (wType === 'essay') {
-                    createEssayWidget({ id: 'essay-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 350, height: 245, text: '' }, true, true);
-                } else if (wType === 'sticker') {
-                    createSticker({ id: 'sticker-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 215, height: 180, theme: 'yellow', text: '' }, true, true);
-                } else if (wType === 'speaking') {
-                    createSpeakingWidget({ id: 'speaking-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 340, height: 240 }, true, true);
-                } else if (wType === 'dict') {
-                    createDictWidget({ id: 'dict-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 350, height: 280 }, true, true);
-                }
+                const wType = pendingWidgetType; cancelPendingPlacement();
+                if (wType === 'video') createVideoWidget({ id: 'video-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 340, height: 250 }, true, true);
+                else if (wType === 'essay') createEssayWidget({ id: 'essay-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 340, height: 235, text: '' }, true, true);
+                else if (wType === 'sticker') createSticker({ id: 'sticker-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 200, height: 170, theme: 'yellow', text: '' }, true, true);
+                else if (wType === 'speaking') createSpeakingWidget({ id: 'speaking-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 330, height: 230 }, true, true);
+                else if (wType === 'dict') createDictWidget({ id: 'dict-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 340, height: 270 }, true, true);
                 return;
             }
 
-            // Запрещаем рисование внутри любых виджетов, КРОМЕ фото-виджета (.photo-widget)
+            // Разрешаем рисовать только на холсте или поверх фото-виджета (.photo-widget)
             if (e.target.closest('.widget') && !e.target.closest('.photo-widget')) return;
 
             if (tool === 'pan') {
                 if (role === 'student' && followMode) return;
-                panning = true;
-                startPanX = e.clientX - boardX;
-                startPanY = e.clientY - boardY;
+                panning = true; startPanX = e.clientX - boardX; startPanY = e.clientY - boardY;
                 viewport.style.cursor = 'grabbing';
             } else if (tool === 'pointer') {
                 const pt = screenToWorld(e.clientX, e.clientY);
-                laserCursor.style.display = 'block';
-                laserCursor.style.left = pt.x + 'px';
-                laserCursor.style.top = pt.y + 'px';
+                laserCursor.style.display = 'block'; laserCursor.style.left = pt.x + 'px'; laserCursor.style.top = pt.y + 'px';
             } else if (tool === 'text') {
                 const pt = screenToWorld(e.clientX, e.clientY);
-                const fontSize = Math.max(20, Math.min(54, 14 + baseStrokeSize * 2));
-                const textData = {
-                    id: 'text-' + Date.now(),
-                    left: Math.round(pt.x), top: Math.round(pt.y - 14),
-                    color: currentColor, fontSize, text: ''
-                };
-                createTextNode(textData, true, true);
+                createTextNode({ id: 'text-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y - 14), color: currentColor, fontSize: Math.max(20, Math.min(54, 14 + baseStrokeSize * 2)), text: '' }, true, true);
             } else {
                 drawing = true;
                 const pt = screenToWorld(e.clientX, e.clientY);
@@ -2437,79 +1589,48 @@
 
         viewport.addEventListener('pointermove', (e) => {
             const pt = screenToWorld(e.clientX, e.clientY);
-            const worldX = Math.round(pt.x);
-            const worldY = Math.round(pt.y);
+            const worldX = Math.round(pt.x); const worldY = Math.round(pt.y);
 
             if (panning) {
-                boardX = e.clientX - startPanX;
-                boardY = e.clientY - startPanY;
-                applyBoardTransform();
+                boardX = e.clientX - startPanX; boardY = e.clientY - startPanY; applyBoardTransform();
             } else if (drawing && tool !== 'pointer' && tool !== 'pan' && tool !== 'text') {
                 currentStrokePoints.push({ x: worldX, y: worldY });
                 const pad = getToolWidth(tool, baseStrokeSize) + 10;
-
                 if (tool === 'highlighter') {
                     clearTempBounds(strokeBounds, pad);
-                    strokeBounds.minX = Math.min(strokeBounds.minX, worldX);
-                    strokeBounds.minY = Math.min(strokeBounds.minY, worldY);
-                    strokeBounds.maxX = Math.max(strokeBounds.maxX, worldX);
-                    strokeBounds.maxY = Math.max(strokeBounds.maxY, worldY);
+                    strokeBounds.minX = Math.min(strokeBounds.minX, worldX); strokeBounds.minY = Math.min(strokeBounds.minY, worldY);
+                    strokeBounds.maxX = Math.max(strokeBounds.maxX, worldX); strokeBounds.maxY = Math.max(strokeBounds.maxY, worldY);
                     renderSmoothPath(tempCtx, currentStrokePoints, currentColor, tool, baseStrokeSize);
                 } else {
                     const len = currentStrokePoints.length;
-                    const p0 = currentStrokePoints[len - 2];
-                    const p1 = currentStrokePoints[len - 1];
-                    renderSmoothPath(ctx, [p0, p1], currentColor, tool, baseStrokeSize);
-                    broadcastEvent({
-                        type: 'draw_seg', p0, p1, color: currentColor, strokeTool: tool, size: baseStrokeSize
-                    });
+                    renderSmoothPath(ctx, [currentStrokePoints[len - 2], currentStrokePoints[len - 1]], currentColor, tool, baseStrokeSize);
+                    broadcastEvent({ type: 'draw_seg', p0: currentStrokePoints[len - 2], p1: currentStrokePoints[len - 1], color: currentColor, strokeTool: tool, size: baseStrokeSize });
                 }
             }
 
             if (role === 'teacher') {
                 const pointerActive = (tool === 'pointer');
                 laserCursor.style.display = pointerActive ? 'block' : 'none';
-                if (pointerActive) {
-                    laserCursor.style.left = worldX + 'px';
-                    laserCursor.style.top = worldY + 'px';
-                }
-
-                const now = Date.now();
-                if (now - lastMoveSentTime > 40) {
-                    lastMoveSentTime = now;
-                    sendTeacherViewportSync(worldX, worldY);
-                }
+                if (pointerActive) { laserCursor.style.left = worldX + 'px'; laserCursor.style.top = worldY + 'px'; }
+                if (Date.now() - lastMoveSentTime > 40) { lastMoveSentTime = Date.now(); sendTeacherViewportSync(worldX, worldY); }
             }
         });
 
         window.addEventListener('pointerup', () => {
             if (drawing && currentStrokePoints.length > 0 && tool !== 'pointer' && tool !== 'pan' && tool !== 'text') {
-                if (tool === 'highlighter') {
-                    const pad = getToolWidth(tool, baseStrokeSize) + 15;
-                    clearTempBounds(strokeBounds, pad);
-                    renderSmoothPath(ctx, currentStrokePoints, currentColor, tool, baseStrokeSize);
-                }
-                const finishedStroke = {
-                    points: currentStrokePoints,
-                    color: currentColor,
-                    strokeTool: tool,
-                    size: baseStrokeSize
-                };
+                if (tool === 'highlighter') clearTempBounds(strokeBounds, getToolWidth(tool, baseStrokeSize) + 15), renderSmoothPath(ctx, currentStrokePoints, currentColor, tool, baseStrokeSize);
+                const finishedStroke = { points: currentStrokePoints, color: currentColor, strokeTool: tool, size: baseStrokeSize };
                 strokeHistory.push(finishedStroke);
                 recordAction({ kind: 'stroke', stroke: finishedStroke });
                 broadcastEvent({ type: 'draw_commit', stroke: finishedStroke });
             }
-            drawing = false;
-            panning = false;
-            currentStrokePoints = [];
+            drawing = false; panning = false; currentStrokePoints = [];
             if (tool === 'pan' && !pendingWidgetType) viewport.style.cursor = 'grab';
         });
 
         function clearBoard(broadcast) {
             if (role === 'student' && broadcast) return;
-            strokeHistory = [];
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+            strokeHistory = []; ctx.clearRect(0, 0, canvas.width, canvas.height); tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
             saveBoardState();
             if (broadcast) broadcastEvent({ type: 'clear' });
         }
@@ -2518,44 +1639,30 @@
             if (data.type === 'teacher_move_local') {
                 handleTeacherMoveData(data);
             } else if (data.type === 'teacher_zoom') {
-                if (role === 'student' && followMode) {
-                    targetFollowScale = data.boardScale;
-                    targetFollowX = data.boardX;
-                    targetFollowY = data.boardY;
-                }
+                if (role === 'student' && followMode) { targetFollowScale = data.boardScale; targetFollowX = data.boardX; targetFollowY = data.boardY; }
             } else if (data.type === 'follow_toggle') {
-                followMode = data.followMode;
-                updateStudentPanLock();
+                followMode = data.followMode; updateStudentPanLock();
             } else if (data.type === 'draw_seg') {
                 renderSmoothPath(ctx, [data.p0, data.p1], data.color, data.strokeTool, data.size);
             } else if (data.type === 'draw_commit') {
                 strokeHistory.push(data.stroke);
                 actionHistory.push({ kind: 'stroke', stroke: data.stroke });
-                if (data.stroke.strokeTool === 'highlighter') {
-                    renderSmoothPath(ctx, data.stroke.points, data.stroke.color, data.stroke.strokeTool, data.stroke.size);
-                }
+                if (data.stroke.strokeTool === 'highlighter') renderSmoothPath(ctx, data.stroke.points, data.stroke.color, data.stroke.strokeTool, data.stroke.size);
                 saveBoardState();
             } else if (data.type === 'strokes_sync') {
-                strokeHistory = data.strokeHistory || [];
-                redrawAllStrokes();
+                strokeHistory = data.strokeHistory || []; redrawAllStrokes();
             } else if (data.type === 'clear') {
                 clearBoard(false);
             } else if (data.type === 'reset_all') {
-                strokeHistory = [];
-                redrawAllStrokes();
-                dynamicItems.innerHTML = '';
+                strokeHistory = []; redrawAllStrokes(); dynamicItems.innerHTML = '';
             } else if (data.type === 'widget_move') {
-                const w = document.getElementById(data.id);
-                if (w) { w.style.left = data.left + 'px'; w.style.top = data.top + 'px'; }
+                const w = document.getElementById(data.id); if (w) { w.style.left = data.left + 'px'; w.style.top = data.top + 'px'; }
             } else if (data.type === 'widget_resize') {
-                const w = document.getElementById(data.id);
-                if (w) { w.style.width = data.width + 'px'; w.style.height = data.height + 'px'; }
+                const w = document.getElementById(data.id); if (w) { w.style.width = data.width + 'px'; w.style.height = data.height + 'px'; }
             } else if (data.type === 'widget_lock') {
-                const w = document.getElementById(data.id);
-                if (w) w.classList.toggle('locked-widget', data.isLocked);
+                const w = document.getElementById(data.id); if (w) w.classList.toggle('locked-widget', data.isLocked);
             } else if (data.type === 'item_display') {
-                const w = document.getElementById(data.id);
-                if (w) w.style.display = data.display;
+                const w = document.getElementById(data.id); if (w) w.style.display = data.display;
             } else if (data.type === 'spawn_video') {
                 createVideoWidget(data.data, false, false);
             } else if (data.type === 'video_chunks_ready') {
@@ -2573,15 +1680,9 @@
             } else if (data.type === 'speaking_preset') {
                 selectSpeakingPreset(data.id, data.seconds, false);
             } else if (data.type === 'speaking_toggle_timer') {
-                const st = speakingTimers[data.id];
-                if (st) {
-                    st.remaining = data.remaining;
-                    st.running = !data.running;
-                    toggleSpeakingTimer(data.id, false);
-                }
+                const st = speakingTimers[data.id]; if (st) { st.remaining = data.remaining; st.running = !data.running; toggleSpeakingTimer(data.id, false); }
             } else if (data.type === 'speaking_audio') {
-                const audioEl = document.getElementById(`spk-audio-${data.id}`);
-                if (audioEl) audioEl.src = data.src;
+                const audioEl = document.getElementById(`spk-audio-${data.id}`); if (audioEl) audioEl.src = data.src;
             } else if (data.type === 'spawn_dict') {
                 createDictWidget(data.data, false, false);
             } else if (data.type === 'dict_lookup') {
@@ -2589,167 +1690,98 @@
             } else if (data.type === 'spawn_text_node') {
                 createTextNode(data.data, false, false);
             } else if (data.type === 'text_node_update') {
-                const el = document.querySelector(`#${data.id} .board-text-content`);
-                if (el && document.activeElement !== el) el.innerText = data.text;
+                const el = document.querySelector(`#${data.id} .board-text-content`); if (el && document.activeElement !== el) el.innerText = data.text;
             } else if (data.type === 'text_node_resize') {
-                const node = document.getElementById(data.id);
-                const el = document.querySelector(`#${data.id} .board-text-content`);
-                if (node && el) {
-                    node.dataset.fontSize = data.fontSize;
-                    el.style.fontSize = data.fontSize + 'px';
-                }
+                const node = document.getElementById(data.id); const el = document.querySelector(`#${data.id} .board-text-content`);
+                if (node && el) { node.dataset.fontSize = data.fontSize; el.style.fontSize = data.fontSize + 'px'; }
             } else if (data.type === 'sticker_text') {
-                const el = document.querySelector(`#${data.id} textarea`);
-                if (el) el.value = data.text;
+                const el = document.querySelector(`#${data.id} textarea`); if (el) el.value = data.text;
             } else if (data.type === 'essay_update') {
-                const el = document.querySelector(`#${data.id} textarea`);
-                if (el) el.value = data.text;
-                updateEssayCounter(data.id, data.text);
+                const el = document.querySelector(`#${data.id} textarea`); if (el) el.value = data.text; updateEssayCounter(data.id, data.text);
             } else if (data.type === 'video_control') {
                 const v = document.querySelector(`#${data.id} video`);
-                const hint = document.getElementById(`vid-unmute-${data.id}`);
-                if (!v) return;
-                v.dataset.remote = '1';
+                if (!v) return; v.dataset.remote = '1';
                 if (Math.abs(v.currentTime - data.time) > 0.5) v.currentTime = data.time;
-                if (data.action === 'play') {
-                    v.muted = false;
-                    v.play().catch(() => {
-                        // Если браузер заблокировал автозапуск со звуком, запускаем видео и показываем кнопку включения звука
-                        v.muted = true;
-                        v.play().catch(() => {});
-                        if (hint) hint.style.display = 'block';
-                    });
-                } else if (data.action === 'pause') {
-                    v.pause();
-                }
+                if (data.action === 'play') v.play().catch(() => {}); else if (data.action === 'pause') v.pause();
                 setTimeout(() => { v.dataset.remote = '0'; }, 180);
             } else if (data.type === 'timer_sync') {
-                remainingSeconds = data.remainingSeconds;
-                timerPaused = !!data.paused;
-                timerPhase = data.phase || 'lesson';
-                updateTimerPauseUI();
-                document.getElementById('lesson-timer-badge').style.display = data.active ? 'flex' : 'none';
+                remainingSeconds = data.remainingSeconds; timerPaused = !!data.paused; timerPhase = data.phase || 'lesson';
+                updateTimerPauseUI(); document.getElementById('lesson-timer-badge').style.display = data.active ? 'flex' : 'none';
                 if (data.active) renderTimerText();
             } else if (data.type === 'webrtc_signal') {
                 handleWebRTCSignal(data);
             }
         }
 
-        // ================= НАДЕЖНЫЙ WEBRTC (ГОЛОС И КАМЕРА МЕЖДУ IPAD И ПК) =================
+        // ================= WEBRTC ВИДЕОСВЯЗЬ И ГОЛОС (IPAD + ПК) =================
         const RTC_CONFIG = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
                 { urls: 'stun:stun.cloudflare.com:3478' },
-                {
-                    urls: 'turn:openrelay.metered.ca:80',
-                    username: 'openrelayproject',
-                    credential: 'openrelayproject'
-                },
-                {
-                    urls: 'turn:openrelay.metered.ca:443',
-                    username: 'openrelayproject',
-                    credential: 'openrelayproject'
-                },
-                {
-                    urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-                    username: 'openrelayproject',
-                    credential: 'openrelayproject'
-                }
+                { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+                { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
             ]
         };
 
         let pc = null;
-        let localStream = null;
         let remoteVideoStream = new MediaStream();
         let remoteAudioStream = new MediaStream();
-        let micActive = false;
-        let cameraActive = false;
-        let remoteSoundMuted = false;
         let makingOffer = false;
         let ignoreOffer = false;
         let pendingIceCandidates = [];
         let rtcSignalRef = null;
 
-        function setRtcStatus(text) {
-            const el = document.getElementById('rtc-status-bar');
-            if (el) el.innerText = text;
-        }
+        function setRtcStatus(text) { const el = document.getElementById('rtc-status-bar'); if (el) el.innerText = text; }
 
         function sendRtcSignal(payload) {
             const msg = { ...payload, type: 'webrtc_signal', sender: myClientId, senderRole: role, ts: Date.now() };
             try { localChannel.postMessage(msg); } catch (e) {}
-            if (rtcSignalRef) {
-                try { rtcSignalRef.push(msg).catch(() => {}); } catch (e) {}
-            }
+            if (rtcSignalRef) { try { rtcSignalRef.push(msg).catch(() => {}); } catch (e) {} }
         }
 
         function ensurePeerConnection() {
-            if (pc && pc.connectionState !== 'closed' && pc.connectionState !== 'failed') {
-                return pc;
-            }
-            if (pc) {
-                try { pc.close(); } catch (e) {}
-            }
+            if (pc && pc.connectionState !== 'closed' && pc.connectionState !== 'failed') return pc;
+            if (pc) { try { pc.close(); } catch (e) {} }
 
             pc = new RTCPeerConnection(RTC_CONFIG);
             remoteVideoStream = new MediaStream();
+            remoteAudioStream = new MediaStream();
 
             if (localStream) {
-                localStream.getTracks().forEach(track => {
-                    pc.addTrack(track, localStream);
-                });
+                localStream.getTracks().forEach(track => { pc.addTrack(track, localStream); });
             }
 
             pc.onicecandidate = (e) => {
-                if (e.candidate) {
-                    sendRtcSignal({ kind: 'ice', candidate: e.candidate.toJSON() });
-                }
+                if (e.candidate) sendRtcSignal({ kind: 'ice', candidate: e.candidate.toJSON() });
             };
 
             pc.onconnectionstatechange = () => {
                 if (!pc) return;
-                if (pc.connectionState === 'connected') {
-                    setRtcStatus('🟢 Видео и звук подключены');
-                } else if (pc.connectionState === 'connecting') {
-                    setRtcStatus('⏳ Соединение...');
-                } else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
-                    setRtcStatus('🔄 Нажмите для переподключения');
-                }
+                if (pc.connectionState === 'connected') setRtcStatus('🟢 Связь активна');
+                else if (pc.connectionState === 'connecting') setRtcStatus('⏳ Соединение...');
+                else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') setRtcStatus('🔄 Нажмите для связи');
             };
 
             pc.ontrack = (e) => {
+                const track = e.track;
                 const targetSlot = (role === 'teacher') ? 'student' : 'teacher';
-                const videoEl = document.getElementById(targetSlot === 'teacher' ? 'teacherVideo' : 'studentVideo');
-                const placeholderEl = document.getElementById(targetSlot === 'teacher' ? 'teacher-placeholder' : 'student-placeholder');
-
-                if (e.streams && e.streams[0]) {
-                    remoteVideoStream = e.streams[0];
-                } else {
-                    const existing = remoteVideoStream.getTracks().find(t => t.kind === e.track.kind);
-                    if (existing) remoteVideoStream.removeTrack(existing);
-                    remoteVideoStream.addTrack(e.track);
+                if (track.kind === 'video') {
+                    remoteVideoStream.getVideoTracks().forEach(t => remoteVideoStream.removeTrack(t));
+                    remoteVideoStream.addTrack(track);
+                    const videoEl = document.getElementById(targetSlot === 'teacher' ? 'teacherVideo' : 'studentVideo');
+                    const placeholderEl = document.getElementById(targetSlot === 'teacher' ? 'teacher-placeholder' : 'student-placeholder');
+                    if (videoEl) { videoEl.muted = true; videoEl.srcObject = remoteVideoStream; videoEl.play().catch(() => {}); }
+                    if (placeholderEl) placeholderEl.style.display = 'none';
+                } else if (track.kind === 'audio') {
+                    remoteAudioStream.getAudioTracks().forEach(t => remoteAudioStream.removeTrack(t));
+                    remoteAudioStream.addTrack(track);
+                    remoteVoicePlayer.srcObject = remoteAudioStream;
+                    remoteVoicePlayer.muted = remoteSoundMuted;
+                    remoteVoicePlayer.play().catch(() => { setRtcStatus('🔊 Нажмите для звука'); });
                 }
-
-                if (videoEl) {
-                    // Переприсваиваем поток, чтобы Safari на iPad сразу отрисовал картинку и включил звук
-                    videoEl.srcObject = null;
-                    videoEl.srcObject = remoteVideoStream;
-                    videoEl.muted = remoteSoundMuted;
-                    videoEl.play().catch(() => {
-                        // Если iPad заблокировал автозвук до первого касания — запускаем видео и включаем звук при касании экрана
-                        videoEl.muted = true;
-                        videoEl.play().catch(() => {});
-                        setRtcStatus('🔊 Коснитесь экрана для включения звука');
-                    });
-                }
-
-                if (e.track.kind === 'video' && placeholderEl) {
-                    placeholderEl.style.display = 'none';
-                }
-                setRtcStatus('🟢 Видео и звук подключены');
+                setRtcStatus('🟢 Связь активна');
             };
-
             return pc;
         }
 
@@ -2757,23 +1789,11 @@
             const conn = ensurePeerConnection();
             try {
                 makingOffer = true;
-                const offer = await conn.createOffer({
-                    offerToReceiveAudio: true,
-                    offerToReceiveVideo: true
-                });
+                const offer = await conn.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
                 if (conn.signalingState !== 'stable') return;
                 await conn.setLocalDescription(offer);
-                sendRtcSignal({
-                    kind: 'sdp',
-                    description: { type: conn.localDescription.type, sdp: conn.localDescription.sdp },
-                    hasVideo: cameraActive,
-                    hasAudio: micActive
-                });
-            } catch (e) {
-                console.warn('Offer error:', e);
-            } finally {
-                makingOffer = false;
-            }
+                sendRtcSignal({ kind: 'sdp', description: { type: conn.localDescription.type, sdp: conn.localDescription.sdp }, hasVideo: cameraActive, hasAudio: micActive });
+            } catch (e) {} finally { makingOffer = false; }
         }
 
         async function handleWebRTCSignal(data) {
@@ -2792,10 +1812,7 @@
                     if (ignoreOffer) return;
 
                     if (offerCollision) {
-                        await Promise.all([
-                            conn.setLocalDescription({ type: 'rollback' }),
-                            conn.setRemoteDescription(new RTCSessionDescription(desc))
-                        ]);
+                        await Promise.all([conn.setLocalDescription({ type: 'rollback' }), conn.setRemoteDescription(new RTCSessionDescription(desc))]);
                     } else {
                         await conn.setRemoteDescription(new RTCSessionDescription(desc));
                     }
@@ -2808,37 +1825,20 @@
                     if (desc.type === 'offer') {
                         const answer = await conn.createAnswer();
                         await conn.setLocalDescription(answer);
-                        sendRtcSignal({
-                            kind: 'sdp',
-                            description: { type: conn.localDescription.type, sdp: conn.localDescription.sdp },
-                            hasVideo: cameraActive,
-                            hasAudio: micActive
-                        });
-                    }
-                    if (data.hasVideo !== undefined || data.hasAudio !== undefined) {
-                        const targetSlot = (role === 'teacher') ? 'student' : 'teacher';
-                        updateRemotePlaceholder(targetSlot, data.hasVideo, data.hasAudio);
+                        sendRtcSignal({ kind: 'sdp', description: { type: conn.localDescription.type, sdp: conn.localDescription.sdp }, hasVideo: cameraActive, hasAudio: micActive });
                     }
                 } else if (data.kind === 'ice' && data.candidate) {
                     if (conn.remoteDescription && conn.remoteDescription.type) {
                         try { await conn.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch (err) {}
-                    } else {
-                        pendingIceCandidates.push(data.candidate);
-                    }
-                } else if (data.kind === 'media_state') {
-                    const targetSlot = (role === 'teacher') ? 'student' : 'teacher';
-                    updateRemotePlaceholder(targetSlot, data.hasVideo, data.hasAudio);
+                    } else { pendingIceCandidates.push(data.candidate); }
                 }
-            } catch (err) {
-                console.warn('WebRTC signal error:', err);
-            }
+            } catch (err) {}
         }
 
         function initWebRTC() {
             ensurePeerConnection();
             if (roomRef) {
                 rtcSignalRef = roomRef.child('rtcSignals');
-                // Очищаем старые сигналы прошлых уроков и слушаем все новые без рассинхрона часов
                 rtcSignalRef.remove().then(() => {
                     rtcSignalRef.on('child_added', (snap) => {
                         const val = snap.val();
@@ -2851,171 +1851,89 @@
         }
 
         function reconnectWebRTC() {
-            unlockAudioPlayback();
-            setRtcStatus('🔄 Обновление связи...');
-            if (pc) {
-                try { pc.close(); } catch (e) {}
-                pc = null;
-            }
+            if (pc) { try { pc.close(); } catch (e) {} pc = null; }
             ensurePeerConnection();
             sendRtcSignal({ kind: 'hello' });
             makeWebRTCOffer();
         }
 
         function cleanupWebRTC() {
-            if (localStream) {
-                localStream.getTracks().forEach(t => t.stop());
-            }
-            if (pc) {
-                try { pc.close(); } catch (e) {}
-            }
+            if (localStream) localStream.getTracks().forEach(t => t.stop());
+            if (pc) { try { pc.close(); } catch (e) {} }
         }
 
         function unlockAudioPlayback() {
-            const remoteSlot = (role === 'teacher') ? 'studentVideo' : 'teacherVideo';
-            const remoteVid = document.getElementById(remoteSlot);
-            if (remoteVid && remoteVid.srcObject) {
-                remoteVid.muted = remoteSoundMuted;
-                remoteVid.play().catch(() => {});
-            }
-        }
-
-        function updateRemotePlaceholder(slotRole, hasVideo, hasAudio) {
-            const placeholderEl = document.getElementById(slotRole === 'teacher' ? 'teacher-placeholder' : 'student-placeholder');
-            if (!placeholderEl) return;
-            placeholderEl.style.display = hasVideo ? 'none' : 'block';
-            const label = slotRole === 'teacher' ? '👩‍🏫 Учитель' : '🧑‍🎓 Ученик';
-            placeholderEl.innerText = hasAudio ? `${label} (🎙️ Говорит)` : `${label}`;
+            if (remoteVoicePlayer && remoteVoicePlayer.srcObject && remoteVoicePlayer.paused) remoteVoicePlayer.play().catch(() => {});
         }
 
         function showLocalPreview() {
             const videoEl = document.getElementById(role === 'teacher' ? 'teacherVideo' : 'studentVideo');
             const placeholderEl = document.getElementById(role === 'teacher' ? 'teacher-placeholder' : 'student-placeholder');
             if (!videoEl || !placeholderEl) return;
-
-            videoEl.muted = true; // Свой собственный голос всегда глушим локально, чтобы не слышать эхо
+            videoEl.muted = true;
             if (cameraActive && localStream) {
-                videoEl.srcObject = null;
-                videoEl.srcObject = localStream;
-                videoEl.play().catch(() => {});
+                videoEl.srcObject = null; videoEl.srcObject = localStream; videoEl.play().catch(() => {});
                 placeholderEl.style.display = 'none';
             } else {
-                videoEl.srcObject = null;
-                placeholderEl.style.display = 'block';
-                const label = role === 'teacher' ? '👩‍🏫 Камера учителя' : '🧑‍🎓 Камера ученика';
-                placeholderEl.innerText = micActive ? `${label} (🎙️ Голос активен)` : label;
+                videoEl.srcObject = null; placeholderEl.style.display = 'block';
             }
         }
 
         async function attachOrReplaceTrack(newTrack) {
             const conn = ensurePeerConnection();
             const sender = conn.getSenders().find(s => s.track && s.track.kind === newTrack.kind);
-            if (sender) {
-                await sender.replaceTrack(newTrack);
-            } else {
-                conn.addTrack(newTrack, localStream);
-            }
+            if (sender) await sender.replaceTrack(newTrack);
+            else conn.addTrack(newTrack, localStream);
             sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
             await makeWebRTCOffer();
         }
 
         async function toggleMic() {
             unlockAudioPlayback();
-            const micBtn = document.getElementById('btn-mic-toggle');
-            const micText = document.getElementById('mic-btn-text');
-
+            const micBtn = document.getElementById('btn-mic-toggle'); const micText = document.getElementById('mic-btn-text');
             if (localStream && localStream.getAudioTracks().length > 0) {
                 micActive = !micActive;
                 localStream.getAudioTracks().forEach(t => t.enabled = micActive);
                 micBtn.classList.toggle('lit', micActive);
                 micText.innerText = micActive ? '🎙️ Микрофон вкл' : '🔇 Микрофон выкл';
-                showLocalPreview();
                 sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
                 return;
             }
-
             try {
-                const audioStream = await navigator.mediaDevices.getUserMedia({
-                    audio: { echoCancellation: true, noiseSuppression: true },
-                    video: false
-                });
+                const audioStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });
                 const audioTrack = audioStream.getAudioTracks()[0];
                 if (!localStream) localStream = new MediaStream();
                 localStream.addTrack(audioTrack);
-
-                micActive = true;
-                micBtn.classList.add('lit');
-                micText.innerText = '🎙️ Микрофон вкл';
-                showLocalPreview();
+                micActive = true; micBtn.classList.add('lit'); micText.innerText = '🎙️ Микрофон вкл';
                 await attachOrReplaceTrack(audioTrack);
-            } catch (err) {
-                alert('Разрешите доступ к микрофону в настройках Safari / браузера.');
-            }
+            } catch (err) { alert('Разрешите доступ к микрофону в настройках браузера.'); }
         }
 
         function toggleRemoteSound() {
             remoteSoundMuted = !remoteSoundMuted;
-            const soundBtn = document.getElementById('btn-sound-toggle');
-            const soundText = document.getElementById('sound-btn-text');
-            soundBtn.classList.toggle('lit', !remoteSoundMuted);
-            soundText.innerText = remoteSoundMuted ? '🔇 Звук выкл' : '🔊 Звук';
-
-            const remoteSlot = (role === 'teacher') ? 'studentVideo' : 'teacherVideo';
-            const remoteVid = document.getElementById(remoteSlot);
-            if (remoteVid) {
-                remoteVid.muted = remoteSoundMuted;
-                if (!remoteSoundMuted) remoteVid.play().catch(() => {});
-            }
+            document.getElementById('btn-sound-toggle').classList.toggle('lit', !remoteSoundMuted);
+            document.getElementById('sound-btn-text').innerText = remoteSoundMuted ? '🔇 Звук выкл' : '🔊 Звук';
+            if (remoteVoicePlayer) { remoteVoicePlayer.muted = remoteSoundMuted; if (!remoteSoundMuted) remoteVoicePlayer.play().catch(() => {}); }
         }
 
         async function toggleCamera() {
             unlockAudioPlayback();
             const camBtn = document.getElementById('btn-cam-toggle');
-
             if (cameraActive && localStream) {
-                localStream.getVideoTracks().forEach(track => {
-                    track.stop();
-                    localStream.removeTrack(track);
-                });
-                cameraActive = false;
-                camBtn.classList.remove('lit');
-                showLocalPreview();
-                sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
-                await makeWebRTCOffer();
-                return;
+                localStream.getVideoTracks().forEach(track => { track.stop(); localStream.removeTrack(track); });
+                cameraActive = false; camBtn.classList.remove('lit');
+                showLocalPreview(); sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
+                await makeWebRTCOffer(); return;
             }
-
             try {
-                const needAudio = !localStream || localStream.getAudioTracks().length === 0;
-                const media = await navigator.mediaDevices.getUserMedia({
-                    video: { width: { ideal: 480 }, height: { ideal: 360 }, facingMode: 'user' },
-                    audio: needAudio ? { echoCancellation: true, noiseSuppression: true } : false
-                });
-
+                const media = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 480 }, height: { ideal: 360 } }, audio: (!localStream || localStream.getAudioTracks().length === 0) });
                 if (!localStream) localStream = new MediaStream();
-
                 const videoTrack = media.getVideoTracks()[0];
-                if (videoTrack) {
-                    localStream.addTrack(videoTrack);
-                    cameraActive = true;
-                    camBtn.classList.add('lit');
-                    await attachOrReplaceTrack(videoTrack);
-                }
-
+                if (videoTrack) { localStream.addTrack(videoTrack); cameraActive = true; camBtn.classList.add('lit'); await attachOrReplaceTrack(videoTrack); }
                 const audioTrack = media.getAudioTracks()[0];
-                if (audioTrack) {
-                    localStream.addTrack(audioTrack);
-                    micActive = true;
-                    document.getElementById('btn-mic-toggle').classList.add('lit');
-                    document.getElementById('mic-btn-text').innerText = '🎙️ Микрофон вкл';
-                    await attachOrReplaceTrack(audioTrack);
-                }
-
-                toggleVideoDock(true);
-                showLocalPreview();
-            } catch (err) {
-                alert('Разрешите доступ к камере и микрофону в настройках браузера.');
-            }
+                if (audioTrack) { localStream.addTrack(audioTrack); micActive = true; document.getElementById('btn-mic-toggle').classList.add('lit'); document.getElementById('mic-btn-text').innerText = '🎙️ Микрофон вкл'; await attachOrReplaceTrack(audioTrack); }
+                toggleVideoDock(true); showLocalPreview();
+            } catch (err) { alert('Разрешите доступ к камере.'); }
         }
 
         initRealtimeSync();
