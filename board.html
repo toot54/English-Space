@@ -24,7 +24,7 @@
             touch-action: none;
         }
 
-        /* Верхняя панель управления (адаптивная для телефонов и планшетов) */
+        /* Верхняя панель управления */
         .top-bar {
             position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px);
@@ -172,7 +172,7 @@
             align-items: center; justify-content: center; margin-left: 2px;
         }
 
-        /* Нижняя панель (Голосовой чат, Камера, Звук) */
+        /* Нижняя панель */
         .bottom-dock {
             position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
             background: rgba(30, 41, 59, 0.94); backdrop-filter: blur(10px);
@@ -261,7 +261,7 @@
         }
         .widget-pick-btn:hover { background: #eef2ff; border-color: #818cf8; color: #4f46e5; }
 
-        /* Холст доски с бесконечным фоном точек */
+        /* Холст доски */
         #board-viewport {
             width: 100vw; height: 100vh; overflow: hidden; position: relative;
             cursor: crosshair; touch-action: none;
@@ -273,6 +273,7 @@
             width: 4200px; height: 3000px; position: absolute; top: 0; left: 0;
             transform-origin: 0 0; will-change: transform; touch-action: none;
         }
+        /* Холст маркера (z-index: 25) находится НАД фото (z-index: 15), но ПОД остальными виджетами (z-index: 35) */
         canvas { position: absolute; top: 0; left: 0; z-index: 25; pointer-events: none; }
         #temp-canvas { z-index: 26; }
 
@@ -308,10 +309,11 @@
         }
         .board-text-node:hover .text-resize-handle, .board-text-node:focus-within .text-resize-handle { opacity: 1; }
 
-        /* Лазерная указка */
+        /* Плавная лазерная указка */
         #laser-cursor {
             position: absolute; pointer-events: none; z-index: 80;
             display: none; transform: translate(-50%, -50%);
+            transition: left 0.06s linear, top 0.06s linear;
         }
         .laser-dot {
             width: 18px; height: 18px; background: #ef4444; border-radius: 50%;
@@ -342,15 +344,19 @@
         .cam-placeholder { color: #94a3b8; font-size: 11px; font-weight: 700; text-align: center; padding: 8px; position: absolute; z-index: 2; }
         .rtc-status-bar {
             font-size: 10px; font-weight: 700; color: #64748b; text-align: center;
-            padding-top: 2px; cursor: pointer;
+            padding: 3px 4px; border-radius: 6px; background: #f1f5f9; cursor: pointer;
         }
 
-        /* Виджеты */
+        /* Все обычные виджеты имеют z-index: 35 (выше маркера!), а photo-widget имеет z-index: 15 (под маркером!) */
         .widget {
             position: absolute; background: white; border-radius: 14px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;
-            padding: 6px 10px 12px 10px; z-index: 20;
+            padding: 6px 10px 12px 10px; z-index: 35;
             display: flex; flex-direction: column; overflow: hidden;
+        }
+        .widget.photo-widget {
+            z-index: 15;
+            padding: 4px 6px 6px 6px; background: white; min-width: 120px; min-height: 80px;
         }
         .widget.locked-widget .resize-handle { display: none !important; }
         .widget.locked-widget .widget-header { cursor: default; }
@@ -369,15 +375,22 @@
             touch-action: none;
         }
 
-        .video-widget-box { width: 360px; height: 260px; min-width: 230px; min-height: 180px; }
+        .video-widget-box { width: 360px; height: 265px; min-width: 230px; min-height: 185px; }
         .upload-video-btn {
             background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe;
-            padding: 7px 12px; border-radius: 8px; font-size: 12px; cursor: pointer;
+            padding: 7px 10px; border-radius: 8px; font-size: 11px; cursor: pointer;
             font-weight: 700; margin-bottom: 6px; width: 100%; flex-shrink: 0;
+            text-align: center; display: block;
         }
         .video-widget-box video {
             width: 100%; flex: 1; min-height: 0; border-radius: 8px;
             background: #0f172a; object-fit: contain;
+        }
+        .video-unmute-hint {
+            position: absolute; bottom: 48px; left: 50%; transform: translateX(-50%);
+            background: rgba(16, 185, 129, 0.95); color: white; border: none;
+            padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 800;
+            cursor: pointer; z-index: 5; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
         }
 
         .essay-widget-box { width: 350px; height: 245px; min-width: 230px; min-height: 165px; }
@@ -388,7 +401,6 @@
         }
         .word-counter { margin-top: 6px; font-size: 11px; font-weight: 700; color: #475569; flex-shrink: 0; }
 
-        .photo-widget { padding: 4px 6px 6px 6px; background: white; min-width: 120px; min-height: 80px; }
         .photo-widget img { width: 100%; flex: 1; min-height: 0; object-fit: fill; border-radius: 8px; display: block; pointer-events: none; }
 
         .sticker-widget {
@@ -451,7 +463,6 @@
             background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0;
         }
 
-        /* Адаптация под телефоны и планшеты */
         @media (max-width: 780px) {
             .btn-text-hide { display: none; }
             .top-bar { padding: 4px 8px; gap: 4px; top: 8px; }
@@ -484,6 +495,9 @@
     </style>
 </head>
 <body class="role-teacher">
+
+    <!-- Отдельный аудиоплеер для голоса собеседника (гарантирует работу звука на iPad Safari) -->
+    <audio id="remote-voice-player" autoplay playsinline></audio>
 
     <!-- Верхняя панель инструментов -->
     <div class="top-bar">
@@ -586,16 +600,16 @@
         <div class="swatch" style="background:#0f172a;" onclick="pickColor('#0f172a')"></div>
     </div>
 
-    <!-- Окно виджетов -->
+    <!-- Окно виджетов (Кнопка Фото сделана через прямую <label>, чтобы 100% открываться на iPad!) -->
     <div id="widgets-modal">
         <div class="modal-header">
-            <div class="modal-title">🧩 Выберите виджет и нажмите на доску</div>
+            <div class="modal-title">🧩 Выберите виджет</div>
             <button class="close-btn" onclick="toggleWidgetsModal()">✕</button>
         </div>
         <div class="widget-grid">
+            <label for="photo-upload-input" class="widget-pick-btn">🖼️ Фото / Учебник</label>
             <button class="widget-pick-btn" onclick="startWidgetPlacement('video', '🎬 Видеоплеер')">🎬 Видео / Аудио</button>
             <button class="widget-pick-btn" onclick="startWidgetPlacement('essay', '📝 Редактор Эссе')">📝 Редактор Эссе</button>
-            <button class="widget-pick-btn" onclick="startWidgetPlacement('photo', '🖼️ Фото / Скриншот')">🖼️ Фото / Учебник</button>
             <button class="widget-pick-btn" onclick="startWidgetPlacement('sticker', '🟨 Стикер')">🟨 Стикер</button>
             <button class="widget-pick-btn" onclick="startWidgetPlacement('speaking', '🎙️ Тренажер Speaking')">🎙️ Тренажер Speaking</button>
             <button class="widget-pick-btn" onclick="startWidgetPlacement('dict', '📖 Словарь Oxford/Cambridge')">📖 Словарь (Ox/Cam)</button>
@@ -611,11 +625,11 @@
         </div>
         <div class="cam-box">
             <div class="cam-placeholder" id="teacher-placeholder">👩‍🏫 Камера учителя</div>
-            <video id="teacherVideo" autoplay playsinline></video>
+            <video id="teacherVideo" autoplay muted playsinline></video>
         </div>
         <div class="cam-box">
             <div class="cam-placeholder" id="student-placeholder">🧑‍🎓 Камера ученика</div>
-            <video id="studentVideo" autoplay playsinline></video>
+            <video id="studentVideo" autoplay muted playsinline></video>
         </div>
         <div class="rtc-status-bar" id="rtc-status-bar" onclick="reconnectWebRTC()" title="Нажмите для переподключения связи">
             🔄 Связь готова
@@ -715,11 +729,11 @@
         const colorPopover = document.getElementById('color-popover');
         const lessonTimePopover = document.getElementById('lesson-time-popover');
         const placementBanner = document.getElementById('placement-banner');
+        const remoteVoicePlayer = document.getElementById('remote-voice-player');
 
         const CENTER_X = -1400;
         const CENTER_Y = -950;
 
-        // Надежное определение роли (учитель никогда не теряет кнопку виджетов!)
         function detectInitialRole() {
             const paramRole = urlParams.get('role');
             if (paramRole === 'teacher' || paramRole === 'student') return paramRole;
@@ -745,14 +759,21 @@
         let followMode = true;
         let boardX = CENTER_X, boardY = CENTER_Y;
         let boardScale = 1;
+
+        // Целевые координаты для плавного ведения ученика (60 FPS без рывков)
+        let targetFollowX = CENTER_X;
+        let targetFollowY = CENTER_Y;
+        let targetFollowScale = 1;
+
         let startPanX = 0, startPanY = 0;
         let currentStrokePoints = [];
         let strokeBounds = { minX: 0, minY: 0, maxX: 0, maxY: 0 };
-        let topZIndex = 20;
+
+        // Отдельные z-index: для фото (15..22 — ПОД маркером) и для остальных виджетов (35..48 — НАД маркером)
+        let photoZIndex = 15;
+        let topZIndex = 35;
 
         let pendingWidgetType = null;
-        let pendingPhotoCoords = null;
-
         let strokeHistory = [];
         let actionHistory = [];
         let redoActionStack = [];
@@ -772,6 +793,27 @@
 
         applyVerifiedRole(role);
         applyBoardTransform();
+
+        // Плавный цикл интерполяции камеры для ученика в режиме "Вести"
+        function startSmoothFollowLoop() {
+            function step() {
+                if (role === 'student' && followMode) {
+                    const dx = targetFollowX - boardX;
+                    const dy = targetFollowY - boardY;
+                    const ds = targetFollowScale - boardScale;
+                    if (Math.abs(dx) > 0.4 || Math.abs(dy) > 0.4 || Math.abs(ds) > 0.002) {
+                        boardX += dx * 0.22;
+                        boardY += dy * 0.22;
+                        boardScale += ds * 0.22;
+                        updateZoomUI();
+                        applyBoardTransform();
+                    }
+                }
+                requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+        startSmoothFollowLoop();
 
         if (auth && !urlParams.get('role')) {
             auth.onAuthStateChanged(async (user) => {
@@ -862,7 +904,8 @@
                     handleTeacherMoveData(data);
                 });
 
-                roomRef.child('events').limitToLast(1).on('child_added', (snap) => {
+                const joinNow = Date.now();
+                roomRef.child('events').orderByChild('ts').startAt(joinNow).on('child_added', (snap) => {
                     const data = snap.val();
                     if (!data || data.sender === myClientId) return;
                     handleRemoteEvent(data);
@@ -870,34 +913,49 @@
             } catch (e) {}
         }
 
+        function sendTeacherViewportSync(worldX, worldY) {
+            if (role !== 'teacher') return;
+            const pointerActive = (tool === 'pointer');
+            const movePayload = {
+                type: 'teacher_move_local',
+                sender: myClientId,
+                worldX: worldX !== undefined ? worldX : Math.round((window.innerWidth / 2 - boardX) / boardScale),
+                worldY: worldY !== undefined ? worldY : Math.round((window.innerHeight / 2 - boardY) / boardScale),
+                boardX, boardY, boardScale,
+                vw: window.innerWidth,
+                vh: window.innerHeight,
+                followMode, pointerActive
+            };
+            try { localChannel.postMessage(movePayload); } catch (err) {}
+            if (roomRef) {
+                try { roomRef.child('teacherMove').set(movePayload).catch(() => {}); } catch (err) {}
+            }
+        }
+
         function handleTeacherMoveData(data) {
             followMode = data.followMode;
             updateStudentPanLock();
             laserCursor.style.display = data.pointerActive ? 'block' : 'none';
-            if (data.pointerActive) {
+            if (data.pointerActive && data.worldX !== undefined) {
                 laserCursor.style.left = data.worldX + 'px';
                 laserCursor.style.top = data.worldY + 'px';
             }
 
             if (role === 'student' && followMode) {
-                boardScale = data.boardScale || 1;
-                updateZoomUI();
+                const tScale = data.boardScale || 1;
+                targetFollowScale = tScale;
 
-                let targetX = data.boardX;
-                let targetY = data.boardY;
-                const screenX = data.worldX * boardScale + targetX;
-                const screenY = data.worldY * boardScale + targetY;
-                const margin = 80;
+                // Выравниваем центр экрана учителя и центр экрана ученика
+                const tVw = data.vw || window.innerWidth;
+                const tVh = data.vh || window.innerHeight;
+                const centerWorldX = (tVw / 2 - data.boardX) / tScale;
+                const centerWorldY = (tVh / 2 - data.boardY) / tScale;
 
-                if (screenX > window.innerWidth - margin) targetX = window.innerWidth - margin - data.worldX * boardScale;
-                else if (screenX < margin) targetX = margin - data.worldX * boardScale;
+                const minX = Math.min(0, window.innerWidth - canvas.width * tScale);
+                const minY = Math.min(0, window.innerHeight - canvas.height * tScale);
 
-                if (screenY > window.innerHeight - margin) targetY = window.innerHeight - margin - data.worldY * boardScale;
-                else if (screenY < margin) targetY = margin - data.worldY * boardScale;
-
-                boardX = targetX;
-                boardY = targetY;
-                applyBoardTransform();
+                targetFollowX = Math.min(0, Math.max(minX, window.innerWidth / 2 - centerWorldX * tScale));
+                targetFollowY = Math.min(0, Math.max(minY, window.innerHeight / 2 - centerWorldY * tScale));
             }
         }
 
@@ -922,10 +980,16 @@
             return pattern;
         }
 
+        // Фото всегда остаются ниже холста маркера (z-index 15..22), а остальные виджеты — выше маркера (z-index 35..48)!
         function bringToFront(el) {
             if (el.classList.contains('locked-widget')) return;
-            topZIndex = Math.min(24, topZIndex + 1);
-            el.style.zIndex = topZIndex;
+            if (el.classList.contains('photo-widget')) {
+                photoZIndex = photoZIndex >= 22 ? 15 : photoZIndex + 1;
+                el.style.zIndex = photoZIndex;
+            } else {
+                topZIndex = topZIndex >= 48 ? 36 : topZIndex + 1;
+                el.style.zIndex = topZIndex;
+            }
         }
 
         function startWidgetPlacement(type, label) {
@@ -1070,7 +1134,9 @@
             const el = document.getElementById(id);
             if (!el) return;
             const isLocked = el.classList.toggle('locked-widget');
-            if (isLocked) el.style.zIndex = 18;
+            if (isLocked) {
+                el.style.zIndex = el.classList.contains('photo-widget') ? 14 : 34;
+            }
             const lockBtn = el.querySelector('.lock-btn');
             if (lockBtn) {
                 lockBtn.innerText = isLocked ? '🔒' : '🔓';
@@ -1193,10 +1259,13 @@
             boardScale = 1;
             boardX = CENTER_X;
             boardY = CENTER_Y;
+            targetFollowX = CENTER_X;
+            targetFollowY = CENTER_Y;
+            targetFollowScale = 1;
             updateZoomUI();
             applyBoardTransform();
-            if (broadcast && role === 'teacher' && followMode) {
-                broadcastEvent({ type: 'teacher_zoom', boardX, boardY, boardScale });
+            if (broadcast && role === 'teacher') {
+                sendTeacherViewportSync();
             }
         }
 
@@ -1287,7 +1356,6 @@
         }
 
         window.addEventListener('pointerdown', (e) => {
-            // Авторазблокировка звука браузера при первом касании экрана
             unlockAudioPlayback();
             if (!e.target.closest('#tool-popover') && !e.target.closest('#unified-tool-btn') &&
                 !e.target.closest('#color-popover') && !e.target.closest('#color-circle-btn') &&
@@ -1314,8 +1382,8 @@
             updateZoomUI();
             applyBoardTransform();
 
-            if (role === 'teacher' && followMode) {
-                broadcastEvent({ type: 'teacher_zoom', boardX, boardY, boardScale });
+            if (role === 'teacher') {
+                sendTeacherViewportSync();
             }
         }
 
@@ -1335,10 +1403,7 @@
             changeZoom(delta, e.clientX, e.clientY);
         }, { passive: false });
 
-        // Поддержка жеста масштабирования двумя пальцами (Pinch-to-Zoom) для телефонов и планшетов
-        let activeTouches = new Map();
         let lastPinchDist = null;
-
         viewport.addEventListener('touchstart', (e) => {
             if (e.touches.length === 2) {
                 drawing = false;
@@ -1365,9 +1430,7 @@
             }
         }, { passive: false });
 
-        viewport.addEventListener('touchend', () => {
-            lastPinchDist = null;
-        });
+        viewport.addEventListener('touchend', () => { lastPinchDist = null; });
 
         function screenToWorld(clientX, clientY) {
             return {
@@ -1477,7 +1540,7 @@
             if (header) {
                 header.addEventListener('pointerdown', (e) => {
                     if (role === 'student' || widget.classList.contains('locked-widget')) return;
-                    if (e.target.closest('button') || e.target.closest('.sticker-dot')) return;
+                    if (e.target.closest('button') || e.target.closest('label') || e.target.closest('.sticker-dot')) return;
                     e.stopPropagation();
                     bringToFront(widget);
                     isDragging = true;
@@ -1538,10 +1601,11 @@
             });
         }
 
+        // ================= ВИДЕО-ВИДЖЕТ С ПАКЕТНОЙ ПЕРЕДАЧЕЙ ФАЙЛА И ЗВУКА УЧЕНИКУ =================
         function createVideoWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
             const data = existingData || {
-                id: 'video-' + Date.now(), left: 1600, top: 1100, width: 360, height: 260
+                id: 'video-' + Date.now(), left: 1600, top: 1100, width: 360, height: 265
             };
             if (document.getElementById(data.id)) return;
 
@@ -1549,9 +1613,9 @@
             div.className = 'widget video-widget-box';
             div.id = data.id;
             div.dataset.type = 'video';
-            div.dataset.minW = '230'; div.dataset.minH = '180';
+            div.dataset.minW = '230'; div.dataset.minH = '185';
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
-            div.style.width = (data.width || 360) + 'px'; div.style.height = (data.height || 260) + 'px';
+            div.style.width = (data.width || 360) + 'px'; div.style.height = (data.height || 265) + 'px';
 
             const fileInputId = 'vid-file-' + data.id;
             div.innerHTML = `
@@ -1564,9 +1628,10 @@
                         <button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button>
                     </div>
                 </div>
-                <button class="upload-video-btn" onclick="document.getElementById('${fileInputId}').click()">🎬 Загрузить видео / аудио</button>
+                <label for="${fileInputId}" class="upload-video-btn" id="vid-btn-label-${data.id}">🎬 Выбрать видео / аудио с устройства</label>
                 <input type="file" id="${fileInputId}" accept="video/*,audio/*" style="display:none;" onchange="loadLocalMediaFor(event, '${data.id}')">
-                <video controls playsinline></video>
+                <video controls playsinline webkit-playsinline></video>
+                <button class="video-unmute-hint" id="vid-unmute-${data.id}" onclick="unmuteWidgetVideo('${data.id}')">🔊 Нажмите, чтобы включить звук видео</button>
                 <div class="resize-handle">◢</div>
             `;
 
@@ -1587,22 +1652,99 @@
                 broadcastEvent({ type: 'video_control', id: data.id, action: 'seek', time: videoEl.currentTime });
             });
 
+            // Если в комнате уже загружено видео для этого виджета — сразу подгружаем его ученику и учителю
+            loadSyncedVideoFromFirebase(data.id);
+
             if (recordInHistory) recordAction({ kind: 'add_item', id: data.id, display: 'flex' });
             if (broadcast) broadcastEvent({ type: 'spawn_video', data });
+        }
+
+        function unmuteWidgetVideo(id) {
+            const v = document.querySelector(`#${id} video`);
+            const hint = document.getElementById(`vid-unmute-${id}`);
+            if (v) {
+                v.muted = false;
+                v.play().catch(() => {});
+            }
+            if (hint) hint.style.display = 'none';
         }
 
         function loadLocalMediaFor(event, id) {
             const file = event.target.files[0];
             const v = document.querySelector(`#${id} video`);
+            const btnLabel = document.getElementById(`vid-btn-label-${id}`);
             if (!file || !v) return;
+
             v.src = URL.createObjectURL(file);
-            if (file.size < 15 * 1024 * 1024) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    broadcastEvent({ type: 'video_data_sync', id, src: e.target.result });
-                };
-                reader.readAsDataURL(file);
+            v.muted = false;
+
+            if (file.size > 45 * 1024 * 1024) {
+                alert('Файл слишком большой (более 45 МБ). Выберите ролик покороче для быстрой отправки ученику.');
+                return;
             }
+
+            if (btnLabel) btnLabel.innerText = '⏳ Загрузка видео для ученика: 0%...';
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const fullDataUrl = e.target.result;
+                if (!roomRef) return;
+
+                try {
+                    const chunkSize = 350000; // По 350 КБ на пакет (безопасно для Firebase RTDB)
+                    const totalChunks = Math.ceil(fullDataUrl.length / chunkSize);
+                    const videoNodeRef = roomRef.child('videoFiles/' + id);
+
+                    await videoNodeRef.remove();
+
+                    for (let i = 0; i < totalChunks; i++) {
+                        const part = fullDataUrl.slice(i * chunkSize, (i + 1) * chunkSize);
+                        await videoNodeRef.child('chunks/' + i).set(part);
+                        if (btnLabel) {
+                            const pct = Math.round(((i + 1) / totalChunks) * 100);
+                            btnLabel.innerText = `⏳ Загрузка для ученика: ${pct}%...`;
+                        }
+                    }
+
+                    await videoNodeRef.child('meta').set({
+                        totalChunks,
+                        name: file.name,
+                        updatedAt: Date.now()
+                    });
+
+                    if (btnLabel) btnLabel.innerText = `✅ Готово (${file.name.slice(0, 22)})`;
+                    broadcastEvent({ type: 'video_chunks_ready', id });
+                } catch (err) {
+                    if (btnLabel) btnLabel.innerText = '🎬 Выбрать другое видео';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function loadSyncedVideoFromFirebase(id) {
+            if (!roomRef) return;
+            try {
+                const metaSnap = await roomRef.child(`videoFiles/${id}/meta`).once('value');
+                const meta = metaSnap.val();
+                if (!meta || !meta.totalChunks) return;
+
+                const chunksSnap = await roomRef.child(`videoFiles/${id}/chunks`).once('value');
+                const chunksVal = chunksSnap.val();
+                if (!chunksVal) return;
+
+                let fullDataUrl = '';
+                for (let i = 0; i < meta.totalChunks; i++) {
+                    if (chunksVal[i]) fullDataUrl += chunksVal[i];
+                }
+                if (!fullDataUrl) return;
+
+                const res = await fetch(fullDataUrl);
+                const blob = await res.blob();
+                const v = document.querySelector(`#${id} video`);
+                if (v) {
+                    v.src = URL.createObjectURL(blob);
+                }
+            } catch (e) {}
         }
 
         function createEssayWidget(existingData, broadcast, recordInHistory = true) {
@@ -1657,14 +1799,15 @@
             counter.style.color = (words >= 180 && words <= 275) ? '#10b981' : '#475569';
         }
 
+        // Прямая загрузка фото (работает на iPad, iPhone и ПК с первого нажатия!)
         function handlePhotoUpload(event) {
             if (role === 'student') return;
+            widgetsModal.style.display = 'none';
             const file = event.target.files[0];
             if (file) {
-                const coords = pendingPhotoCoords || screenToWorld(window.innerWidth / 2 - 150, window.innerHeight / 2 - 110);
+                const coords = screenToWorld(window.innerWidth / 2 - 160, window.innerHeight / 2 - 120);
                 processImageFile(file, coords.x, coords.y);
             }
-            pendingPhotoCoords = null;
             event.target.value = '';
         }
 
@@ -1676,8 +1819,8 @@
                     const offCanvas = document.createElement('canvas');
                     const maxW = 900;
                     const scale = img.width > maxW ? maxW / img.width : 1;
-                    offCanvas.width = img.width * scale;
-                    offCanvas.height = img.height * scale;
+                    offCanvas.width = Math.round(img.width * scale);
+                    offCanvas.height = Math.round(img.height * scale);
                     offCanvas.getContext('2d').drawImage(img, 0, 0, offCanvas.width, offCanvas.height);
                     const dataUrl = offCanvas.toDataURL('image/jpeg', 0.82);
 
@@ -1711,6 +1854,7 @@
             div.dataset.minW = '120'; div.dataset.minH = '90';
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
             div.style.width = data.width + 'px'; div.style.height = data.height + 'px';
+            div.style.zIndex = '15';
             div.innerHTML = `
                 <div class="widget-header">
                     <div class="widget-actions-left">
@@ -2112,7 +2256,10 @@
             redrawAllStrokes();
             dynamicItems.innerHTML = '';
             localStorage.removeItem(LOCAL_BOARD_KEY);
-            if (roomRef) roomRef.child('snapshot').remove().catch(() => {});
+            if (roomRef) {
+                roomRef.child('snapshot').remove().catch(() => {});
+                roomRef.child('videoFiles').remove().catch(() => {});
+            }
             broadcastEvent({ type: 'reset_all' });
         }
 
@@ -2148,11 +2295,11 @@
             followMode = !followMode;
             const btn = document.getElementById('btn-follow');
             btn.classList.toggle('active', followMode);
+            sendTeacherViewportSync();
             broadcastEvent({ type: 'follow_toggle', followMode });
             updateStudentPanLock();
         }
 
-        // Бесконечная сетка точек без серого обрыва по краям
         function applyBoardTransform() {
             const minX = Math.min(0, window.innerWidth - canvas.width * boardScale);
             const minY = Math.min(0, window.innerHeight - canvas.height * boardScale);
@@ -2222,7 +2369,7 @@
                 cancelPendingPlacement();
 
                 if (wType === 'video') {
-                    createVideoWidget({ id: 'video-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 360, height: 260 }, true, true);
+                    createVideoWidget({ id: 'video-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 360, height: 265 }, true, true);
                 } else if (wType === 'essay') {
                     createEssayWidget({ id: 'essay-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 350, height: 245, text: '' }, true, true);
                 } else if (wType === 'sticker') {
@@ -2231,13 +2378,11 @@
                     createSpeakingWidget({ id: 'speaking-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 340, height: 240 }, true, true);
                 } else if (wType === 'dict') {
                     createDictWidget({ id: 'dict-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 350, height: 280 }, true, true);
-                } else if (wType === 'photo') {
-                    pendingPhotoCoords = pt;
-                    document.getElementById('photo-upload-input').click();
                 }
                 return;
             }
 
+            // Запрещаем рисование внутри любых виджетов, КРОМЕ фото-виджета (.photo-widget)
             if (e.target.closest('.widget') && !e.target.closest('.photo-widget')) return;
 
             if (tool === 'pan') {
@@ -2273,30 +2418,6 @@
             const worldX = Math.round(pt.x);
             const worldY = Math.round(pt.y);
 
-            if (role === 'teacher') {
-                const pointerActive = (tool === 'pointer');
-                laserCursor.style.display = pointerActive ? 'block' : 'none';
-                if (pointerActive) {
-                    laserCursor.style.left = worldX + 'px';
-                    laserCursor.style.top = worldY + 'px';
-                }
-
-                const now = Date.now();
-                if (now - lastMoveSentTime > 45) {
-                    lastMoveSentTime = now;
-                    const movePayload = {
-                        type: 'teacher_move_local',
-                        sender: myClientId,
-                        worldX, worldY, boardX, boardY, boardScale,
-                        followMode, pointerActive
-                    };
-                    try { localChannel.postMessage(movePayload); } catch (err) {}
-                    if (roomRef) {
-                        try { roomRef.child('teacherMove').set(movePayload).catch(() => {}); } catch (err) {}
-                    }
-                }
-            }
-
             if (panning) {
                 boardX = e.clientX - startPanX;
                 boardY = e.clientY - startPanY;
@@ -2320,6 +2441,21 @@
                     broadcastEvent({
                         type: 'draw_seg', p0, p1, color: currentColor, strokeTool: tool, size: baseStrokeSize
                     });
+                }
+            }
+
+            if (role === 'teacher') {
+                const pointerActive = (tool === 'pointer');
+                laserCursor.style.display = pointerActive ? 'block' : 'none';
+                if (pointerActive) {
+                    laserCursor.style.left = worldX + 'px';
+                    laserCursor.style.top = worldY + 'px';
+                }
+
+                const now = Date.now();
+                if (now - lastMoveSentTime > 40) {
+                    lastMoveSentTime = now;
+                    sendTeacherViewportSync(worldX, worldY);
                 }
             }
         });
@@ -2361,11 +2497,9 @@
                 handleTeacherMoveData(data);
             } else if (data.type === 'teacher_zoom') {
                 if (role === 'student' && followMode) {
-                    boardScale = data.boardScale;
-                    boardX = data.boardX;
-                    boardY = data.boardY;
-                    updateZoomUI();
-                    applyBoardTransform();
+                    targetFollowScale = data.boardScale;
+                    targetFollowX = data.boardX;
+                    targetFollowY = data.boardY;
                 }
             } else if (data.type === 'follow_toggle') {
                 followMode = data.followMode;
@@ -2400,6 +2534,8 @@
                 if (w) w.style.display = data.display;
             } else if (data.type === 'spawn_video') {
                 createVideoWidget(data.data, false, false);
+            } else if (data.type === 'video_chunks_ready') {
+                loadSyncedVideoFromFirebase(data.id);
             } else if (data.type === 'spawn_essay') {
                 createEssayWidget(data.data, false, false);
             } else if (data.type === 'spawn_photo') {
@@ -2445,16 +2581,23 @@
                 const el = document.querySelector(`#${data.id} textarea`);
                 if (el) el.value = data.text;
                 updateEssayCounter(data.id, data.text);
-            } else if (data.type === 'video_data_sync') {
-                const v = document.querySelector(`#${data.id} video`);
-                if (v) v.src = data.src;
             } else if (data.type === 'video_control') {
                 const v = document.querySelector(`#${data.id} video`);
+                const hint = document.getElementById(`vid-unmute-${data.id}`);
                 if (!v) return;
                 v.dataset.remote = '1';
                 if (Math.abs(v.currentTime - data.time) > 0.5) v.currentTime = data.time;
-                if (data.action === 'play') v.play().catch(() => {});
-                else if (data.action === 'pause') v.pause();
+                if (data.action === 'play') {
+                    v.muted = false;
+                    v.play().catch(() => {
+                        // Если браузер заблокировал автозапуск со звуком, запускаем видео и показываем кнопку включения звука
+                        v.muted = true;
+                        v.play().catch(() => {});
+                        if (hint) hint.style.display = 'block';
+                    });
+                } else if (data.action === 'pause') {
+                    v.pause();
+                }
                 setTimeout(() => { v.dataset.remote = '0'; }, 180);
             } else if (data.type === 'timer_sync') {
                 remainingSeconds = data.remainingSeconds;
@@ -2468,19 +2611,34 @@
             }
         }
 
-        // ================= ПРЯМОЙ WEBRTC ЧЕРЕЗ FIREBASE (БЕЗ БЛОКИРУЕМЫХ БИБЛИОТЕК) =================
+        // ================= НАДЕЖНЫЙ WEBRTC (ГОЛОС И КАМЕРА МЕЖДУ IPAD И ПК) =================
         const RTC_CONFIG = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'stun:stun.cloudflare.com:3478' }
+                { urls: 'stun:stun.cloudflare.com:3478' },
+                {
+                    urls: 'turn:openrelay.metered.ca:80',
+                    username: 'openrelayproject',
+                    credential: 'openrelayproject'
+                },
+                {
+                    urls: 'turn:openrelay.metered.ca:443',
+                    username: 'openrelayproject',
+                    credential: 'openrelayproject'
+                },
+                {
+                    urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+                    username: 'openrelayproject',
+                    credential: 'openrelayproject'
+                }
             ]
         };
 
         let pc = null;
         let localStream = null;
-        let remoteStream = null;
+        let remoteVideoStream = new MediaStream();
+        let remoteAudioStream = new MediaStream();
         let micActive = false;
         let cameraActive = false;
         let remoteSoundMuted = false;
@@ -2502,12 +2660,17 @@
             }
         }
 
-        function createPeerConnection() {
+        function ensurePeerConnection() {
+            if (pc && pc.connectionState !== 'closed' && pc.connectionState !== 'failed') {
+                return pc;
+            }
             if (pc) {
                 try { pc.close(); } catch (e) {}
             }
+
             pc = new RTCPeerConnection(RTC_CONFIG);
-            remoteStream = new MediaStream();
+            remoteVideoStream = new MediaStream();
+            remoteAudioStream = new MediaStream();
 
             if (localStream) {
                 localStream.getTracks().forEach(track => {
@@ -2528,18 +2691,35 @@
                 } else if (pc.connectionState === 'connecting') {
                     setRtcStatus('⏳ Соединение...');
                 } else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
-                    setRtcStatus('🔄 Переподключение (нажмите)...');
+                    setRtcStatus('🔄 Нажмите для переподключения');
                 }
             };
 
             pc.ontrack = (e) => {
-                if (e.streams && e.streams[0]) {
-                    remoteStream = e.streams[0];
-                } else {
-                    remoteStream.addTrack(e.track);
-                }
+                const track = e.track;
                 const targetSlot = (role === 'teacher') ? 'student' : 'teacher';
-                showVideoStream(remoteStream, targetSlot, false);
+
+                if (track.kind === 'video') {
+                    remoteVideoStream.getVideoTracks().forEach(t => remoteVideoStream.removeTrack(t));
+                    remoteVideoStream.addTrack(track);
+                    const videoEl = document.getElementById(targetSlot === 'teacher' ? 'teacherVideo' : 'studentVideo');
+                    const placeholderEl = document.getElementById(targetSlot === 'teacher' ? 'teacher-placeholder' : 'student-placeholder');
+                    if (videoEl) {
+                        videoEl.muted = true; // Видео всегда muted, чтобы iPad Safari разрешал автопоказ!
+                        videoEl.srcObject = remoteVideoStream;
+                        videoEl.play().catch(() => {});
+                    }
+                    if (placeholderEl) placeholderEl.style.display = 'none';
+                } else if (track.kind === 'audio') {
+                    // Голос идет через отдельный <audio id="remote-voice-player">
+                    remoteAudioStream.getAudioTracks().forEach(t => remoteAudioStream.removeTrack(t));
+                    remoteAudioStream.addTrack(track);
+                    remoteVoicePlayer.srcObject = remoteAudioStream;
+                    remoteVoicePlayer.muted = remoteSoundMuted;
+                    remoteVoicePlayer.play().catch(() => {
+                        setRtcStatus('🔊 Нажмите сюда, чтобы включить звук');
+                    });
+                }
                 setRtcStatus('🟢 Видео и звук подключены');
             };
 
@@ -2547,18 +2727,18 @@
         }
 
         async function makeWebRTCOffer() {
-            if (!pc) createPeerConnection();
+            const conn = ensurePeerConnection();
             try {
                 makingOffer = true;
-                const offer = await pc.createOffer({
+                const offer = await conn.createOffer({
                     offerToReceiveAudio: true,
                     offerToReceiveVideo: true
                 });
-                if (pc.signalingState !== 'stable') return;
-                await pc.setLocalDescription(offer);
+                if (conn.signalingState !== 'stable') return;
+                await conn.setLocalDescription(offer);
                 sendRtcSignal({
                     kind: 'sdp',
-                    description: { type: pc.localDescription.type, sdp: pc.localDescription.sdp },
+                    description: { type: conn.localDescription.type, sdp: conn.localDescription.sdp },
                     hasVideo: cameraActive,
                     hasAudio: micActive
                 });
@@ -2571,51 +2751,50 @@
 
         async function handleWebRTCSignal(data) {
             if (!data || data.sender === myClientId) return;
-            if (!pc) createPeerConnection();
-
-            const polite = myClientId < data.sender;
+            const conn = ensurePeerConnection();
+            const polite = (role === 'student') || (myClientId < data.sender);
 
             try {
                 if (data.kind === 'hello') {
-                    // Когда второй участник вошел на доску, отправляем ему свежий Offer
-                    if (localStream || role === 'teacher' || polite) {
-                        createPeerConnection();
-                        await makeWebRTCOffer();
-                    }
+                    sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
+                    await makeWebRTCOffer();
                 } else if (data.kind === 'sdp' && data.description) {
                     const desc = data.description;
-                    const offerCollision = (desc.type === 'offer') && (makingOffer || pc.signalingState !== 'stable');
+                    const offerCollision = (desc.type === 'offer') && (makingOffer || conn.signalingState !== 'stable');
                     ignoreOffer = !polite && offerCollision;
                     if (ignoreOffer) return;
 
                     if (offerCollision) {
                         await Promise.all([
-                            pc.setLocalDescription({ type: 'rollback' }),
-                            pc.setRemoteDescription(new RTCSessionDescription(desc))
+                            conn.setLocalDescription({ type: 'rollback' }),
+                            conn.setRemoteDescription(new RTCSessionDescription(desc))
                         ]);
                     } else {
-                        await pc.setRemoteDescription(new RTCSessionDescription(desc));
+                        await conn.setRemoteDescription(new RTCSessionDescription(desc));
                     }
 
-                    // Применяем накопленные ICE-кандидаты
                     while (pendingIceCandidates.length > 0) {
                         const c = pendingIceCandidates.shift();
-                        try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch (err) {}
+                        try { await conn.addIceCandidate(new RTCIceCandidate(c)); } catch (err) {}
                     }
 
                     if (desc.type === 'offer') {
-                        const answer = await pc.createAnswer();
-                        await pc.setLocalDescription(answer);
+                        const answer = await conn.createAnswer();
+                        await conn.setLocalDescription(answer);
                         sendRtcSignal({
                             kind: 'sdp',
-                            description: { type: pc.localDescription.type, sdp: pc.localDescription.sdp },
+                            description: { type: conn.localDescription.type, sdp: conn.localDescription.sdp },
                             hasVideo: cameraActive,
                             hasAudio: micActive
                         });
                     }
+                    if (data.hasVideo !== undefined || data.hasAudio !== undefined) {
+                        const targetSlot = (role === 'teacher') ? 'student' : 'teacher';
+                        updateRemotePlaceholder(targetSlot, data.hasVideo, data.hasAudio);
+                    }
                 } else if (data.kind === 'ice' && data.candidate) {
-                    if (pc.remoteDescription && pc.remoteDescription.type) {
-                        try { await pc.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch (err) {}
+                    if (conn.remoteDescription && conn.remoteDescription.type) {
+                        try { await conn.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch (err) {}
                     } else {
                         pendingIceCandidates.push(data.candidate);
                     }
@@ -2629,25 +2808,30 @@
         }
 
         function initWebRTC() {
-            createPeerConnection();
+            ensurePeerConnection();
             if (roomRef) {
+                const startTs = Date.now() - 2000;
                 rtcSignalRef = roomRef.child('rtcSignals');
-                rtcSignalRef.limitToLast(10).on('child_added', (snap) => {
+                // Слушаем только новые сигналы текущей сессии (чтобы старые сигналы не сбрасывали звонок!)
+                rtcSignalRef.orderByChild('ts').startAt(startTs).on('child_added', (snap) => {
                     const val = snap.val();
                     if (!val || val.sender === myClientId) return;
-                    if (Date.now() - (val.ts || 0) < 25000) {
-                        handleWebRTCSignal(val);
-                    }
+                    handleWebRTCSignal(val);
                 });
             }
             setTimeout(() => {
                 sendRtcSignal({ kind: 'hello' });
-            }, 500);
+            }, 600);
         }
 
         function reconnectWebRTC() {
+            unlockAudioPlayback();
             setRtcStatus('🔄 Обновление связи...');
-            createPeerConnection();
+            if (pc) {
+                try { pc.close(); } catch (e) {}
+                pc = null;
+            }
+            ensurePeerConnection();
             sendRtcSignal({ kind: 'hello' });
             makeWebRTCOffer();
         }
@@ -2662,6 +2846,9 @@
         }
 
         function unlockAudioPlayback() {
+            if (remoteVoicePlayer && remoteVoicePlayer.srcObject && remoteVoicePlayer.paused) {
+                remoteVoicePlayer.play().catch(() => {});
+            }
             ['teacherVideo', 'studentVideo'].forEach(id => {
                 const v = document.getElementById(id);
                 if (v && v.srcObject && v.paused) {
@@ -2678,34 +2865,39 @@
             placeholderEl.innerText = hasAudio ? `${label} (🎙️ Говорит)` : `${label}`;
         }
 
-        function showVideoStream(stream, streamRole, isLocal) {
-            const videoEl = document.getElementById(streamRole === 'teacher' ? 'teacherVideo' : 'studentVideo');
-            const placeholderEl = document.getElementById(streamRole === 'teacher' ? 'teacher-placeholder' : 'student-placeholder');
+        function showLocalPreview() {
+            const videoEl = document.getElementById(role === 'teacher' ? 'teacherVideo' : 'studentVideo');
+            const placeholderEl = document.getElementById(role === 'teacher' ? 'teacher-placeholder' : 'student-placeholder');
             if (!videoEl || !placeholderEl) return;
 
-            videoEl.muted = isLocal ? true : remoteSoundMuted;
-            if (videoEl.srcObject !== stream) {
-                videoEl.srcObject = stream;
-            }
-            if (stream) {
+            videoEl.muted = true;
+            if (cameraActive && localStream) {
+                videoEl.srcObject = localStream;
                 videoEl.play().catch(() => {});
+                placeholderEl.style.display = 'none';
+            } else {
+                videoEl.srcObject = null;
+                placeholderEl.style.display = 'block';
+                const label = role === 'teacher' ? '👩‍🏫 Камера учителя' : '🧑‍🎓 Камера ученика';
+                placeholderEl.innerText = micActive ? `${label} (🎙️ Голос активен)` : label;
             }
-
-            const hasVideo = stream && stream.getVideoTracks().some(t => t.enabled && t.readyState === 'live');
-            const hasAudio = stream && stream.getAudioTracks().some(t => t.enabled && t.readyState === 'live');
-            placeholderEl.style.display = hasVideo ? 'none' : 'block';
-            const label = streamRole === 'teacher' ? '👩‍🏫 Камера учителя' : '🧑‍🎓 Камера ученика';
-            placeholderEl.innerText = hasAudio && !hasVideo ? `${label} (🎙️ Голос активен)` : label;
         }
 
-        async function syncLocalMediaToPeer() {
-            createPeerConnection();
+        // Добавление или обновление дорожки БЕЗ разрыва текущего соединения
+        async function attachOrReplaceTrack(newTrack) {
+            const conn = ensurePeerConnection();
+            const sender = conn.getSenders().find(s => s.track && s.track.kind === newTrack.kind);
+            if (sender) {
+                await sender.replaceTrack(newTrack);
+            } else {
+                conn.addTrack(newTrack, localStream);
+            }
             sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
             await makeWebRTCOffer();
         }
 
-        // Кнопка Микрофона (Голосовой чат)
         async function toggleMic() {
+            unlockAudioPlayback();
             const micBtn = document.getElementById('btn-mic-toggle');
             const micText = document.getElementById('mic-btn-text');
 
@@ -2714,7 +2906,7 @@
                 localStream.getAudioTracks().forEach(t => t.enabled = micActive);
                 micBtn.classList.toggle('lit', micActive);
                 micText.innerText = micActive ? '🎙️ Микрофон вкл' : '🔇 Микрофон выкл';
-                showVideoStream(localStream, role, true);
+                showLocalPreview();
                 sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
                 return;
             }
@@ -2724,22 +2916,20 @@
                     audio: { echoCancellation: true, noiseSuppression: true },
                     video: false
                 });
-                if (localStream) {
-                    audioStream.getAudioTracks().forEach(t => localStream.addTrack(t));
-                } else {
-                    localStream = audioStream;
-                }
+                const audioTrack = audioStream.getAudioTracks()[0];
+                if (!localStream) localStream = new MediaStream();
+                localStream.addTrack(audioTrack);
+
                 micActive = true;
                 micBtn.classList.add('lit');
                 micText.innerText = '🎙️ Микрофон вкл';
-                showVideoStream(localStream, role, true);
-                await syncLocalMediaToPeer();
+                showLocalPreview();
+                await attachOrReplaceTrack(audioTrack);
             } catch (err) {
                 alert('Разрешите доступ к микрофону в настройках браузера.');
             }
         }
 
-        // Кнопка Включить / Выключить звук собеседника
         function toggleRemoteSound() {
             remoteSoundMuted = !remoteSoundMuted;
             const soundBtn = document.getElementById('btn-sound-toggle');
@@ -2747,17 +2937,16 @@
             soundBtn.classList.toggle('lit', !remoteSoundMuted);
             soundText.innerText = remoteSoundMuted ? '🔇 Звук выкл' : '🔊 Звук';
 
-            const remoteSlot = (role === 'teacher') ? 'studentVideo' : 'teacherVideo';
-            const remoteVideoEl = document.getElementById(remoteSlot);
-            if (remoteVideoEl) {
-                remoteVideoEl.muted = remoteSoundMuted;
-                if (!remoteSoundMuted) remoteVideoEl.play().catch(() => {});
+            if (remoteVoicePlayer) {
+                remoteVoicePlayer.muted = remoteSoundMuted;
+                if (!remoteSoundMuted) remoteVoicePlayer.play().catch(() => {});
             }
         }
 
-        // Кнопка Видеокамеры
         async function toggleCamera() {
+            unlockAudioPlayback();
             const camBtn = document.getElementById('btn-cam-toggle');
+
             if (cameraActive && localStream) {
                 localStream.getVideoTracks().forEach(track => {
                     track.stop();
@@ -2765,8 +2954,9 @@
                 });
                 cameraActive = false;
                 camBtn.classList.remove('lit');
-                showVideoStream(micActive ? localStream : null, role, true);
-                await syncLocalMediaToPeer();
+                showLocalPreview();
+                sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
+                await makeWebRTCOffer();
                 return;
             }
 
@@ -2777,25 +2967,27 @@
                     audio: needAudio ? { echoCancellation: true, noiseSuppression: true } : false
                 });
 
-                if (localStream) {
-                    media.getVideoTracks().forEach(t => localStream.addTrack(t));
-                    media.getAudioTracks().forEach(t => localStream.addTrack(t));
-                } else {
-                    localStream = media;
+                if (!localStream) localStream = new MediaStream();
+
+                const videoTrack = media.getVideoTracks()[0];
+                if (videoTrack) {
+                    localStream.addTrack(videoTrack);
+                    cameraActive = true;
+                    camBtn.classList.add('lit');
+                    await attachOrReplaceTrack(videoTrack);
                 }
 
-                if (localStream.getAudioTracks().length > 0 && !micActive) {
+                const audioTrack = media.getAudioTracks()[0];
+                if (audioTrack) {
+                    localStream.addTrack(audioTrack);
                     micActive = true;
-                    localStream.getAudioTracks().forEach(t => t.enabled = true);
                     document.getElementById('btn-mic-toggle').classList.add('lit');
                     document.getElementById('mic-btn-text').innerText = '🎙️ Микрофон вкл';
+                    await attachOrReplaceTrack(audioTrack);
                 }
 
-                cameraActive = true;
-                camBtn.classList.add('lit');
                 toggleVideoDock(true);
-                showVideoStream(localStream, role, true);
-                await syncLocalMediaToPeer();
+                showLocalPreview();
             } catch (err) {
                 alert('Разрешите доступ к камере и микрофону в браузере.');
             }
