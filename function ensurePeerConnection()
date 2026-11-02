@@ -510,14 +510,13 @@
         </button>
 
         <button class="btn active" id="unified-tool-btn"
-                onclick="activateLastDrawTool()"
-                ondblclick="toggleToolMenu(event)"
-                title="Нажмите на стрелочку справа для выбора инструмента">
+                onclick="activateLastDrawTool(); toggleToolMenu(event);"
+                title="Нажмите для выбора инструмента и толщины">
             <span id="current-tool-icon">🖊️</span>
             <span id="current-tool-name" class="btn-text-hide">Маркер</span>
-            <span style="font-size:11px; padding:0 3px;" onclick="toggleToolMenu(event)">▾</span>
+            <span style="font-size:11px; padding:0 3px;">▾</span>
         </button>
-
+        
         <div class="color-circle-btn" id="color-circle-btn" onclick="toggleColorMenu(event)">
             <div class="color-inner-dot" id="color-inner-dot"></div>
         </div>
@@ -904,8 +903,13 @@
                     handleTeacherMoveData(data);
                 });
 
-                const joinNow = Date.now();
-                roomRef.child('events').orderByChild('ts').startAt(joinNow).on('child_added', (snap) => {
+                // Слушаем новые события без привязки к системным часам устройства
+                let initialEventsSkipped = false;
+                roomRef.child('events').limitToLast(1).on('child_added', (snap) => {
+                    if (!initialEventsSkipped) {
+                        initialEventsSkipped = true;
+                        return;
+                    }
                     const data = snap.val();
                     if (!data || data.sender === myClientId) return;
                     handleRemoteEvent(data);
@@ -1721,32 +1725,50 @@
             reader.readAsDataURL(file);
         }
 
-        async function loadSyncedVideoFromFirebase(id) {
-            if (!roomRef) return;
-            try {
-                const metaSnap = await roomRef.child(`videoFiles/${id}/meta`).once('value');
-                const meta = metaSnap.val();
-                if (!meta || !meta.totalChunks) return;
-
-                const chunksSnap = await roomRef.child(`videoFiles/${id}/chunks`).once('value');
-                const chunksVal = chunksSnap.val();
-                if (!chunksVal) return;
-
-                let fullDataUrl = '';
-                for (let i = 0; i < meta.totalChunks; i++) {
-                    if (chunksVal[i]) fullDataUrl += chunksVal[i];
-                }
-                if (!fullDataUrl) return;
-
-                const res = await fetch(fullDataUrl);
-                const blob = await res.blob();
-                const v = document.querySelector(`#${id} video`);
-                if (v) {
-                    v.src = URL.createObjectURL(blob);
-                }
-            } catch (e) {}
+        function base64DataUrlToBlob(dataUrl) {
+            const parts = dataUrl.split(',');
+            const rawMime = (parts[0].match(/:(.*?);/) || [])[1] || 'video/mp4';
+            // Конвертируем iPad .mov (video/quicktime) в video/mp4 для воспроизведения на всех ПК и планшетах
+            const mime = rawMime === 'video/quicktime' ? 'video/mp4' : rawMime;
+            const bstr = atob(parts[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new Blob([u8arr], { type: mime });
         }
 
+        function loadSyncedVideoFromFirebase(id) {
+            if (!roomRef) return;
+            roomRef.child(`videoFiles/${id}/meta`).on('value', async (metaSnap) => {
+                const meta = metaSnap.val();
+                if (!meta || !meta.totalChunks) return;
+                const btnLabel = document.getElementById(`vid-btn-label-${id}`);
+                if (btnLabel && role === 'teacher') {
+                    btnLabel.innerText = `✅ Загружено (${(meta.name || 'Видео').slice(0, 20)})`;
+                }
+                try {
+                    const chunksSnap = await roomRef.child(`videoFiles/${id}/chunks`).once('value');
+                    const chunksVal = chunksSnap.val();
+                    if (!chunksVal) return;
+
+                    let fullDataUrl = '';
+                    for (let i = 0; i < meta.totalChunks; i++) {
+                        if (chunksVal[i]) fullDataUrl += chunksVal[i];
+                    }
+                    if (!fullDataUrl) return;
+
+                    const blob = base64DataUrlToBlob(fullDataUrl);
+                    const v = document.querySelector(`#${id} video`);
+                    if (v) {
+                        v.src = URL.createObjectURL(blob);
+                        v.load();
+                    }
+                } catch (e) {}
+            });
+        }
+        
         function createEssayWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
             const data = existingData || {
@@ -2508,9 +2530,11 @@
                 renderSmoothPath(ctx, [data.p0, data.p1], data.color, data.strokeTool, data.size);
             } else if (data.type === 'draw_commit') {
                 strokeHistory.push(data.stroke);
+                actionHistory.push({ kind: 'stroke', stroke: data.stroke });
                 if (data.stroke.strokeTool === 'highlighter') {
                     renderSmoothPath(ctx, data.stroke.points, data.stroke.color, data.stroke.strokeTool, data.stroke.size);
                 }
+                saveBoardState();
             } else if (data.type === 'strokes_sync') {
                 strokeHistory = data.strokeHistory || [];
                 redrawAllStrokes();
@@ -2670,7 +2694,6 @@
 
             pc = new RTCPeerConnection(RTC_CONFIG);
             remoteVideoStream = new MediaStream();
-            remoteAudioStream = new MediaStream();
 
             if (localStream) {
                 localStream.getTracks().forEach(track => {
@@ -2696,29 +2719,33 @@
             };
 
             pc.ontrack = (e) => {
-                const track = e.track;
                 const targetSlot = (role === 'teacher') ? 'student' : 'teacher';
+                const videoEl = document.getElementById(targetSlot === 'teacher' ? 'teacherVideo' : 'studentVideo');
+                const placeholderEl = document.getElementById(targetSlot === 'teacher' ? 'teacher-placeholder' : 'student-placeholder');
 
-                if (track.kind === 'video') {
-                    remoteVideoStream.getVideoTracks().forEach(t => remoteVideoStream.removeTrack(t));
-                    remoteVideoStream.addTrack(track);
-                    const videoEl = document.getElementById(targetSlot === 'teacher' ? 'teacherVideo' : 'studentVideo');
-                    const placeholderEl = document.getElementById(targetSlot === 'teacher' ? 'teacher-placeholder' : 'student-placeholder');
-                    if (videoEl) {
-                        videoEl.muted = true; // Видео всегда muted, чтобы iPad Safari разрешал автопоказ!
-                        videoEl.srcObject = remoteVideoStream;
+                if (e.streams && e.streams[0]) {
+                    remoteVideoStream = e.streams[0];
+                } else {
+                    const existing = remoteVideoStream.getTracks().find(t => t.kind === e.track.kind);
+                    if (existing) remoteVideoStream.removeTrack(existing);
+                    remoteVideoStream.addTrack(e.track);
+                }
+
+                if (videoEl) {
+                    // Переприсваиваем поток, чтобы Safari на iPad сразу отрисовал картинку и включил звук
+                    videoEl.srcObject = null;
+                    videoEl.srcObject = remoteVideoStream;
+                    videoEl.muted = remoteSoundMuted;
+                    videoEl.play().catch(() => {
+                        // Если iPad заблокировал автозвук до первого касания — запускаем видео и включаем звук при касании экрана
+                        videoEl.muted = true;
                         videoEl.play().catch(() => {});
-                    }
-                    if (placeholderEl) placeholderEl.style.display = 'none';
-                } else if (track.kind === 'audio') {
-                    // Голос идет через отдельный <audio id="remote-voice-player">
-                    remoteAudioStream.getAudioTracks().forEach(t => remoteAudioStream.removeTrack(t));
-                    remoteAudioStream.addTrack(track);
-                    remoteVoicePlayer.srcObject = remoteAudioStream;
-                    remoteVoicePlayer.muted = remoteSoundMuted;
-                    remoteVoicePlayer.play().catch(() => {
-                        setRtcStatus('🔊 Нажмите сюда, чтобы включить звук');
+                        setRtcStatus('🔊 Коснитесь экрана для включения звука');
                     });
+                }
+
+                if (e.track.kind === 'video' && placeholderEl) {
+                    placeholderEl.style.display = 'none';
                 }
                 setRtcStatus('🟢 Видео и звук подключены');
             };
@@ -2810,18 +2837,17 @@
         function initWebRTC() {
             ensurePeerConnection();
             if (roomRef) {
-                const startTs = Date.now() - 2000;
                 rtcSignalRef = roomRef.child('rtcSignals');
-                // Слушаем только новые сигналы текущей сессии (чтобы старые сигналы не сбрасывали звонок!)
-                rtcSignalRef.orderByChild('ts').startAt(startTs).on('child_added', (snap) => {
-                    const val = snap.val();
-                    if (!val || val.sender === myClientId) return;
-                    handleWebRTCSignal(val);
-                });
+                // Очищаем старые сигналы прошлых уроков и слушаем все новые без рассинхрона часов
+                rtcSignalRef.remove().then(() => {
+                    rtcSignalRef.on('child_added', (snap) => {
+                        const val = snap.val();
+                        if (!val || val.sender === myClientId) return;
+                        handleWebRTCSignal(val);
+                    });
+                    sendRtcSignal({ kind: 'hello' });
+                }).catch(() => {});
             }
-            setTimeout(() => {
-                sendRtcSignal({ kind: 'hello' });
-            }, 600);
         }
 
         function reconnectWebRTC() {
@@ -2846,15 +2872,12 @@
         }
 
         function unlockAudioPlayback() {
-            if (remoteVoicePlayer && remoteVoicePlayer.srcObject && remoteVoicePlayer.paused) {
-                remoteVoicePlayer.play().catch(() => {});
+            const remoteSlot = (role === 'teacher') ? 'studentVideo' : 'teacherVideo';
+            const remoteVid = document.getElementById(remoteSlot);
+            if (remoteVid && remoteVid.srcObject) {
+                remoteVid.muted = remoteSoundMuted;
+                remoteVid.play().catch(() => {});
             }
-            ['teacherVideo', 'studentVideo'].forEach(id => {
-                const v = document.getElementById(id);
-                if (v && v.srcObject && v.paused) {
-                    v.play().catch(() => {});
-                }
-            });
         }
 
         function updateRemotePlaceholder(slotRole, hasVideo, hasAudio) {
@@ -2870,8 +2893,9 @@
             const placeholderEl = document.getElementById(role === 'teacher' ? 'teacher-placeholder' : 'student-placeholder');
             if (!videoEl || !placeholderEl) return;
 
-            videoEl.muted = true;
+            videoEl.muted = true; // Свой собственный голос всегда глушим локально, чтобы не слышать эхо
             if (cameraActive && localStream) {
+                videoEl.srcObject = null;
                 videoEl.srcObject = localStream;
                 videoEl.play().catch(() => {});
                 placeholderEl.style.display = 'none';
@@ -2883,7 +2907,6 @@
             }
         }
 
-        // Добавление или обновление дорожки БЕЗ разрыва текущего соединения
         async function attachOrReplaceTrack(newTrack) {
             const conn = ensurePeerConnection();
             const sender = conn.getSenders().find(s => s.track && s.track.kind === newTrack.kind);
@@ -2926,7 +2949,7 @@
                 showLocalPreview();
                 await attachOrReplaceTrack(audioTrack);
             } catch (err) {
-                alert('Разрешите доступ к микрофону в настройках браузера.');
+                alert('Разрешите доступ к микрофону в настройках Safari / браузера.');
             }
         }
 
@@ -2937,9 +2960,11 @@
             soundBtn.classList.toggle('lit', !remoteSoundMuted);
             soundText.innerText = remoteSoundMuted ? '🔇 Звук выкл' : '🔊 Звук';
 
-            if (remoteVoicePlayer) {
-                remoteVoicePlayer.muted = remoteSoundMuted;
-                if (!remoteSoundMuted) remoteVoicePlayer.play().catch(() => {});
+            const remoteSlot = (role === 'teacher') ? 'studentVideo' : 'teacherVideo';
+            const remoteVid = document.getElementById(remoteSlot);
+            if (remoteVid) {
+                remoteVid.muted = remoteSoundMuted;
+                if (!remoteSoundMuted) remoteVid.play().catch(() => {});
             }
         }
 
@@ -2989,7 +3014,7 @@
                 toggleVideoDock(true);
                 showLocalPreview();
             } catch (err) {
-                alert('Разрешите доступ к камере и микрофону в браузере.');
+                alert('Разрешите доступ к камере и микрофону в настройках браузера.');
             }
         }
 
