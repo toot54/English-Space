@@ -3,361 +3,614 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Space — Доска урока</title>
+    <title>English Space — Класс</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
     <style>
+        :root {
+            --bg-page: #f3f5f4;
+            --bg-surface: #ffffff;
+            --bg-subtle: #f7f9f8;
+            --bg-hover: #edf2f0;
+            --text-primary: #111815;
+            --text-secondary: #5c6661;
+            --text-muted: #8c9691;
+            --border: #e2e7e4;
+            --border-strong: #cbd4cf;
+            --emerald: #0d7350;
+            --emerald-hover: #0a5c40;
+            --emerald-soft: #e6f4ef;
+            --emerald-border: #a7dbc6;
+            --danger: #b91c1c;
+            --danger-soft: #fef2f2;
+            --danger-border: #fecaca;
+            --dot-color: #cbd4cf;
+        }
+
+        body.dark-theme {
+            --bg-page: #0f1412;
+            --bg-surface: #171d1a;
+            --bg-subtle: #1d2521;
+            --bg-hover: #252f2a;
+            --text-primary: #f0f4f2;
+            --text-secondary: #9ca8a2;
+            --text-muted: #68736e;
+            --border: #26302b;
+            --border-strong: #35423c;
+            --emerald: #109468;
+            --emerald-hover: #14ad7a;
+            --emerald-soft: rgba(16, 148, 104, 0.16);
+            --emerald-border: rgba(16, 148, 104, 0.42);
+            --danger: #f87171;
+            --danger-soft: rgba(239, 68, 68, 0.14);
+            --danger-border: rgba(239, 68, 68, 0.35);
+            --dot-color: #2b3631;
+        }
+
         * {
             box-sizing: border-box; margin: 0; padding: 0;
-            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
             user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
         }
         html, body {
-            overflow: hidden; background: #f6f5f2;
+            overflow: hidden; background: var(--bg-page); color: var(--text-primary);
             height: 100%; width: 100%; position: fixed; inset: 0; touch-action: none;
         }
 
-        /* Верхняя панель */
-        .top-bar {
-            position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px);
-            padding: 4px 8px; border-radius: 999px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            display: flex; gap: 4px; align-items: center; z-index: 120;
-            white-space: nowrap; max-width: 96vw; overflow-x: auto; scrollbar-width: none;
-            border: 1px solid #e4e2de;
+        .classroom-layout {
+            display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden;
         }
-        .top-bar::-webkit-scrollbar { display: none; }
-        .bar-divider { width: 1px; height: 18px; background: #e4e2de; margin: 0 2px; flex-shrink: 0; }
+
+        /* Верхняя шапка урока */
+        .class-topbar {
+            height: 52px; background: var(--bg-surface); border-bottom: 1px solid var(--border);
+            padding: 0 18px; display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; flex-shrink: 0; z-index: 130;
+        }
+        .topbar-left, .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .lesson-title-text {
+            font-size: 14px; font-weight: 800; color: var(--text-primary);
+            max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .top-tab-badge {
+            height: 52px; display: inline-flex; align-items: center; padding: 0 12px;
+            font-size: 13px; font-weight: 700; color: var(--text-primary);
+            border-bottom: 2.5px solid var(--emerald);
+        }
+
+        /* Таймер урока */
+        .timer-wrap {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--bg-subtle); border: 1px solid var(--border);
+            padding: 4px 10px; border-radius: 8px; font-size: 13px; font-weight: 700;
+            font-variant-numeric: tabular-nums; color: var(--text-secondary);
+        }
+        .timer-dot {
+            width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted);
+        }
+        .timer-dot.running { background: var(--emerald); box-shadow: 0 0 6px var(--emerald); }
+        .timer-dot.paused { background: #d97706; }
+
+        /* Панель инструментов доски */
+        .class-subbar {
+            height: 48px; background: var(--bg-surface); border-bottom: 1px solid var(--border);
+            padding: 0 18px; display: flex; align-items: center; justify-content: space-between;
+            gap: 10px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; z-index: 125;
+        }
+        .class-subbar::-webkit-scrollbar { display: none; }
+        .tool-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .bar-divider { width: 1px; height: 20px; background: var(--border); margin: 0 3px; flex-shrink: 0; }
+
+        .btn, .tool-pill {
+            height: 32px; padding: 0 12px; border-radius: 8px;
+            border: 1px solid var(--border-strong); background: var(--bg-surface);
+            color: var(--text-primary); font-size: 12px; font-weight: 600;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+            gap: 6px; transition: 0.14s; white-space: nowrap; flex-shrink: 0;
+        }
+        .btn:hover, .tool-pill:hover { background: var(--bg-hover); }
+        .tool-pill.active, .btn.active {
+            background: var(--emerald-soft); border-color: var(--emerald);
+            color: var(--emerald); font-weight: 700;
+        }
+        .tool-pill.disabled-pan { opacity: 0.38; pointer-events: none; }
+        .btn-emerald { background: var(--emerald); border-color: var(--emerald); color: #fff; font-weight: 700; }
+        .btn-emerald:hover { background: var(--emerald-hover); }
+        .btn-danger-outline {
+            background: var(--bg-surface); border-color: var(--danger-border); color: var(--danger); font-weight: 700;
+        }
+        .btn-danger-outline:hover { background: var(--danger-soft); }
+        .btn-icon-only { width: 32px; padding: 0; }
+
+        .color-swatch-row { display: flex; align-items: center; gap: 5px; padding: 0 2px; }
+        .color-dot {
+            width: 20px; height: 20px; border-radius: 50%; cursor: pointer;
+            border: 2px solid var(--bg-surface); box-shadow: 0 0 0 1px var(--border-strong);
+            transition: 0.12s; flex-shrink: 0;
+        }
+        .color-dot.active { box-shadow: 0 0 0 2px var(--emerald); transform: scale(1.12); }
+
+        .size-slider { width: 68px; accent-color: var(--emerald); cursor: pointer; }
+
+        /* Всплывающие окна (Таймер и Виджеты) */
+        .popover-box {
+            position: fixed; top: 106px; right: 18px;
+            background: var(--bg-surface); border: 1px solid var(--border-strong);
+            border-radius: 14px; padding: 14px; width: 340px; max-width: 94vw;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.14); z-index: 220; display: none;
+        }
+        .popover-head {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--border);
+            font-size: 13px; font-weight: 700;
+        }
+        .widget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .widget-pick-btn {
+            border: 1px solid var(--border-strong); border-radius: 9px; padding: 10px 12px;
+            background: var(--bg-subtle); color: var(--text-primary);
+            font-size: 12px; font-weight: 600; cursor: pointer; text-align: left;
+            display: flex; align-items: center; justify-content: space-between; transition: 0.14s;
+        }
+        .widget-pick-btn:hover {
+            background: var(--emerald-soft); border-color: var(--emerald); color: var(--emerald);
+        }
 
         #placement-banner {
-            position: fixed; top: 58px; left: 50%; transform: translateX(-50%);
-            background: #1a1918; color: white; padding: 6px 14px;
-            border-radius: 999px; font-size: 12px; font-weight: 600;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            display: none; align-items: center; gap: 8px; z-index: 145;
+            position: fixed; top: 110px; left: 50%; transform: translateX(-50%);
+            background: var(--emerald); color: #fff; padding: 7px 16px;
+            border-radius: 999px; font-size: 12px; font-weight: 700;
+            box-shadow: 0 8px 24px rgba(13, 115, 80, 0.3);
+            display: none; align-items: center; gap: 10px; z-index: 180;
         }
-        .placement-cancel-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 2px 8px; border-radius: 999px; font-size: 11px; cursor: pointer; }
-
-        .btn {
-            border: 1px solid transparent; background: transparent; padding: 5px 9px;
-            border-radius: 999px; cursor: pointer; font-size: 12px; font-weight: 600;
-            color: #4b4845; transition: 0.15s; display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+        .placement-cancel-btn {
+            background: rgba(255,255,255,0.2); border: none; color: #fff;
+            padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; cursor: pointer;
         }
-        .btn:hover { background: #f0eeeb; color: #1a1918; }
-        .btn.active { background: #37352f; color: white; }
-        .btn.disabled-pan { opacity: 0.4; cursor: not-allowed !important; pointer-events: none; }
-        .btn-widgets { background: #eef2ff; color: #4f46e5; border-color: #c7d2fe; }
-        .btn-follow { background: #ffffff; border-color: #e4e2de; }
-        .btn-follow.active { background: #059669; color: white; border-color: #059669; }
 
-        .undo-group { display: flex; align-items: center; gap: 2px; background: #f0eeeb; border: 1px solid #e4e2de; border-radius: 999px; padding: 2px 4px; flex-shrink: 0; }
-        .icon-only-btn { border: none; background: transparent; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #4b4845; }
-        .icon-only-btn:hover { background: #e4e2de; color: #1a1918; }
-
-        .color-circle-btn {
-            width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
-            background: conic-gradient(#ef4444 0deg 120deg, #22c55e 120deg 240deg, #3b82f6 240deg 360deg);
-            padding: 2px; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        /* Основная рабочая область: Холст слева + Правая колонка с камерами и чатом */
+        .class-body {
+            flex: 1; display: flex; min-height: 0; position: relative; overflow: hidden;
         }
-        .color-inner-dot { width: 10px; height: 10px; border-radius: 50%; background: #4f46e5; border: 1px solid white; }
 
-        .popover-menu {
-            position: fixed; top: 54px; left: 50%; transform: translateX(-50%);
-            background: white; padding: 8px; border-radius: 14px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); border: 1px solid #e4e2de;
-            display: none; flex-direction: column; gap: 3px; z-index: 140; min-width: 220px;
-        }
-        .popover-item {
-            display: flex; align-items: center; gap: 8px; padding: 7px 10px;
-            border-radius: 8px; border: none; background: transparent; cursor: pointer;
-            font-size: 12px; font-weight: 600; color: #4b4845; text-align: left; width: 100%;
-        }
-        .popover-item:hover { background: #f0eeeb; color: #1a1918; }
-        .popover-item.active { background: #eef2ff; color: #4f46e5; }
-
-        .thickness-box { padding: 6px 8px; background: #f6f5f2; border-radius: 8px; margin-top: 3px; border: 1px solid #e4e2de; }
-        .thickness-header { display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; color: #787672; margin-bottom: 4px; }
-        .thickness-slider { width: 100%; cursor: pointer; accent-color: #4f46e5; }
-
-        #color-popover {
-            position: fixed; top: 54px; left: 50%; transform: translateX(-50%);
-            background: white; padding: 10px; border-radius: 14px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); border: 1px solid #e4e2de;
-            display: none; grid-template-columns: repeat(6, 1fr); gap: 6px; z-index: 140;
-        }
-        .swatch { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
-
-        .zoom-group { display: flex; align-items: center; gap: 2px; background: #f0eeeb; border: 1px solid #e4e2de; border-radius: 999px; padding: 2px 4px; flex-shrink: 0; }
-        .zoom-label { font-size: 11px; font-weight: 700; color: #4b4845; min-width: 34px; text-align: center; cursor: pointer; }
-        .center-board-btn { border: none; background: #eef2ff; color: #4f46e5; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; font-size: 11px; display: flex; align-items: center; justify-content: center; margin-left: 2px; }
-
-        /* Нижняя панель */
-        .bottom-dock {
-            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
-            background: rgba(26, 25, 24, 0.94); backdrop-filter: blur(10px);
-            padding: 5px 10px; border-radius: 999px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            display: flex; align-items: center; gap: 6px; z-index: 125; border: 1px solid rgba(255,255,255,0.1);
-            max-width: 96vw; overflow-x: auto; scrollbar-width: none; white-space: nowrap;
-        }
-        .bottom-dock::-webkit-scrollbar { display: none; }
-        .dock-icon-btn {
-            height: 34px; padding: 0 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.06); color: #cbd5e1; font-size: 11px; font-weight: 600; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 5px; flex-shrink: 0;
-        }
-        .dock-icon-btn.lit { background: rgba(79, 70, 229, 0.4); border-color: rgba(129, 140, 248, 0.8); color: #ffffff; }
-        .dock-icon-btn.start-lesson-btn { background: rgba(5, 150, 105, 0.3); border-color: rgba(52, 211, 153, 0.6); color: #ecfdf5; }
-        .dock-status-dot { width: 5px; height: 5px; border-radius: 50%; background: #64748b; flex-shrink: 0; }
-        .dock-icon-btn.lit .dock-status-dot { background: #34d399; }
-
-        /* Окно виджетов */
-        #widgets-modal {
-            position: fixed; top: 56px; left: 50%; transform: translateX(-50%);
-            background: white; width: 380px; max-width: 94vw; border-radius: 16px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.18); border: 1px solid #e4e2de;
-            z-index: 200; padding: 12px; display: none;
-        }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #f0eeeb; margin-bottom: 8px; }
-        .modal-title { font-size: 13px; font-weight: 700; color: #1a1918; }
-        .close-btn { width: 22px; height: 22px; border-radius: 6px; border: none; background: transparent; color: #787672; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .close-btn:hover { background: #fee2e2; color: #ef4444; }
-
-        .widget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-        .widget-pick-btn {
-            border: 1px solid #e4e2de; border-radius: 10px; padding: 10px;
-            background: #f6f5f2; font-size: 11px; font-weight: 600; color: #1a1918;
-            cursor: pointer; display: flex; align-items: center; gap: 6px; text-align: left;
-            text-decoration: none; justify-content: flex-start;
-        }
-        .widget-pick-btn:hover { background: #eef2ff; border-color: #818cf8; color: #4f46e5; }
-
-        /* Холст доски */
         #board-viewport {
-            width: 100vw; height: 100vh; overflow: hidden; position: relative;
-            cursor: crosshair; touch-action: none; background-color: #f6f5f2;
-            background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px); background-size: 28px 28px;
+            flex: 1; height: 100%; overflow: hidden; position: relative;
+            cursor: crosshair; touch-action: none;
+            background-color: var(--bg-surface);
+            background-image: radial-gradient(var(--dot-color) 1.35px, transparent 1.35px);
+            background-size: 28px 28px;
         }
-        #board-world { width: 4200px; height: 3000px; position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; touch-action: none; }
-        
-        /* Слои: фото-виджеты находятся ПОД маркером (z-index 15), холст маркера (z-index 25), остальные виджеты НАД маркером (z-index 35) */
+        #board-world {
+            width: 4200px; height: 3000px; position: absolute; top: 0; left: 0;
+            transform-origin: 0 0; will-change: transform; touch-action: none;
+        }
+
+        /* Холст маркера (z-index: 25) находится НАД фото (z-index: 15), но ПОД остальными виджетами (z-index: 35) */
         canvas { position: absolute; top: 0; left: 0; z-index: 25; pointer-events: none; }
         #temp-canvas { z-index: 26; }
 
-        .board-text-node { position: absolute; z-index: 28; min-width: 70px; max-width: 900px; padding: 6px 14px 10px 8px; border-radius: 10px; border: 1.5px dashed transparent; display: flex; align-items: flex-start; gap: 6px; }
-        .board-text-node:hover, .board-text-node:focus-within { border-color: #94a3b8; background: rgba(255, 255, 255, 0.85); }
-        .board-text-drag { cursor: move; color: #94a3b8; font-size: 13px; opacity: 0; touch-action: none; }
-        .board-text-node:hover .board-text-drag { opacity: 1; }
-        .board-text-content { outline: none; user-select: text; -webkit-user-select: text; cursor: text; font-weight: 600; line-height: 1.3; white-space: pre-wrap; word-break: break-word; min-width: 40px; }
-        .board-text-content:empty:before { content: 'Текст...'; color: #94a3b8; font-weight: 400; }
-        .board-text-del { opacity: 0; width: 18px; height: 18px; border-radius: 4px; border: none; background: #fee2e2; color: #ef4444; font-size: 10px; font-weight: bold; cursor: pointer; }
-        .board-text-node:hover .board-text-del { opacity: 1; }
-
-        #laser-cursor { position: absolute; pointer-events: none; z-index: 80; display: none; transform: translate(-50%, -50%); }
-        .laser-dot { width: 16px; height: 16px; background: #ef4444; border-radius: 50%; box-shadow: 0 0 14px #ef4444; border: 2px solid white; }
-
-        /* Окно камер */
-        #video-dock {
-            position: fixed; top: 54px; right: 12px; width: 195px;
-            background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(8px);
-            padding: 6px; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-            border: 1px solid #e4e2de; display: flex; flex-direction: column; gap: 6px; z-index: 95; touch-action: none;
+        /* Правая колонка (Камеры + Звук + Чат) */
+        .class-sidebar {
+            width: 285px; background: var(--bg-surface); border-left: 1px solid var(--border);
+            display: flex; flex-direction: column; padding: 12px; gap: 10px;
+            flex-shrink: 0; z-index: 100; min-height: 0;
         }
-        .dock-drag-header { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px; cursor: move; touch-action: none; }
-        .drag-dots { color: #94a3b8; font-size: 12px; letter-spacing: 2px; font-weight: bold; }
-        .cam-box { width: 100%; height: 110px; background: #1a1918; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #333; display: flex; align-items: center; justify-content: center; }
+        .class-sidebar.collapsed { display: none; }
+
+        .cams-wrap { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+        .cam-box {
+            width: 100%; height: 132px; background: #18201c; border-radius: 10px;
+            overflow: hidden; position: relative; border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+        }
         .cam-box video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        .cam-placeholder { color: #94a3b8; font-size: 11px; font-weight: 600; text-align: center; padding: 6px; position: absolute; z-index: 2; }
-        .rtc-status-bar { font-size: 9px; font-weight: 700; color: #4b4845; text-align: center; padding: 2px; border-radius: 4px; background: #f0eeeb; cursor: pointer; }
+        .cam-placeholder {
+            color: #8c9691; font-size: 12px; font-weight: 600;
+            text-align: center; padding: 8px; position: absolute; z-index: 2;
+        }
+        .cam-tag {
+            position: absolute; bottom: 7px; left: 9px; z-index: 3;
+            background: rgba(0, 0, 0, 0.58); color: #fff; font-size: 11px; font-weight: 700;
+            padding: 2px 8px; border-radius: 6px; pointer-events: none;
+        }
+        .rtc-status-bar {
+            font-size: 11px; font-weight: 600; color: var(--text-secondary);
+            text-align: center; padding: 4px 6px; border-radius: 6px;
+            background: var(--bg-subtle); border: 1px solid var(--border); cursor: pointer;
+        }
 
-        /* Виджеты общего характера (выше маркера: z-index 35) */
-        .widget { position: absolute; background: white; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border: 1px solid #e4e2de; padding: 5px 8px 10px 8px; z-index: 35; display: flex; flex-direction: column; overflow: hidden; }
-        
-        /* Фото-виджет лежит СТРОГО ПОД маркером (z-index 15) */
-        .widget.photo-widget { z-index: 15; padding: 4px 6px 6px 6px; background: white; min-width: 120px; min-height: 80px; }
+        .media-controls-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex-shrink: 0;
+        }
+        .media-btn {
+            height: 32px; border-radius: 7px; border: 1px solid var(--border-strong);
+            background: var(--bg-surface); color: var(--text-primary);
+            font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.14s;
+        }
+        .media-btn.lit {
+            background: var(--emerald-soft); border-color: var(--emerald);
+            color: var(--emerald); font-weight: 700;
+        }
 
+        /* Чат урока */
+        .chat-box {
+            flex: 1; border: 1px solid var(--border); border-radius: 10px;
+            background: var(--bg-subtle); display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+        }
+        .chat-messages {
+            flex: 1; padding: 10px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 7px; font-size: 12px;
+            user-select: text; -webkit-user-select: text;
+        }
+        .chat-msg {
+            background: var(--bg-surface); border: 1px solid var(--border);
+            padding: 7px 10px; border-radius: 8px; line-height: 1.4; word-break: break-word;
+        }
+        .chat-msg-author { font-size: 11px; font-weight: 700; color: var(--emerald); margin-bottom: 2px; }
+        .chat-input-row {
+            padding: 8px; background: var(--bg-surface); border-top: 1px solid var(--border);
+            display: flex; gap: 6px;
+        }
+        .chat-input {
+            flex: 1; height: 32px; padding: 0 10px; border-radius: 7px;
+            border: 1px solid var(--border-strong); background: var(--bg-subtle);
+            color: var(--text-primary); font-size: 12px; outline: none;
+            user-select: text; -webkit-user-select: text;
+        }
+        .chat-input:focus { border-color: var(--emerald); }
+
+        /* Текст на доске */
+        .board-text-node {
+            position: absolute; z-index: 28; min-width: 70px; max-width: 900px;
+            padding: 6px 14px 10px 8px; border-radius: 10px;
+            border: 1.5px dashed transparent; display: flex; align-items: flex-start; gap: 6px;
+        }
+        .board-text-node:hover, .board-text-node:focus-within {
+            border-color: var(--border-strong); background: rgba(255, 255, 255, 0.88);
+        }
+        .board-text-drag {
+            cursor: move; color: var(--text-muted); font-size: 13px;
+            padding: 2px 4px; opacity: 0; touch-action: none;
+        }
+        .board-text-node:hover .board-text-drag, .board-text-node:focus-within .board-text-drag { opacity: 1; }
+        .board-text-content {
+            outline: none; user-select: text; -webkit-user-select: text; cursor: text;
+            font-weight: 700; line-height: 1.3; white-space: pre-wrap; word-break: break-word; min-width: 45px;
+        }
+        .board-text-content:empty:before { content: 'Введите текст...'; color: var(--text-muted); font-weight: 400; }
+        .board-text-del {
+            opacity: 0; width: 18px; height: 18px; border-radius: 5px;
+            border: 1px solid var(--danger-border); background: var(--danger-soft);
+            color: var(--danger); font-size: 10px; font-weight: 700; cursor: pointer;
+        }
+        .board-text-node:hover .board-text-del, .board-text-node:focus-within .board-text-del { opacity: 1; }
+        .text-resize-handle {
+            position: absolute; right: 2px; bottom: 2px; width: 16px; height: 16px;
+            cursor: nwse-resize; display: flex; align-items: flex-end; justify-content: flex-end;
+            color: var(--text-muted); font-size: 10px; opacity: 0; touch-action: none;
+        }
+        .board-text-node:hover .text-resize-handle, .board-text-node:focus-within .text-resize-handle { opacity: 1; }
+
+        /* Указка */
+        #laser-cursor {
+            position: absolute; pointer-events: none; z-index: 80;
+            display: none; transform: translate(-50%, -50%);
+            transition: left 0.05s linear, top 0.05s linear;
+        }
+        .laser-dot {
+            width: 16px; height: 16px; background: #dc2626; border-radius: 50%;
+            box-shadow: 0 0 14px #dc2626; border: 2px solid #fff;
+        }
+
+        /* Виджеты (z-index: 35 — НАД маркером; photo-widget z-index: 15 — ПОД маркером) */
+        .widget {
+            position: absolute; background: var(--bg-surface); border-radius: 12px;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.08); border: 1px solid var(--border-strong);
+            padding: 6px 10px 12px 10px; z-index: 35;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .widget.photo-widget {
+            z-index: 15; padding: 4px 6px 6px 6px; min-width: 120px; min-height: 80px;
+        }
         .widget.locked-widget .resize-handle { display: none !important; }
-        .widget-header { display: flex; justify-content: space-between; align-items: center; cursor: move; padding: 2px 2px 5px 2px; flex-shrink: 0; gap: 4px; touch-action: none; }
-        .grip-bar { width: 28px; height: 4px; background: #cbd5e1; border-radius: 10px; margin: 0 auto; }
-        .resize-handle { position: absolute; right: 2px; bottom: 2px; width: 18px; height: 18px; cursor: nwse-resize; display: flex; align-items: flex-end; justify-content: flex-end; color: #94a3b8; font-size: 11px; z-index: 30; touch-action: none; }
+        .widget.locked-widget .widget-header { cursor: default; }
+        .widget-header {
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: move; padding: 2px 2px 6px 2px; flex-shrink: 0; gap: 6px; touch-action: none;
+        }
+        .widget-actions-left, .widget-actions-right { display: flex; align-items: center; gap: 4px; }
+        .grip-bar { width: 32px; height: 4px; background: var(--border-strong); border-radius: 8px; margin: 0 auto; }
+        .header-icon-btn, .close-btn {
+            height: 22px; padding: 0 6px; border-radius: 5px; border: 1px solid var(--border);
+            background: var(--bg-subtle); color: var(--text-secondary);
+            font-size: 10px; font-weight: 700; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .header-icon-btn.locked-active {
+            background: var(--emerald-soft); border-color: var(--emerald); color: var(--emerald);
+        }
+        .close-btn:hover { background: var(--danger-soft); border-color: var(--danger-border); color: var(--danger); }
 
-        .video-widget-box { width: 340px; height: 250px; min-width: 220px; min-height: 170px; }
-        .upload-video-btn { background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; padding: 6px 10px; border-radius: 7px; font-size: 11px; cursor: pointer; font-weight: 600; margin-bottom: 5px; width: 100%; text-align: center; display: block; }
-        .video-widget-box video { width: 100%; flex: 1; min-height: 0; border-radius: 7px; background: #1a1918; object-fit: contain; }
+        .resize-handle {
+            position: absolute; right: 2px; bottom: 2px; width: 20px; height: 20px;
+            cursor: nwse-resize; display: flex; align-items: flex-end; justify-content: flex-end;
+            color: var(--text-muted); font-size: 11px; padding: 2px; z-index: 30; touch-action: none;
+        }
 
-        .essay-widget-box { width: 340px; height: 235px; min-width: 220px; min-height: 160px; }
-        .essay-widget-box textarea { width: 100%; flex: 1; min-height: 0; border: 1px solid #e4e2de; border-radius: 7px; padding: 8px; font-size: 13px; font-weight: 500; resize: none; user-select: text; -webkit-user-select: text; outline: none; }
-        .word-counter { margin-top: 5px; font-size: 10px; font-weight: 700; color: #787672; flex-shrink: 0; }
+        .video-widget-box { width: 350px; height: 255px; min-width: 230px; min-height: 180px; }
+        .upload-video-btn {
+            background: var(--emerald-soft); color: var(--emerald); border: 1px solid var(--emerald-border);
+            padding: 6px 10px; border-radius: 7px; font-size: 11px; font-weight: 700;
+            cursor: pointer; margin-bottom: 6px; width: 100%; text-align: center; display: block;
+        }
+        .video-widget-box video {
+            width: 100%; flex: 1; min-height: 0; border-radius: 7px;
+            background: #111815; object-fit: contain;
+        }
+        .video-unmute-hint {
+            position: absolute; bottom: 44px; left: 50%; transform: translateX(-50%);
+            background: var(--emerald); color: #fff; border: none;
+            padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 700;
+            cursor: pointer; z-index: 5; display: none;
+        }
 
-        .photo-widget img { width: 100%; flex: 1; min-height: 0; object-fit: fill; border-radius: 7px; display: block; pointer-events: none; }
+        .essay-widget-box { width: 350px; height: 245px; min-width: 230px; min-height: 165px; }
+        .essay-widget-box textarea {
+            width: 100%; flex: 1; min-height: 0; border: 1px solid var(--border); border-radius: 8px;
+            padding: 10px; font-size: 13px; font-weight: 500; line-height: 1.45;
+            background: var(--bg-subtle); color: var(--text-primary);
+            resize: none; user-select: text; -webkit-user-select: text; outline: none;
+        }
+        .word-counter { margin-top: 6px; font-size: 11px; font-weight: 700; color: var(--text-secondary); flex-shrink: 0; }
 
-        .sticker-widget { width: 200px; height: 170px; min-width: 140px; min-height: 110px; background: #fef08a; border: 1px solid #fde047; }
-        .sticker-widget textarea { width: 100%; flex: 1; min-height: 0; resize: none; user-select: text; -webkit-user-select: text; background: transparent; border: none; color: #1a1918; font-weight: 600; font-size: 14px; outline: none; padding: 2px; }
-        .sticker-dot { width: 11px; height: 11px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.15); }
+        .photo-widget img {
+            width: 100%; flex: 1; min-height: 0; object-fit: fill;
+            border-radius: 7px; display: block; pointer-events: none;
+        }
 
-        .speaking-widget-box { width: 330px; height: 230px; min-width: 260px; min-height: 205px; }
-        .speaking-presets { display: flex; gap: 4px; margin-bottom: 6px; flex-shrink: 0; }
-        .spk-preset-btn { flex: 1; border: 1px solid #e4e2de; background: #f0eeeb; padding: 5px; border-radius: 7px; font-size: 10px; font-weight: 600; cursor: pointer; }
-        .spk-preset-btn.active { background: #eef2ff; color: #4f46e5; border-color: #818cf8; }
-        .speaking-timer-row { display: flex; align-items: center; justify-content: space-between; background: #1a1918; color: white; padding: 6px 8px; border-radius: 8px; margin-bottom: 6px; flex-shrink: 0; gap: 6px; }
-        .speaking-clock { font-size: 17px; font-weight: 700; color: #38bdf8; min-width: 52px; }
-        .spk-ctrl-btn { border: none; background: #059669; color: white; padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; }
-        .speaking-rec-btn { border: none; background: #ef4444; color: white; padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; }
-        .speaking-audio-player { width: 100%; height: 30px; margin-top: auto; flex-shrink: 0; }
+        .sticker-widget {
+            width: 210px; height: 175px; min-width: 145px; min-height: 115px;
+            background: #fef9c3; border: 1px solid #fde047;
+        }
+        .sticker-widget textarea {
+            width: 100%; flex: 1; min-height: 0; resize: none;
+            user-select: text; -webkit-user-select: text;
+            background: transparent; border: none; color: #111815;
+            font-weight: 600; font-size: 14px; line-height: 1.4; outline: none; padding: 4px;
+        }
+        .sticker-dot { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.2); }
 
-        .dict-widget-box { width: 340px; height: 270px; min-width: 260px; min-height: 205px; }
-        .dict-search-row { display: flex; gap: 5px; margin-bottom: 6px; flex-shrink: 0; }
-        .dict-input { flex: 1; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 12px; font-weight: 500; outline: none; user-select: text; -webkit-user-select: text; }
-        .dict-search-btn { background: #4f46e5; color: white; border: none; padding: 0 10px; border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer; }
-        .dict-body { flex: 1; overflow-y: auto; background: #f6f5f2; border: 1px solid #e4e2de; border-radius: 7px; padding: 6px 8px; font-size: 11px; color: #1a1918; user-select: text; -webkit-user-select: text; line-height: 1.4; }
-        .dict-links-row { display: flex; gap: 5px; margin-top: 5px; flex-shrink: 0; }
-        .dict-ext-link { flex: 1; text-align: center; text-decoration: none; font-size: 10px; font-weight: 600; padding: 4px; border-radius: 5px; background: #f0eeeb; color: #4b4845; border: 1px solid #e4e2de; }
+        .speaking-widget-box { width: 340px; height: 235px; min-width: 265px; min-height: 210px; }
+        .speaking-presets { display: flex; gap: 5px; margin-bottom: 8px; flex-shrink: 0; }
+        .spk-preset-btn {
+            flex: 1; border: 1px solid var(--border-strong); background: var(--bg-subtle);
+            color: var(--text-primary); padding: 6px; border-radius: 7px;
+            font-size: 11px; font-weight: 600; cursor: pointer;
+        }
+        .spk-preset-btn.active {
+            background: var(--emerald-soft); color: var(--emerald); border-color: var(--emerald); font-weight: 700;
+        }
+        .speaking-timer-row {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #111815; color: #fff; padding: 8px 10px;
+            border-radius: 8px; margin-bottom: 8px; flex-shrink: 0; gap: 6px;
+        }
+        .speaking-clock { font-size: 17px; font-weight: 800; color: #34d399; min-width: 52px; font-variant-numeric: tabular-nums; }
+        .spk-ctrl-btn {
+            border: none; background: var(--emerald); color: #fff; padding: 5px 10px;
+            border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;
+        }
+        .speaking-rec-btn {
+            border: none; background: #dc2626; color: #fff; padding: 5px 10px;
+            border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;
+        }
+        .speaking-rec-btn.recording { background: #d97706; }
+        .speaking-audio-player { width: 100%; height: 32px; margin-top: auto; flex-shrink: 0; }
 
+        .dict-widget-box { width: 345px; height: 275px; min-width: 260px; min-height: 210px; }
+        .dict-search-row { display: flex; gap: 6px; margin-bottom: 8px; flex-shrink: 0; }
+        .dict-input {
+            flex: 1; padding: 6px 10px; border: 1px solid var(--border-strong);
+            background: var(--bg-subtle); color: var(--text-primary);
+            border-radius: 7px; font-size: 12px; font-weight: 600; outline: none;
+            user-select: text; -webkit-user-select: text;
+        }
+        .dict-search-btn {
+            background: var(--emerald); color: #fff; border: none; padding: 0 12px;
+            border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer;
+        }
+        .dict-body {
+            flex: 1; overflow-y: auto; background: var(--bg-subtle); border: 1px solid var(--border);
+            border-radius: 7px; padding: 8px 10px; font-size: 12px; color: var(--text-primary);
+            user-select: text; -webkit-user-select: text; line-height: 1.45;
+        }
+        .dict-links-row { display: flex; gap: 6px; margin-top: 6px; flex-shrink: 0; }
+        .dict-ext-link {
+            flex: 1; text-align: center; text-decoration: none; font-size: 10px;
+            font-weight: 700; padding: 5px; border-radius: 6px;
+            background: var(--bg-subtle); color: var(--text-secondary); border: 1px solid var(--border);
+        }
+
+        @media (max-width: 860px) {
+            .class-sidebar {
+                position: fixed; top: 100px; right: 0; bottom: 0;
+                box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+            }
+            .lesson-title-text { max-width: 150px; }
+        }
+
+        /* Права ученика */
         body.role-student .widget-header { cursor: default; }
         body.role-student .widget-header .grip-bar { display: none; }
-        body.role-student .widget .close-btn, body.role-student .widget .header-icon-btn, body.role-student .sticker-dot, body.role-student .upload-video-btn { display: none !important; }
-        body.role-student .resize-handle, body.role-student .text-resize-handle { display: none !important; }
-        body.role-student .board-text-drag, body.role-student .board-text-del { display: none !important; }
-        body.role-student #btn-open-widgets { display: none !important; }
-        body.role-student #btn-follow { display: none !important; }
-        body.role-student #btn-clear-board, body.role-student #btn-reset-all { display: none !important; }
-        body.role-student #btn-start-lesson { display: none !important; }
-        body.role-student #btn-center-board { display: none !important; }
-        body.role-student .timer-action-btn { display: none !important; }
+        body.role-student .widget .close-btn,
+        body.role-student .widget .header-icon-btn,
+        body.role-student .sticker-dot,
+        body.role-student .upload-video-btn { display: none !important; }
+        body.role-student .resize-handle,
+        body.role-student .text-resize-handle { display: none !important; }
+        body.role-student .board-text-drag,
+        body.role-student .board-text-del { display: none !important; }
+        body.role-student #btn-open-widgets,
+        body.role-student #btn-follow,
+        body.role-student #btn-clear-board,
+        body.role-student #btn-reset-all,
+        body.role-student #btn-center-board,
+        body.role-student #btn-timer-menu,
+        body.role-student #btn-pause-timer { display: none !important; }
     </style>
 </head>
 <body class="role-teacher">
 
     <audio id="remote-voice-player" autoplay playsinline></audio>
 
-    <div class="top-bar">
-        <button class="btn" style="background:#f0eeeb;" onclick="exitToCabinet()">🏠 Кабинет</button>
-        <button class="btn btn-widgets" id="btn-open-widgets" onclick="toggleWidgetsModal(event)">🧩 Виджеты</button>
-        <button class="btn active" id="unified-tool-btn" onclick="activateLastDrawTool(); toggleToolMenu(event);">
-            <span id="current-tool-icon">🖊️</span><span id="current-tool-name" class="btn-text-hide">Маркер</span><span style="font-size:10px; padding:0 2px;">▾</span>
-        </button>
-        <div class="color-circle-btn" id="color-circle-btn" onclick="toggleColorMenu(event)"><div class="color-inner-dot" id="color-inner-dot"></div></div>
-        <div class="undo-group">
-            <button class="icon-only-btn" onclick="undoAction()" title="Отменить">↩️</button>
-            <button class="icon-only-btn" onclick="redoAction()" title="Вернуть">↪️</button>
-        </div>
-        <button class="btn" id="tool-pan" onclick="setTool('pan')">✋ Двигать</button>
-        <div class="bar-divider"></div>
-        <div class="zoom-group">
-            <button class="btn" style="padding:3px 6px;" onclick="changeZoom(-0.15)">➖</button>
-            <div class="zoom-label" id="zoom-display" onclick="resetZoom()">100%</div>
-            <button class="btn" style="padding:3px 6px;" onclick="changeZoom(0.15)">➕</button>
-            <button class="center-board-btn" id="btn-center-board" onclick="returnToCenter(true)">🎯</button>
-        </div>
-        <button class="btn btn-follow active" id="btn-follow" onclick="toggleFollow()">🧲 Вести</button>
-    </div>
+    <div class="classroom-layout">
+        <!-- 1. ВЕРХНЯЯ ПАНЕЛЬ УРОКА -->
+        <header class="class-topbar">
+            <div class="topbar-left">
+                <button class="btn" onclick="exitToCabinet()">← В кабинет</button>
+                <span class="lesson-title-text" id="board-title-label">Доска урока</span>
+                <span class="top-tab-badge">Доска</span>
+            </div>
 
-    <div id="placement-banner">
-        <span id="placement-text">Нажмите на доску</span>
-        <button class="placement-cancel-btn" onclick="cancelPendingPlacement()">Отмена</button>
-    </div>
+            <div class="topbar-right">
+                <div class="timer-wrap">
+                    <span class="timer-dot" id="timer-status-dot"></span>
+                    <span id="timer-text">00:00</span>
+                    <button class="btn" style="height:24px; padding:0 8px; font-size:11px; display:none;" id="btn-pause-timer" onclick="togglePauseLessonTimer(true)">Пауза</button>
+                    <button class="btn" style="height:24px; padding:0 8px; font-size:11px;" id="btn-timer-menu" onclick="toggleLessonTimeMenu(event)">Таймер</button>
+                </div>
 
-    <div id="lesson-timer-badge">
-        <span class="timer-dot" id="timer-status-dot"></span>
-        <span id="timer-label-prefix">Урок:</span>
-        <b id="timer-text">60:00</b>
-        <button class="timer-action-btn timer-pause-btn" id="btn-pause-timer" onclick="togglePauseLessonTimer(true)">Пауза</button>
-        <button class="timer-action-btn timer-stop-btn" onclick="stopLessonTimer(true)">Завершить</button>
-    </div>
+                <button class="btn" onclick="toggleSidebarPanel()" id="btn-toggle-sidebar">Панель</button>
+                <button class="btn btn-danger-outline" onclick="exitToCabinet()">Завершить урок</button>
+            </div>
+        </header>
 
-    <div class="popover-menu" id="tool-popover">
-        <button class="popover-item" data-tool="pointer" onclick="selectDrawTool('pointer', '🔴', 'Указка')">🔴 Указка</button>
-        <button class="popover-item" data-tool="text" onclick="selectDrawTool('text', '🔤', 'Текст')">🔤 Текст</button>
-        <button class="popover-item" data-tool="pencil" onclick="selectDrawTool('pencil', '✏️', 'Карандаш')">✏️ Карандаш</button>
-        <button class="popover-item active" data-tool="marker" onclick="selectDrawTool('marker', '🖊️', 'Маркер')">🖊️ Маркер</button>
-        <button class="popover-item" data-tool="highlighter" onclick="selectDrawTool('highlighter', '🖍️', 'Выделитель')">🖍️ Выделитель</button>
-        <button class="popover-item" data-tool="eraser" onclick="selectDrawTool('eraser', '🧽', 'Ластик')">🧽 Ластик</button>
-        <div class="thickness-box">
-            <div class="thickness-header"><span>Толщина</span><span id="thickness-val">5 px</span></div>
-            <input type="range" min="2" max="24" value="5" class="thickness-slider" id="stroke-size-slider" oninput="changeStrokeSize(this.value)">
+        <!-- 2. ПАНЕЛЬ ИНСТРУМЕНТОВ ДОСКИ -->
+        <div class="class-subbar">
+            <div class="tool-group">
+                <button class="tool-pill" id="tool-pan" onclick="setTool('pan')">Двигать</button>
+                <button class="tool-pill active" data-tool="marker" onclick="selectDrawTool('marker')">Маркер</button>
+                <button class="tool-pill" data-tool="pencil" onclick="selectDrawTool('pencil')">Карандаш</button>
+                <button class="tool-pill" data-tool="highlighter" onclick="selectDrawTool('highlighter')">Выделитель</button>
+                <button class="tool-pill" data-tool="text" onclick="selectDrawTool('text')">Текст</button>
+                <button class="tool-pill" data-tool="pointer" onclick="selectDrawTool('pointer')">Указка</button>
+                <button class="tool-pill" data-tool="eraser" onclick="selectDrawTool('eraser')">Ластик</button>
+
+                <div class="bar-divider"></div>
+
+                <div class="color-swatch-row" id="color-swatch-group">
+                    <div class="color-dot active" style="background:#0d7350;" onclick="pickColor('#0d7350', this)"></div>
+                    <div class="color-dot" style="background:#111815;" onclick="pickColor('#111815', this)"></div>
+                    <div class="color-dot" style="background:#2563eb;" onclick="pickColor('#2563eb', this)"></div>
+                    <div class="color-dot" style="background:#dc2626;" onclick="pickColor('#dc2626', this)"></div>
+                    <div class="color-dot" style="background:#d97706;" onclick="pickColor('#d97706', this)"></div>
+                    <div class="color-dot" style="background:#7c3aed;" onclick="pickColor('#7c3aed', this)"></div>
+                </div>
+
+                <input type="range" min="2" max="22" value="4" class="size-slider" id="stroke-size-slider" oninput="changeStrokeSize(this.value)" title="Толщина линии">
+
+                <div class="bar-divider"></div>
+
+                <button class="tool-pill btn-icon-only" onclick="undoAction()" title="Отменить (Ctrl+Z)">↩</button>
+                <button class="tool-pill btn-icon-only" onclick="redoAction()" title="Вернуть (Ctrl+Y)">↪</button>
+                <button class="tool-pill" id="btn-clear-board" onclick="clearBoard(true)">Очистить</button>
+            </div>
+
+            <div class="tool-group">
+                <button class="tool-pill btn-icon-only" onclick="changeZoom(-0.15)">−</button>
+                <button class="tool-pill" id="zoom-display" onclick="resetZoom()" style="min-width:54px;">100%</button>
+                <button class="tool-pill btn-icon-only" onclick="changeZoom(0.15)">+</button>
+                <button class="tool-pill" id="btn-center-board" onclick="returnToCenter(true)">В центр</button>
+                <button class="tool-pill active" id="btn-follow" onclick="toggleFollow()">Вести ученика</button>
+                <button class="btn btn-emerald" id="btn-open-widgets" onclick="toggleWidgetsModal(event)">Загрузить файл</button>
+            </div>
         </div>
-        <button class="popover-item" id="btn-clear-board" style="color:#ef4444;" onclick="clearBoard(true); closePopovers();">🗑️ Очистить линии</button>
-        <button class="popover-item" id="btn-reset-all" style="color:#787672; font-size:11px;" onclick="resetSavedLesson(); closePopovers();">🔄 Сбросить доску</button>
-    </div>
 
-    <div id="color-popover">
-        <div class="swatch" style="background:#ef4444;" onclick="pickColor('#ef4444')"></div>
-        <div class="swatch" style="background:#f97316;" onclick="pickColor('#f97316')"></div>
-        <div class="swatch" style="background:#eab308;" onclick="pickColor('#eab308')"></div>
-        <div class="swatch" style="background:#10b981;" onclick="pickColor('#10b981')"></div>
-        <div class="swatch" style="background:#06b6d4;" onclick="pickColor('#06b6d4')"></div>
-        <div class="swatch" style="background:#3b82f6;" onclick="pickColor('#3b82f6')"></div>
-        <div class="swatch" style="background:#4f46e5;" onclick="pickColor('#4f46e5')"></div>
-        <div class="swatch" style="background:#a855f7;" onclick="pickColor('#a855f7')"></div>
-        <div class="swatch" style="background:#ec4899;" onclick="pickColor('#ec4899')"></div>
-        <div class="swatch" style="background:#854d0e;" onclick="pickColor('#854d0e')"></div>
-        <div class="swatch" style="background:#64748b;" onclick="pickColor('#64748b')"></div>
-        <div class="swatch" style="background:#0f172a;" onclick="pickColor('#0f172a')"></div>
-    </div>
+        <!-- Баннер размещения виджета -->
+        <div id="placement-banner">
+            <span id="placement-text">Нажмите на доску, чтобы разместить виджет</span>
+            <button class="placement-cancel-btn" onclick="cancelPendingPlacement()">Отмена</button>
+        </div>
 
-    <div id="widgets-modal">
-        <div class="modal-header">
-            <div class="modal-title">Выберите виджет</div>
-            <button class="close-btn" onclick="toggleWidgetsModal()">✕</button>
+        <!-- Всплывающее меню виджетов и файлов (Кнопка фото через прямую <label> для iPad Safari) -->
+        <div class="popover-box" id="widgets-modal">
+            <div class="popover-head">
+                <span>Виджеты и материалы урока</span>
+                <button class="close-btn" onclick="toggleWidgetsModal()">✕</button>
+            </div>
+            <div class="widget-grid">
+                <label for="photo-upload-input" class="widget-pick-btn">Фото / Учебник</label>
+                <button class="widget-pick-btn" onclick="startWidgetPlacement('video', 'Видео / Аудио')">Видео / Аудио</button>
+                <button class="widget-pick-btn" onclick="startWidgetPlacement('essay', 'Редактор Эссе')">Редактор Эссе</button>
+                <button class="widget-pick-btn" onclick="startWidgetPlacement('sticker', 'Стикер')">Стикер</button>
+                <button class="widget-pick-btn" onclick="startWidgetPlacement('speaking', 'Тренажер Speaking')">Speaking</button>
+                <button class="widget-pick-btn" onclick="startWidgetPlacement('dict', 'Словарь')">Словарь</button>
+            </div>
+            <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border); display:flex; justify-content:space-between;">
+                <button class="btn btn-danger-outline" style="width:100%; height:30px; font-size:11px;" id="btn-reset-all" onclick="resetSavedLesson(); closePopovers();">
+                    Сбросить всю доску целиком
+                </button>
+            </div>
+            <input type="file" id="photo-upload-input" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
         </div>
-        <div class="widget-grid">
-            <label for="photo-upload-input" class="widget-pick-btn">🖼️ Фото / Учебник</label>
-            <button class="widget-pick-btn" onclick="startWidgetPlacement('video', '🎬 Видеоплеер')">🎬 Видео / Аудио</button>
-            <button class="widget-pick-btn" onclick="startWidgetPlacement('essay', '📝 Редактор Эссе')">📝 Редактор Эссе</button>
-            <button class="widget-pick-btn" onclick="startWidgetPlacement('sticker', '🟨 Стикер')">🟨 Стикер</button>
-            <button class="widget-pick-btn" onclick="startWidgetPlacement('speaking', '🎙️ Тренажер Speaking')">🎙️ Speaking</button>
-            <button class="widget-pick-btn" onclick="startWidgetPlacement('dict', '📖 Словарь')">📖 Словарь</button>
-        </div>
-        <input type="file" id="photo-upload-input" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
-    </div>
 
-    <div id="video-dock">
-        <div class="dock-drag-header" id="video-dock-handle">
-            <span class="drag-dots">•••</span>
-            <button class="close-btn" onclick="toggleVideoDock(false)">✕</button>
+        <!-- Всплывающее меню таймера -->
+        <div class="popover-box" id="lesson-time-popover" style="width:260px;">
+            <div class="popover-head">
+                <span>Таймер урока</span>
+                <button class="close-btn" onclick="closePopovers()">✕</button>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+                <button class="widget-pick-btn" onclick="triggerLessonStart(60)">Запустить на 60 минут</button>
+                <button class="widget-pick-btn" onclick="triggerLessonStart(45)">Запустить на 45 минут</button>
+                <button class="widget-pick-btn" onclick="triggerLessonStart(30)">Запустить на 30 минут</button>
+                <button class="btn btn-danger-outline" style="height:30px; font-size:11px; margin-top:4px;" onclick="stopLessonTimer(true); closePopovers();">Сбросить таймер</button>
+            </div>
         </div>
-        <div class="cam-box">
-            <div class="cam-placeholder" id="teacher-placeholder">Камера учителя</div>
-            <video id="teacherVideo" autoplay muted playsinline></video>
-        </div>
-        <div class="cam-box">
-            <div class="cam-placeholder" id="student-placeholder">Камера ученика</div>
-            <video id="studentVideo" autoplay muted playsinline></video>
-        </div>
-        <div class="rtc-status-bar" id="rtc-status-bar" onclick="reconnectWebRTC()">Связь готова</div>
-    </div>
 
-    <div id="lesson-time-popover">
-        <div class="popover-section-label">Когда начать:</div>
-        <div class="delay-pills">
-            <button class="delay-pill active" onclick="selectStartDelay(0, this)">Сразу</button>
-            <button class="delay-pill" onclick="selectStartDelay(5, this)">Через 5м</button>
-            <button class="delay-pill" onclick="selectStartDelay(10, this)">Через 10м</button>
-        </div>
-        <div class="popover-section-label" style="margin-top:4px;">Длительность:</div>
-        <button class="time-preset-btn" onclick="triggerLessonStart(60)">60 минут</button>
-        <button class="time-preset-btn" onclick="triggerLessonStart(45)">45 минут</button>
-    </div>
+        <!-- 3. РАБОЧАЯ ОБЛАСТЬ И ПРАВАЯ КОЛОНКА -->
+        <div class="class-body">
+            <div id="board-viewport">
+                <div id="board-world">
+                    <div id="dynamic-items"></div>
+                    <canvas id="canvas" width="4200" height="3000"></canvas>
+                    <canvas id="temp-canvas" width="4200" height="3000"></canvas>
+                    <div id="laser-cursor"><div class="laser-dot"></div></div>
+                </div>
+            </div>
 
-    <div class="bottom-dock">
-        <button class="dock-icon-btn start-lesson-btn" id="btn-start-lesson" onclick="toggleLessonTimeMenu(event)">▶️ Урок</button>
-        <button class="dock-icon-btn" id="btn-mic-toggle" onclick="toggleMic()"><span class="dock-status-dot"></span><span id="mic-btn-text">🎙️ Микрофон</span></button>
-        <button class="dock-icon-btn lit" id="btn-sound-toggle" onclick="toggleRemoteSound()"><span id="sound-btn-text">🔊 Звук</span></button>
-        <button class="dock-icon-btn" id="btn-cam-toggle" onclick="toggleCamera()"><span class="dock-status-dot"></span><span>📹 Камера</span></button>
-        <button class="dock-icon-btn lit" id="btn-dock-visibility" onclick="toggleVideoDock()"><span class="dock-status-dot"></span><span>👥 Окна</span></button>
-    </div>
+            <aside class="class-sidebar" id="class-sidebar">
+                <div class="cams-wrap">
+                    <div class="cam-box">
+                        <div class="cam-placeholder" id="student-placeholder">Камера ученика</div>
+                        <video id="studentVideo" autoplay muted playsinline></video>
+                        <span class="cam-tag">Ученик</span>
+                    </div>
+                    <div class="cam-box">
+                        <div class="cam-placeholder" id="teacher-placeholder">Камера преподавателя</div>
+                        <video id="teacherVideo" autoplay muted playsinline></video>
+                        <span class="cam-tag">Преподаватель</span>
+                    </div>
+                    <div class="rtc-status-bar" id="rtc-status-bar" onclick="reconnectWebRTC()">Связь готова (обновить)</div>
+                </div>
 
-    <div id="board-viewport">
-        <div id="board-world">
-            <div id="dynamic-items"></div>
-            <canvas id="canvas" width="4200" height="3000"></canvas>
-            <canvas id="temp-canvas" width="4200" height="3000"></canvas>
-            <div id="laser-cursor"><div class="laser-dot"></div></div>
+                <div class="media-controls-grid">
+                    <button class="media-btn" id="btn-mic-toggle" onclick="toggleMic()">Микрофон</button>
+                    <button class="media-btn" id="btn-cam-toggle" onclick="toggleCamera()">Камера</button>
+                    <button class="media-btn lit" id="btn-sound-toggle" onclick="toggleRemoteSound()">Звук вкл</button>
+                </div>
+
+                <div class="chat-box">
+                    <div class="chat-messages" id="chat-messages-list"></div>
+                    <div class="chat-input-row">
+                        <input type="text" class="chat-input" id="chat-input-field" placeholder="Сообщение..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+                        <button class="btn btn-emerald" style="height:32px; padding:0 10px;" onclick="sendChatMessage()">→</button>
+                    </div>
+                </div>
+            </aside>
         </div>
     </div>
 
@@ -373,9 +626,16 @@
             measurementId: "G-RQ2YW5CYV7"
         };
 
+        if (localStorage.getItem('es_theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+
         let db = null, auth = null, roomRef = null;
         const urlParams = new URLSearchParams(window.location.search);
         const rawRoom = urlParams.get('room') || 'default_room';
+        const boardTitleParam = urlParams.get('title') || 'Доска урока';
+        document.getElementById('board-title-label').innerText = boardTitleParam;
+
         const ROOM_ID = rawRoom.replace(/[^a-zA-Z0-9_-]/g, '_');
         const LOCAL_BOARD_KEY = 'es_board_cache_' + ROOM_ID;
         const localChannel = new BroadcastChannel('es_live_' + ROOM_ID);
@@ -397,12 +657,10 @@
         const laserCursor = document.getElementById('laser-cursor');
         const widgetsModal = document.getElementById('widgets-modal');
         const dynamicItems = document.getElementById('dynamic-items');
-        const videoDock = document.getElementById('video-dock');
-        const toolPopover = document.getElementById('tool-popover');
-        const colorPopover = document.getElementById('color-popover');
         const lessonTimePopover = document.getElementById('lesson-time-popover');
         const placementBanner = document.getElementById('placement-banner');
         const remoteVoicePlayer = document.getElementById('remote-voice-player');
+        const chatMessagesList = document.getElementById('chat-messages-list');
 
         const CENTER_X = -1400;
         const CENTER_Y = -950;
@@ -424,8 +682,8 @@
         let myClientId = 'cl_' + Math.random().toString(36).slice(2, 9);
         let tool = 'marker';
         let lastDrawTool = 'marker';
-        let currentColor = '#4f46e5';
-        let baseStrokeSize = 5;
+        let currentColor = '#0d7350';
+        let baseStrokeSize = 4;
 
         let drawing = false;
         let panning = false;
@@ -448,13 +706,11 @@
         let strokeHistory = [];
         let actionHistory = [];
         let redoActionStack = [];
+        let chatHistory = [];
 
         let timerInterval = null;
         let remainingSeconds = 0;
         let timerPaused = false;
-        let selectedDelayMinutes = 0;
-        let timerPhase = 'lesson';
-        let scheduledDurationMins = 60;
         let lastMoveSentTime = 0;
 
         ctx.lineCap = 'round';
@@ -487,9 +743,14 @@
 
         function applyVerifiedRole(verifiedRole) {
             role = (verifiedRole === 'student') ? 'student' : 'teacher';
-            document.body.className = 'role-' + role;
+            document.body.className = (localStorage.getItem('es_theme') === 'dark' ? 'dark-theme ' : '') + 'role-' + role;
             updateStudentPanLock();
             updateLaserVisibility();
+        }
+
+        function toggleSidebarPanel() {
+            document.getElementById('class-sidebar').classList.toggle('collapsed');
+            setTimeout(applyBoardTransform, 50);
         }
 
         function exitToCabinet() {
@@ -521,6 +782,10 @@
             if (val.strokeHistory) {
                 strokeHistory = val.strokeHistory;
                 redrawAllStrokes();
+            }
+            if (val.chatHistory && Array.isArray(val.chatHistory)) {
+                chatHistory = val.chatHistory;
+                renderChatMessages();
             }
             if (val.items && Array.isArray(val.items)) {
                 dynamicItems.innerHTML = '';
@@ -565,18 +830,43 @@
             } catch (e) {}
         }
 
+        // Чат урока
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input-field');
+            const text = input.value.trim();
+            if (!text) return;
+            const author = role === 'teacher' ? 'Преподаватель' : 'Ученик';
+            const msgObj = { author, text, ts: Date.now() };
+            chatHistory.push(msgObj);
+            if (chatHistory.length > 60) chatHistory.shift();
+            input.value = '';
+            renderChatMessages();
+            saveBoardState();
+            broadcastEvent({ type: 'chat_msg', msg: msgObj });
+        }
+
+        function renderChatMessages() {
+            chatMessagesList.innerHTML = chatHistory.map(m => `
+                <div class="chat-msg">
+                    <div class="chat-msg-author">${m.author}</div>
+                    <div>${m.text.replace(/</g, '&lt;')}</div>
+                </div>
+            `).join('');
+            chatMessagesList.scrollTop = chatMessagesList.scrollHeight;
+        }
+
         function sendTeacherViewportSync(worldX, worldY) {
             if (role !== 'teacher') return;
             const pointerActive = (tool === 'pointer');
+            const vw = viewport.clientWidth || window.innerWidth;
+            const vh = viewport.clientHeight || window.innerHeight;
             const movePayload = {
                 type: 'teacher_move_local',
                 sender: myClientId,
-                worldX: worldX !== undefined ? worldX : Math.round((window.innerWidth / 2 - boardX) / boardScale),
-                worldY: worldY !== undefined ? worldY : Math.round((window.innerHeight / 2 - boardY) / boardScale),
+                worldX: worldX !== undefined ? worldX : Math.round((vw / 2 - boardX) / boardScale),
+                worldY: worldY !== undefined ? worldY : Math.round((vh / 2 - boardY) / boardScale),
                 boardX, boardY, boardScale,
-                vw: window.innerWidth,
-                vh: window.innerHeight,
-                followMode, pointerActive
+                vw, vh, followMode, pointerActive
             };
             try { localChannel.postMessage(movePayload); } catch (err) {}
             if (roomRef) {
@@ -596,15 +886,17 @@
             if (role === 'student' && followMode) {
                 const tScale = data.boardScale || 1;
                 targetFollowScale = tScale;
-                const tVw = data.vw || window.innerWidth;
-                const tVh = data.vh || window.innerHeight;
+                const myVw = viewport.clientWidth || window.innerWidth;
+                const myVh = viewport.clientHeight || window.innerHeight;
+                const tVw = data.vw || myVw;
+                const tVh = data.vh || myVh;
                 const centerWorldX = (tVw / 2 - data.boardX) / tScale;
                 const centerWorldY = (tVh / 2 - data.boardY) / tScale;
-                const minX = Math.min(0, window.innerWidth - canvas.width * tScale);
-                const minY = Math.min(0, window.innerHeight - canvas.height * tScale);
+                const minX = Math.min(0, myVw - canvas.width * tScale);
+                const minY = Math.min(0, myVh - canvas.height * tScale);
 
-                targetFollowX = Math.min(0, Math.max(minX, window.innerWidth / 2 - centerWorldX * tScale));
-                targetFollowY = Math.min(0, Math.max(minY, window.innerHeight / 2 - centerWorldY * tScale));
+                targetFollowX = Math.min(0, Math.max(minX, myVw / 2 - centerWorldX * tScale));
+                targetFollowY = Math.min(0, Math.max(minY, myVh / 2 - centerWorldY * tScale));
             }
         }
 
@@ -644,7 +936,7 @@
             if (role === 'student') return;
             widgetsModal.style.display = 'none';
             pendingWidgetType = type;
-            document.getElementById('placement-text').innerText = `Нажмите: ${label}`;
+            document.getElementById('placement-text').innerText = `Нажмите на доску: ${label}`;
             placementBanner.style.display = 'flex';
             viewport.style.cursor = 'copy';
         }
@@ -761,7 +1053,9 @@
             for (let i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf('image') !== -1) {
                     const file = items[i].getAsFile();
-                    const pos = screenToWorld(window.innerWidth / 2 - 160, window.innerHeight / 2 - 110);
+                    const vw = viewport.clientWidth || window.innerWidth;
+                    const vh = viewport.clientHeight || window.innerHeight;
+                    const pos = screenToWorld(vw / 2 - 160, vh / 2 - 110);
                     processImageFile(file, pos.x, pos.y);
                     e.preventDefault();
                     break;
@@ -776,77 +1070,76 @@
             const isLocked = el.classList.toggle('locked-widget');
             if (isLocked) el.style.zIndex = el.classList.contains('photo-widget') ? 14 : 34;
             const lockBtn = el.querySelector('.lock-btn');
-            if (lockBtn) { lockBtn.innerText = isLocked ? '🔒' : '🔓'; lockBtn.classList.toggle('locked-active', isLocked); }
+            if (lockBtn) {
+                lockBtn.innerText = isLocked ? 'Закреплено' : 'Закрепить';
+                lockBtn.classList.toggle('locked-active', isLocked);
+            }
             saveBoardState();
             if (broadcast) broadcastEvent({ type: 'widget_lock', id, isLocked });
         }
 
         function changeStrokeSize(val) {
             baseStrokeSize = parseInt(val, 10);
-            document.getElementById('thickness-val').innerText = baseStrokeSize + ' px';
-        }
-
-        function selectStartDelay(mins, btnEl) {
-            selectedDelayMinutes = mins;
-            document.querySelectorAll('.delay-pill').forEach(b => b.classList.remove('active'));
-            btnEl.classList.add('active');
         }
 
         function toggleLessonTimeMenu(e) {
-            e.stopPropagation();
-            closePopovers();
-            lessonTimePopover.style.display = lessonTimePopover.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        function triggerCustomLessonStart() {
-            triggerLessonStart(parseInt(document.getElementById('custom-minutes-input').value, 10) || 60);
+            if (e) e.stopPropagation();
+            widgetsModal.style.display = 'none';
+            lessonTimePopover.style.display = lessonTimePopover.style.display === 'block' ? 'none' : 'block';
         }
 
         function triggerLessonStart(durationMinutes) {
             lessonTimePopover.style.display = 'none';
-            scheduledDurationMins = durationMinutes;
-            if (selectedDelayMinutes > 0) startTimerPhase('countdown', selectedDelayMinutes * 60, true);
-            else startTimerPhase('lesson', durationMinutes * 60, true);
-        }
-
-        function startTimerPhase(phase, seconds, broadcast) {
-            timerPhase = phase; remainingSeconds = seconds; timerPaused = false;
-            updateTimerPauseUI();
-            document.getElementById('lesson-timer-badge').style.display = 'flex';
+            remainingSeconds = durationMinutes * 60;
+            timerPaused = false;
+            updateTimerPauseUI(true);
             renderTimerText();
+
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 if (!timerPaused && remainingSeconds > 0) {
                     remainingSeconds--;
                     renderTimerText();
                 } else if (remainingSeconds <= 0) {
-                    if (timerPhase === 'countdown') startTimerPhase('lesson', scheduledDurationMins * 60, true);
-                    else clearInterval(timerInterval);
+                    clearInterval(timerInterval);
                 }
             }, 1000);
-            if (broadcast) broadcastEvent({ type: 'timer_sync', remainingSeconds, active: true, paused: timerPaused, phase: timerPhase });
+
+            broadcastEvent({ type: 'timer_sync', remainingSeconds, active: true, paused: false });
         }
 
         function togglePauseLessonTimer(broadcast) {
             timerPaused = !timerPaused;
-            updateTimerPauseUI();
-            if (broadcast) broadcastEvent({ type: 'timer_sync', remainingSeconds, active: true, paused: timerPaused, phase: timerPhase });
+            updateTimerPauseUI(true);
+            if (broadcast) broadcastEvent({ type: 'timer_sync', remainingSeconds, active: true, paused: timerPaused });
         }
 
-        function updateTimerPauseUI() {
+        function updateTimerPauseUI(active) {
             const pauseBtn = document.getElementById('btn-pause-timer');
             const dot = document.getElementById('timer-status-dot');
-            document.getElementById('timer-label-prefix').innerText = (timerPhase === 'countdown') ? 'До:' : 'Урок:';
-            dot.classList.toggle('scheduled', timerPhase === 'countdown' && !timerPaused);
-            if (timerPaused) { pauseBtn.innerText = 'Старт'; dot.classList.add('paused'); }
-            else { pauseBtn.innerText = 'Пауза'; dot.classList.remove('paused'); }
+            if (!active) {
+                pauseBtn.style.display = 'none';
+                dot.className = 'timer-dot';
+                return;
+            }
+            if (role === 'teacher') pauseBtn.style.display = 'inline-flex';
+            if (timerPaused) {
+                pauseBtn.innerText = 'Старт';
+                dot.className = 'timer-dot paused';
+            } else {
+                pauseBtn.innerText = 'Пауза';
+                dot.className = 'timer-dot running';
+            }
         }
 
         function stopLessonTimer(broadcast) {
             if (timerInterval) clearInterval(timerInterval);
-            timerInterval = null; timerPaused = false;
-            document.getElementById('lesson-timer-badge').style.display = 'none';
-            if (broadcast) broadcastEvent({ type: 'timer_sync', remainingSeconds: 0, active: false, paused: false, phase: 'lesson' });
+            timerInterval = null;
+            timerPaused = false;
+            remainingSeconds = 0;
+            renderTimerText();
+            updateTimerPauseUI(false);
+            if (broadcast) broadcastEvent({ type: 'timer_sync', remainingSeconds: 0, active: false, paused: false });
         }
 
         function renderTimerText() {
@@ -862,74 +1155,29 @@
             if (broadcast && role === 'teacher') sendTeacherViewportSync();
         }
 
-        (function initVideoDockDrag() {
-            const handle = document.getElementById('video-dock-handle');
-            let draggingDock = false, offsetX = 0, offsetY = 0;
-            handle.addEventListener('pointerdown', (e) => {
-                if (e.target.closest('.close-btn')) return;
-                draggingDock = true;
-                const rect = videoDock.getBoundingClientRect();
-                offsetX = e.clientX - rect.left; offsetY = e.clientY - rect.top;
-                videoDock.style.right = 'auto'; videoDock.style.left = rect.left + 'px'; videoDock.style.top = rect.top + 'px';
-            });
-            window.addEventListener('pointermove', (e) => {
-                if (!draggingDock) return;
-                videoDock.style.left = Math.max(4, Math.min(window.innerWidth - videoDock.offsetWidth - 4, e.clientX - offsetX)) + 'px';
-                videoDock.style.top = Math.max(4, Math.min(window.innerHeight - videoDock.offsetHeight - 4, e.clientY - offsetY)) + 'px';
-            });
-            window.addEventListener('pointerup', () => draggingDock = false);
-        })();
-
-        function toggleVideoDock(forceState) {
-            const isVisible = videoDock.style.display !== 'none';
-            const nextState = (forceState !== undefined) ? forceState : !isVisible;
-            if (nextState) {
-                videoDock.style.display = 'flex'; videoDock.style.left = 'auto';
-                videoDock.style.right = window.innerWidth <= 780 ? '8px' : '12px';
-                videoDock.style.top = window.innerWidth <= 780 ? '50px' : '54px';
-            } else { videoDock.style.display = 'none'; }
-            document.getElementById('btn-dock-visibility').classList.toggle('lit', nextState);
-        }
-
-        function activateLastDrawTool() { setTool(lastDrawTool); }
-
-        function toggleToolMenu(e) {
-            if (e) e.stopPropagation();
-            colorPopover.style.display = 'none'; lessonTimePopover.style.display = 'none'; widgetsModal.style.display = 'none';
-            toolPopover.style.display = (toolPopover.style.display === 'flex') ? 'none' : 'flex';
-        }
-
-        function selectDrawTool(selected, icon, label) {
+        function selectDrawTool(selected) {
             lastDrawTool = selected;
-            document.getElementById('current-tool-icon').innerText = icon;
-            document.getElementById('current-tool-name').innerText = label;
-            document.querySelectorAll('#tool-popover .popover-item').forEach(item => {
-                item.classList.toggle('active', item.dataset.tool === selected);
-            });
-            setTool(selected); closePopovers();
+            setTool(selected);
         }
 
-        function toggleColorMenu(e) {
-            if (e) e.stopPropagation();
-            toolPopover.style.display = 'none'; lessonTimePopover.style.display = 'none'; widgetsModal.style.display = 'none';
-            colorPopover.style.display = (colorPopover.style.display === 'grid') ? 'none' : 'grid';
-        }
-
-        function pickColor(hex) {
-            currentColor = hex; document.getElementById('color-inner-dot').style.background = hex;
-            if (tool === 'pan' || tool === 'eraser' || tool === 'pointer') selectDrawTool('marker', '🖊️', 'Маркер');
-            closePopovers();
+        function pickColor(hex, dotEl) {
+            currentColor = hex;
+            document.querySelectorAll('#color-swatch-group .color-dot').forEach(d => d.classList.remove('active'));
+            if (dotEl) dotEl.classList.add('active');
+            if (tool === 'pan' || tool === 'eraser' || tool === 'pointer') {
+                selectDrawTool('marker');
+            }
         }
 
         function closePopovers() {
-            toolPopover.style.display = 'none'; colorPopover.style.display = 'none'; lessonTimePopover.style.display = 'none';
+            widgetsModal.style.display = 'none';
+            lessonTimePopover.style.display = 'none';
         }
 
         window.addEventListener('pointerdown', (e) => {
             unlockAudioPlayback();
-            if (!e.target.closest('#tool-popover') && !e.target.closest('#unified-tool-btn') &&
-                !e.target.closest('#color-popover') && !e.target.closest('#color-circle-btn') &&
-                !e.target.closest('#lesson-time-popover') && !e.target.closest('#btn-start-lesson')) {
+            if (!e.target.closest('#widgets-modal') && !e.target.closest('#btn-open-widgets') &&
+                !e.target.closest('#lesson-time-popover') && !e.target.closest('#btn-timer-menu')) {
                 closePopovers();
             }
         });
@@ -940,8 +1188,10 @@
             boardScale = Math.min(2.4, Math.max(0.45, +(boardScale + delta).toFixed(2)));
             if (oldScale === boardScale) return;
 
-            const cx = centerClientX !== undefined ? centerClientX : window.innerWidth / 2;
-            const cy = centerClientY !== undefined ? centerClientY : window.innerHeight / 2;
+            const vw = viewport.clientWidth || window.innerWidth;
+            const vh = viewport.clientHeight || window.innerHeight;
+            const cx = centerClientX !== undefined ? centerClientX : vw / 2;
+            const cy = centerClientY !== undefined ? centerClientY : vh / 2;
             const worldCenterX = (cx - boardX) / oldScale;
             const worldCenterY = (cy - boardY) / oldScale;
 
@@ -964,7 +1214,8 @@
         viewport.addEventListener('wheel', (e) => {
             if (e.target.closest('.widget') || e.target.closest('.board-text-node')) return;
             e.preventDefault();
-            changeZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX, e.clientY);
+            const rect = viewport.getBoundingClientRect();
+            changeZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX - rect.left, e.clientY - rect.top);
         }, { passive: false });
 
         let lastPinchDist = null;
@@ -978,10 +1229,13 @@
         viewport.addEventListener('touchmove', (e) => {
             if (e.touches.length === 2 && lastPinchDist !== null) {
                 e.preventDefault();
+                const rect = viewport.getBoundingClientRect();
                 const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
                 const diff = dist - lastPinchDist;
                 if (Math.abs(diff) > 6) {
-                    changeZoom(diff > 0 ? 0.04 : -0.04, (e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2);
+                    const cx = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
+                    const cy = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
+                    changeZoom(diff > 0 ? 0.04 : -0.04, cx, cy);
                     lastPinchDist = dist;
                 }
             }
@@ -990,13 +1244,17 @@
         viewport.addEventListener('touchend', () => { lastPinchDist = null; });
 
         function screenToWorld(clientX, clientY) {
-            return { x: (clientX - boardX) / boardScale, y: (clientY - boardY) / boardScale };
+            const rect = viewport.getBoundingClientRect();
+            return {
+                x: (clientX - rect.left - boardX) / boardScale,
+                y: (clientY - rect.top - boardY) / boardScale
+            };
         }
 
         function toggleWidgetsModal(e) {
             if (e) e.stopPropagation();
             if (role === 'student') return;
-            closePopovers();
+            lessonTimePopover.style.display = 'none';
             widgetsModal.style.display = (widgetsModal.style.display === 'block') ? 'none' : 'block';
         }
 
@@ -1012,7 +1270,7 @@
             node.style.left = data.left + 'px'; node.style.top = data.top + 'px';
 
             node.innerHTML = `
-                <div class="board-text-drag">⠿</div>
+                <div class="board-text-drag">⋮⋮</div>
                 <div class="board-text-content" contenteditable="true" spellcheck="false" style="color: ${data.color}; font-size: ${fontSize}px;">${data.text || ''}</div>
                 <button class="board-text-del" onclick="removeDynamicItem('${data.id}', true)">✕</button>
                 <div class="text-resize-handle">◢</div>
@@ -1109,28 +1367,29 @@
             });
         }
 
-        // ================= ВИДЕО-ВИДЖЕТ СИНХРОНИЗАЦИИ =================
+        // ================= ВИДЕО-ВИДЖЕТ С ПАКЕТНОЙ СИНХРОНИЗАЦИЕЙ =================
         function createVideoWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
-            const data = existingData || { id: 'video-' + Date.now(), left: 1600, top: 1100, width: 340, height: 250 };
+            const data = existingData || { id: 'video-' + Date.now(), left: 1600, top: 1100, width: 350, height: 255 };
             if (document.getElementById(data.id)) return;
 
             const div = document.createElement('div');
             div.className = 'widget video-widget-box'; div.id = data.id; div.dataset.type = 'video';
-            div.dataset.minW = '220'; div.dataset.minH = '170';
+            div.dataset.minW = '230'; div.dataset.minH = '180';
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
-            div.style.width = (data.width || 340) + 'px'; div.style.height = (data.height || 250) + 'px';
+            div.style.width = (data.width || 350) + 'px'; div.style.height = (data.height || 255) + 'px';
 
             const fileInputId = 'vid-file-' + data.id;
             div.innerHTML = `
                 <div class="widget-header">
-                    <div class="widget-actions-left"><button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">🔓</button></div>
+                    <div class="widget-actions-left"><button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">Закрепить</button></div>
                     <div class="grip-bar"></div>
                     <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
-                <label for="${fileInputId}" class="upload-video-btn" id="vid-btn-label-${data.id}">🎬 Загрузить видео / аудио</label>
+                <label for="${fileInputId}" class="upload-video-btn" id="vid-btn-label-${data.id}">Выбрать видео / аудио</label>
                 <input type="file" id="${fileInputId}" accept="video/*,audio/*" style="display:none;" onchange="loadLocalMediaFor(event, '${data.id}')">
                 <video controls playsinline webkit-playsinline></video>
+                <button class="video-unmute-hint" id="vid-unmute-${data.id}" onclick="unmuteWidgetVideo('${data.id}')">Включить звук видео</button>
                 <div class="resize-handle">◢</div>
             `;
             dynamicItems.appendChild(div);
@@ -1155,6 +1414,13 @@
             if (broadcast) broadcastEvent({ type: 'spawn_video', data });
         }
 
+        function unmuteWidgetVideo(id) {
+            const v = document.querySelector(`#${id} video`);
+            const hint = document.getElementById(`vid-unmute-${id}`);
+            if (v) { v.muted = false; v.play().catch(() => {}); }
+            if (hint) hint.style.display = 'none';
+        }
+
         function loadLocalMediaFor(event, id) {
             const file = event.target.files[0];
             const v = document.querySelector(`#${id} video`);
@@ -1162,8 +1428,8 @@
             if (!file || !v) return;
 
             v.src = URL.createObjectURL(file); v.muted = false;
-            if (file.size > 45 * 1024 * 1024) { alert('Файл больше 45 МБ.'); return; }
-            if (btnLabel) btnLabel.innerText = `⏳ Загрузка: 0%`;
+            if (file.size > 45 * 1024 * 1024) { alert('Файл больше 45 МБ. Выберите ролик покороче.'); return; }
+            if (btnLabel) btnLabel.innerText = 'Загрузка для ученика: 0%';
 
             const reader = new FileReader();
             reader.onload = async (e) => {
@@ -1176,12 +1442,12 @@
                     await videoNodeRef.remove();
                     for (let i = 0; i < totalChunks; i++) {
                         await videoNodeRef.child('chunks/' + i).set(fullDataUrl.slice(i * chunkSize, (i + 1) * chunkSize));
-                        if (btnLabel) btnLabel.innerText = `⏳ Загрузка: ${Math.round(((i + 1) / totalChunks) * 100)}%`;
+                        if (btnLabel) btnLabel.innerText = `Загрузка: ${Math.round(((i + 1) / totalChunks) * 100)}%`;
                     }
                     await videoNodeRef.child('meta').set({ totalChunks, name: file.name, updatedAt: Date.now() });
-                    if (btnLabel) btnLabel.innerText = `✅ Видео загружено`;
+                    if (btnLabel) btnLabel.innerText = `Загружено (${file.name.slice(0, 18)})`;
                     broadcastEvent({ type: 'video_chunks_ready', id });
-                } catch (err) { if (btnLabel) btnLabel.innerText = '🎬 Ошибка загрузки'; }
+                } catch (err) { if (btnLabel) btnLabel.innerText = 'Ошибка загрузки'; }
             };
             reader.readAsDataURL(file);
         }
@@ -1202,7 +1468,7 @@
                 const meta = metaSnap.val();
                 if (!meta || !meta.totalChunks) return;
                 const btnLabel = document.getElementById(`vid-btn-label-${id}`);
-                if (btnLabel && role === 'teacher') btnLabel.innerText = `✅ Видео готово`;
+                if (btnLabel && role === 'teacher') btnLabel.innerText = `Готово (${(meta.name || 'Видео').slice(0, 18)})`;
                 try {
                     const chunksSnap = await roomRef.child(`videoFiles/${id}/chunks`).once('value');
                     const chunksVal = chunksSnap.val();
@@ -1218,23 +1484,23 @@
 
         function createEssayWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
-            const data = existingData || { id: 'essay-' + Date.now(), left: 2020, top: 1100, width: 340, height: 235, text: '' };
+            const data = existingData || { id: 'essay-' + Date.now(), left: 2020, top: 1100, width: 350, height: 245, text: '' };
             if (document.getElementById(data.id)) return;
 
             const div = document.createElement('div');
             div.className = 'widget essay-widget-box'; div.id = data.id; div.dataset.type = 'essay';
-            div.dataset.minW = '220'; div.dataset.minH = '160';
+            div.dataset.minW = '230'; div.dataset.minH = '165';
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
-            div.style.width = (data.width || 340) + 'px'; div.style.height = (data.height || 235) + 'px';
+            div.style.width = (data.width || 350) + 'px'; div.style.height = (data.height || 245) + 'px';
 
             div.innerHTML = `
                 <div class="widget-header">
-                    <div class="widget-actions-left"><button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">🔓</button></div>
+                    <div class="widget-actions-left"><button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">Закрепить</button></div>
                     <div class="grip-bar"></div>
                     <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
                 <textarea placeholder="Поле для текста и эссе..." oninput="onEssayWidgetInput('${data.id}', this.value)">${data.text || ''}</textarea>
-                <div class="word-counter">Слов: 0</div>
+                <div class="word-counter">Слов: 0 (ЕГЭ: 200–250, ОГЭ: 100–120)</div>
                 <div class="resize-handle">◢</div>
             `;
             dynamicItems.appendChild(div);
@@ -1253,14 +1519,18 @@
             const counter = document.querySelector(`#${id} .word-counter`);
             if (!counter) return;
             const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-            counter.innerText = `Слов: ${words}`;
+            counter.innerText = `Слов: ${words} (ЕГЭ: 200–250, ОГЭ: 100–120)`;
+            counter.style.color = (words >= 180 && words <= 275) ? 'var(--emerald)' : 'var(--text-secondary)';
         }
 
         function handlePhotoUpload(event) {
             if (role === 'student') return;
+            widgetsModal.style.display = 'none';
             const file = event.target.files[0];
             if (file) {
-                const pos = screenToWorld(window.innerWidth / 2 - 160, window.innerHeight / 2 - 110);
+                const vw = viewport.clientWidth || window.innerWidth;
+                const vh = viewport.clientHeight || window.innerHeight;
+                const pos = screenToWorld(vw / 2 - 150, vh / 2 - 110);
                 processImageFile(file, pos.x, pos.y);
             }
             event.target.value = '';
@@ -1277,7 +1547,7 @@
                     offCanvas.height = Math.round(img.height * scale);
                     offCanvas.getContext('2d').drawImage(img, 0, 0, offCanvas.width, offCanvas.height);
                     const aspect = offCanvas.width / offCanvas.height;
-                    const initW = Math.min(340, window.innerWidth - 40);
+                    const initW = Math.min(340, window.innerWidth - 60);
                     spawnPhotoWidget({
                         id: 'photo-' + Date.now(), left: Math.round(targetX), top: Math.round(targetY),
                         width: initW, height: Math.round((initW - 12) / aspect) + 32, aspect, src: offCanvas.toDataURL('image/jpeg', 0.82)
@@ -1294,10 +1564,10 @@
             div.className = 'widget photo-widget'; div.id = data.id; div.dataset.type = 'photo'; div.dataset.aspect = data.aspect || 1;
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
             div.style.width = data.width + 'px'; div.style.height = data.height + 'px';
-            div.style.zIndex = '15'; // Ниже маркера (25)
+            div.style.zIndex = '15';
             div.innerHTML = `
                 <div class="widget-header">
-                    <div class="widget-actions-left"><button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">🔓</button></div>
+                    <div class="widget-actions-left"><button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">Закрепить</button></div>
                     <div class="grip-bar"></div>
                     <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
@@ -1311,31 +1581,31 @@
         }
 
         const STICKER_THEMES = {
-            yellow: { bg: '#fef08a', border: '#fde047' },
-            pink:   { bg: '#fbcfe8', border: '#f9a8d4' },
-            mint:   { bg: '#bbf7d0', border: '#86efac' },
-            sky:    { bg: '#bae6fd', border: '#7dd3fc' },
-            purple: { bg: '#e9d5ff', border: '#d8b4fe' }
+            yellow: { bg: '#fef9c3', border: '#fde047' },
+            mint:   { bg: '#d1fae5', border: '#6ee7b7' },
+            sky:    { bg: '#e0f2fe', border: '#7dd3fc' },
+            pink:   { bg: '#fce7f3', border: '#f9a8d4' }
         };
 
         function createSticker(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
-            const data = existingData || { id: 'sticker-' + Date.now(), left: 1800, top: 1200, width: 200, height: 170, theme: 'yellow', text: '' };
+            const data = existingData || { id: 'sticker-' + Date.now(), left: 1800, top: 1200, width: 210, height: 175, theme: 'yellow', text: '' };
             if (document.getElementById(data.id)) return;
             const tObj = STICKER_THEMES[data.theme || 'yellow'] || STICKER_THEMES.yellow;
 
             const div = document.createElement('div');
             div.className = 'widget sticker-widget'; div.id = data.id; div.dataset.type = 'sticker'; div.dataset.theme = data.theme || 'yellow';
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
-            div.style.width = (data.width || 200) + 'px'; div.style.height = (data.height || 170) + 'px';
+            div.style.width = (data.width || 210) + 'px'; div.style.height = (data.height || 175) + 'px';
             div.style.background = tObj.bg; div.style.borderColor = tObj.border;
 
             div.innerHTML = `
                 <div class="widget-header">
                     <div class="widget-actions-left">
-                        <div class="sticker-dot" style="background:#fef08a;" onclick="setStickerTheme('${data.id}', 'yellow', true)"></div>
-                        <div class="sticker-dot" style="background:#fbcfe8;" onclick="setStickerTheme('${data.id}', 'pink', true)"></div>
-                        <div class="sticker-dot" style="background:#bbf7d0;" onclick="setStickerTheme('${data.id}', 'mint', true)"></div>
+                        <div class="sticker-dot" style="background:#fef9c3;" onclick="setStickerTheme('${data.id}', 'yellow', true)"></div>
+                        <div class="sticker-dot" style="background:#d1fae5;" onclick="setStickerTheme('${data.id}', 'mint', true)"></div>
+                        <div class="sticker-dot" style="background:#e0f2fe;" onclick="setStickerTheme('${data.id}', 'sky', true)"></div>
+                        <div class="sticker-dot" style="background:#fce7f3;" onclick="setStickerTheme('${data.id}', 'pink', true)"></div>
                     </div>
                     <div class="grip-bar"></div>
                     <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
@@ -1359,33 +1629,52 @@
 
         function syncStickerText(id, text) { saveBoardState(); broadcastEvent({ type: 'sticker_text', id, text }); }
 
+        const speakingRecorders = {};
         const speakingTimers = {};
         function createSpeakingWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
-            const data = existingData || { id: 'speaking-' + Date.now(), left: 1800, top: 1200, width: 330, height: 230 };
+            const data = existingData || { id: 'speaking-' + Date.now(), left: 1800, top: 1200, width: 340, height: 235 };
             if (document.getElementById(data.id)) return;
             const div = document.createElement('div');
             div.className = 'widget speaking-widget-box'; div.id = data.id; div.dataset.type = 'speaking';
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
-            div.style.width = (data.width || 330) + 'px'; div.style.height = (data.height || 230) + 'px';
+            div.style.width = (data.width || 340) + 'px'; div.style.height = (data.height || 235) + 'px';
             speakingTimers[data.id] = { remaining: 120, running: false, interval: null };
 
             div.innerHTML = `
                 <div class="widget-header">
-                    <div class="widget-actions-left"><button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">🔓</button></div>
+                    <div class="widget-actions-left"><button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">Закрепить</button></div>
                     <div class="grip-bar"></div>
                     <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
+                <div class="speaking-presets">
+                    <button class="spk-preset-btn" id="spk-p90-${data.id}" onclick="selectSpeakingPreset('${data.id}', 90, true)">Подготовка 1:30</button>
+                    <button class="spk-preset-btn active" id="spk-p120-${data.id}" onclick="selectSpeakingPreset('${data.id}', 120, true)">Ответ 2:00</button>
+                </div>
                 <div class="speaking-timer-row">
                     <div class="speaking-clock" id="spk-clock-${data.id}">02:00</div>
-                    <button class="spk-ctrl-btn" id="spk-start-${data.id}" onclick="toggleSpeakingTimer('${data.id}', true)">▶️ Старт</button>
+                    <button class="spk-ctrl-btn" id="spk-start-${data.id}" onclick="toggleSpeakingTimer('${data.id}', true)">Старт</button>
+                    <button class="speaking-rec-btn" id="spk-rec-${data.id}" onclick="toggleSpeakingRecord('${data.id}')">Запись</button>
                 </div>
+                <audio controls class="speaking-audio-player" id="spk-audio-${data.id}"></audio>
                 <div class="resize-handle">◢</div>
             `;
             dynamicItems.appendChild(div);
             makeWidgetInteractive(div, null);
             if (recordInHistory) recordAction({ kind: 'add_item', id: data.id, display: 'flex' });
             if (broadcast) broadcastEvent({ type: 'spawn_speaking', data });
+        }
+
+        function selectSpeakingPreset(id, seconds, broadcast) {
+            const st = speakingTimers[id]; if (!st) return;
+            if (st.interval) clearInterval(st.interval);
+            st.running = false; st.remaining = seconds;
+            const p90 = document.getElementById(`spk-p90-${id}`);
+            const p120 = document.getElementById(`spk-p120-${id}`);
+            if (p90) p90.classList.toggle('active', seconds === 90);
+            if (p120) p120.classList.toggle('active', seconds === 120);
+            updateSpeakingClockUI(id);
+            if (broadcast) broadcastEvent({ type: 'speaking_preset', id, seconds });
         }
 
         function toggleSpeakingTimer(id, broadcast) {
@@ -1399,35 +1688,72 @@
                 }, 1000);
             }
             updateSpeakingClockUI(id);
+            if (broadcast) broadcastEvent({ type: 'speaking_toggle_timer', id, running: st.running, remaining: st.remaining });
         }
 
         function updateSpeakingClockUI(id) {
             const st = speakingTimers[id]; const clockEl = document.getElementById(`spk-clock-${id}`); const startBtn = document.getElementById(`spk-start-${id}`);
             if (!st || !clockEl || !startBtn) return;
             clockEl.innerText = `${String(Math.floor(st.remaining / 60)).padStart(2, '0')}:${String(st.remaining % 60).padStart(2, '0')}`;
-            startBtn.innerText = st.running ? '⏹️ Стоп' : '▶️ Старт';
+            startBtn.innerText = st.running ? 'Стоп' : 'Старт';
+        }
+
+        async function toggleSpeakingRecord(id) {
+            const btn = document.getElementById(`spk-rec-${id}`);
+            const audioEl = document.getElementById(`spk-audio-${id}`);
+            if (!btn || !audioEl) return;
+            if (speakingRecorders[id] && speakingRecorders[id].state === 'recording') {
+                speakingRecorders[id].stop();
+                btn.classList.remove('recording');
+                btn.innerText = 'Запись';
+                return;
+            }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const recorder = new MediaRecorder(stream);
+                const chunks = [];
+                speakingRecorders[id] = recorder;
+                recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+                recorder.onstop = () => {
+                    stream.getTracks().forEach(t => t.stop());
+                    const blob = new Blob(chunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        audioEl.src = reader.result;
+                        broadcastEvent({ type: 'speaking_audio', id, src: reader.result });
+                    };
+                    reader.readAsDataURL(blob);
+                };
+                recorder.start();
+                btn.classList.add('recording');
+                btn.innerText = 'Стоп';
+            } catch (err) { alert('Разрешите доступ к микрофону.'); }
         }
 
         function createDictWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
-            const data = existingData || { id: 'dict-' + Date.now(), left: 1900, top: 1150, width: 340, height: 270 };
+            const data = existingData || { id: 'dict-' + Date.now(), left: 1900, top: 1150, width: 345, height: 275 };
             if (document.getElementById(data.id)) return;
             const div = document.createElement('div');
             div.className = 'widget dict-widget-box'; div.id = data.id; div.dataset.type = 'dict';
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
-            div.style.width = (data.width || 340) + 'px'; div.style.height = (data.height || 270) + 'px';
+            div.style.width = (data.width || 345) + 'px'; div.style.height = (data.height || 275) + 'px';
 
             div.innerHTML = `
                 <div class="widget-header">
-                    <div class="widget-actions-left"><button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">🔓</button></div>
+                    <div class="widget-actions-left"><button class="header-icon-btn lock-btn" onclick="toggleLockWidget('${data.id}', true)">Закрепить</button></div>
                     <div class="grip-bar"></div>
                     <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
                 <div class="dict-search-row">
-                    <input type="text" class="dict-input" id="dict-in-${data.id}" placeholder="Слово..." onkeydown="if(event.key==='Enter') lookupDictionary('${data.id}', true)">
+                    <input type="text" class="dict-input" id="dict-in-${data.id}" placeholder="Английское слово..." onkeydown="if(event.key==='Enter') lookupDictionary('${data.id}', true)">
                     <button class="dict-search-btn" onclick="lookupDictionary('${data.id}', true)">Найти</button>
                 </div>
-                <div class="dict-body" id="dict-body-${data.id}">Введите английское слово...</div>
+                <div class="dict-body" id="dict-body-${data.id}">Введите слово для перевода и транскрипции Oxford / Cambridge.</div>
+                <div class="dict-links-row">
+                    <a class="dict-ext-link" id="cam-link-${data.id}" href="https://dictionary.cambridge.org/dictionary/english-russian/" target="_blank">Cambridge ↗</a>
+                    <a class="dict-ext-link" id="oxf-link-${data.id}" href="https://www.oxfordlearnersdictionaries.com/" target="_blank">Oxford ↗</a>
+                </div>
                 <div class="resize-handle">◢</div>
             `;
             dynamicItems.appendChild(div);
@@ -1438,15 +1764,29 @@
 
         async function lookupDictionary(id, broadcast, wordOverride) {
             const inputEl = document.getElementById(`dict-in-${id}`); const bodyEl = document.getElementById(`dict-body-${id}`);
+            const camLink = document.getElementById(`cam-link-${id}`); const oxfLink = document.getElementById(`oxf-link-${id}`);
             if (!inputEl || !bodyEl) return;
             const word = (wordOverride || inputEl.value).trim().toLowerCase();
             if (!word) return;
-            bodyEl.innerHTML = '⏳ Поиск...';
+            inputEl.value = word;
+            if (camLink) camLink.href = `https://dictionary.cambridge.org/dictionary/english-russian/${encodeURIComponent(word)}`;
+            if (oxfLink) oxfLink.href = `https://www.oxfordlearnersdictionaries.com/definition/english/${encodeURIComponent(word)}`;
+            bodyEl.innerHTML = 'Поиск...';
             if (broadcast) broadcastEvent({ type: 'dict_lookup', id, word });
             try {
-                const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`).then(r => r.json());
-                if (Array.isArray(res) && res.length > 0) {
-                    bodyEl.innerHTML = `<b>${res[0].word}</b><br>${res[0].meanings[0]?.definitions[0]?.definition || ''}`;
+                const [oxRes, trRes] = await Promise.allSettled([
+                    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`).then(r => r.json()),
+                    fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|ru`).then(r => r.json())
+                ]);
+                const ruWord = (trRes.status === 'fulfilled' && trRes.value?.responseData?.translatedText) ? trRes.value.responseData.translatedText : '';
+                if (oxRes.status === 'fulfilled' && Array.isArray(oxRes.value) && oxRes.value.length > 0) {
+                    const entry = oxRes.value[0];
+                    const phonetic = entry.phonetic || (entry.phonetics?.find(p => p.text)?.text) || '';
+                    bodyEl.innerHTML = `<div style="margin-bottom:6px;"><b>${entry.word}</b> <span style="color:var(--emerald);">${phonetic}</span></div>` +
+                        (ruWord ? `<div style="background:var(--emerald-soft); color:var(--emerald); padding:4px 8px; border-radius:6px; font-weight:700; margin-bottom:6px;">Перевод: ${ruWord}</div>` : '') +
+                        `<div>${entry.meanings[0]?.definitions[0]?.definition || ''}</div>`;
+                } else if (ruWord) {
+                    bodyEl.innerHTML = `<b>${word}</b> — ${ruWord}`;
                 } else { bodyEl.innerHTML = 'Слово не найдено.'; }
             } catch (e) { bodyEl.innerHTML = 'Ошибка соединения.'; }
         }
@@ -1471,10 +1811,10 @@
                     if (type === 'essay') base.text = el.querySelector('textarea').value;
                     else if (type === 'sticker') { base.text = el.querySelector('textarea').value; base.theme = el.dataset.theme || 'yellow'; }
                     else if (type === 'photo') { base.src = el.querySelector('img').src; base.aspect = parseFloat(el.dataset.aspect) || 1; }
-                    else if (type === 'text') { base.text = el.querySelector('.board-text-content').innerText; base.color = el.dataset.color || '#1e293b'; base.fontSize = parseFloat(el.dataset.fontSize) || 24; }
+                    else if (type === 'text') { base.text = el.querySelector('.board-text-content').innerText; base.color = el.dataset.color || '#111815'; base.fontSize = parseFloat(el.dataset.fontSize) || 24; }
                     items.push(base);
                 });
-                const payload = { strokeHistory, items };
+                const payload = { strokeHistory, chatHistory, items };
                 localStorage.setItem(LOCAL_BOARD_KEY, JSON.stringify(payload));
                 if (roomRef) roomRef.child('snapshot').set(payload).catch(() => {});
             } catch (e) {}
@@ -1502,7 +1842,9 @@
             if (selected === 'pan' && role === 'student' && followMode) return;
             tool = selected;
             document.getElementById('tool-pan').classList.toggle('active', selected === 'pan');
-            document.getElementById('unified-tool-btn').classList.toggle('active', selected !== 'pan');
+            document.querySelectorAll('.class-subbar [data-tool]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tool === selected);
+            });
             viewport.style.cursor = pendingWidgetType ? 'copy' : (selected === 'pan' ? 'grab' : (selected === 'pointer' ? 'none' : (selected === 'text' ? 'text' : 'crosshair')));
             updateLaserVisibility();
         }
@@ -1516,13 +1858,14 @@
         }
 
         function applyBoardTransform() {
-            const minX = Math.min(0, window.innerWidth - canvas.width * boardScale);
-            const minY = Math.min(0, window.innerHeight - canvas.height * boardScale);
-            boardX = Math.min(0, Math.max(minX, boardX)); boardY = Math.min(0, Math.max(minY, boardY));
+            const vw = viewport.clientWidth || window.innerWidth;
+            const vh = viewport.clientHeight || window.innerHeight;
+            const minX = Math.min(0, vw - canvas.width * boardScale);
+            const minY = Math.min(0, vh - canvas.height * boardScale);
+            boardX = Math.min(0, Math.max(minX, boardX));
+            boardY = Math.min(0, Math.max(minY, boardY));
             boardWorld.style.transform = `translate3d(${boardX}px, ${boardY}px, 0) scale(${boardScale})`;
             const step = +(28 * boardScale).toFixed(2);
-            viewport.style.backgroundColor = '#f6f5f2';
-            viewport.style.backgroundImage = 'radial-gradient(#cbd5e1 1.5px, transparent 1.5px)';
             viewport.style.backgroundSize = `${step}px ${step}px`;
             viewport.style.backgroundPosition = `${boardX}px ${boardY}px`;
         }
@@ -1558,15 +1901,14 @@
             if (pendingWidgetType && role === 'teacher') {
                 const pt = screenToWorld(e.clientX, e.clientY);
                 const wType = pendingWidgetType; cancelPendingPlacement();
-                if (wType === 'video') createVideoWidget({ id: 'video-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 340, height: 250 }, true, true);
-                else if (wType === 'essay') createEssayWidget({ id: 'essay-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 340, height: 235, text: '' }, true, true);
-                else if (wType === 'sticker') createSticker({ id: 'sticker-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 200, height: 170, theme: 'yellow', text: '' }, true, true);
-                else if (wType === 'speaking') createSpeakingWidget({ id: 'speaking-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 330, height: 230 }, true, true);
-                else if (wType === 'dict') createDictWidget({ id: 'dict-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 340, height: 270 }, true, true);
+                if (wType === 'video') createVideoWidget({ id: 'video-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 350, height: 255 }, true, true);
+                else if (wType === 'essay') createEssayWidget({ id: 'essay-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 350, height: 245, text: '' }, true, true);
+                else if (wType === 'sticker') createSticker({ id: 'sticker-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 210, height: 175, theme: 'yellow', text: '' }, true, true);
+                else if (wType === 'speaking') createSpeakingWidget({ id: 'speaking-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 340, height: 235 }, true, true);
+                else if (wType === 'dict') createDictWidget({ id: 'dict-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 345, height: 275 }, true, true);
                 return;
             }
 
-            // Разрешаем рисовать только на холсте или поверх фото-виджета (.photo-widget)
             if (e.target.closest('.widget') && !e.target.closest('.photo-widget')) return;
 
             if (tool === 'pan') {
@@ -1655,6 +1997,9 @@
                 clearBoard(false);
             } else if (data.type === 'reset_all') {
                 strokeHistory = []; redrawAllStrokes(); dynamicItems.innerHTML = '';
+            } else if (data.type === 'chat_msg' && data.msg) {
+                chatHistory.push(data.msg);
+                renderChatMessages();
             } else if (data.type === 'widget_move') {
                 const w = document.getElementById(data.id); if (w) { w.style.left = data.left + 'px'; w.style.top = data.top + 'px'; }
             } else if (data.type === 'widget_resize') {
@@ -1700,14 +2045,22 @@
                 const el = document.querySelector(`#${data.id} textarea`); if (el) el.value = data.text; updateEssayCounter(data.id, data.text);
             } else if (data.type === 'video_control') {
                 const v = document.querySelector(`#${data.id} video`);
+                const hint = document.getElementById(`vid-unmute-${data.id}`);
                 if (!v) return; v.dataset.remote = '1';
                 if (Math.abs(v.currentTime - data.time) > 0.5) v.currentTime = data.time;
-                if (data.action === 'play') v.play().catch(() => {}); else if (data.action === 'pause') v.pause();
+                if (data.action === 'play') {
+                    v.muted = false;
+                    v.play().catch(() => {
+                        v.muted = true; v.play().catch(() => {});
+                        if (hint) hint.style.display = 'block';
+                    });
+                } else if (data.action === 'pause') v.pause();
                 setTimeout(() => { v.dataset.remote = '0'; }, 180);
             } else if (data.type === 'timer_sync') {
-                remainingSeconds = data.remainingSeconds; timerPaused = !!data.paused; timerPhase = data.phase || 'lesson';
-                updateTimerPauseUI(); document.getElementById('lesson-timer-badge').style.display = data.active ? 'flex' : 'none';
-                if (data.active) renderTimerText();
+                remainingSeconds = data.remainingSeconds;
+                timerPaused = !!data.paused;
+                updateTimerPauseUI(data.active);
+                renderTimerText();
             } else if (data.type === 'webrtc_signal') {
                 handleWebRTCSignal(data);
             }
@@ -1720,19 +2073,27 @@
                 { urls: 'stun:stun1.l.google.com:19302' },
                 { urls: 'stun:stun.cloudflare.com:3478' },
                 { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
-                { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
+                { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+                { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
             ]
         };
 
         let pc = null;
+        let localStream = null;
         let remoteVideoStream = new MediaStream();
         let remoteAudioStream = new MediaStream();
+        let micActive = false;
+        let cameraActive = false;
+        let remoteSoundMuted = false;
         let makingOffer = false;
         let ignoreOffer = false;
         let pendingIceCandidates = [];
         let rtcSignalRef = null;
 
-        function setRtcStatus(text) { const el = document.getElementById('rtc-status-bar'); if (el) el.innerText = text; }
+        function setRtcStatus(text) {
+            const el = document.getElementById('rtc-status-bar');
+            if (el) el.innerText = text;
+        }
 
         function sendRtcSignal(payload) {
             const msg = { ...payload, type: 'webrtc_signal', sender: myClientId, senderRole: role, ts: Date.now() };
@@ -1758,9 +2119,9 @@
 
             pc.onconnectionstatechange = () => {
                 if (!pc) return;
-                if (pc.connectionState === 'connected') setRtcStatus('🟢 Связь активна');
-                else if (pc.connectionState === 'connecting') setRtcStatus('⏳ Соединение...');
-                else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') setRtcStatus('🔄 Нажмите для связи');
+                if (pc.connectionState === 'connected') setRtcStatus('Видео и звук подключены');
+                else if (pc.connectionState === 'connecting') setRtcStatus('Соединение...');
+                else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') setRtcStatus('Нажмите для переподключения');
             };
 
             pc.ontrack = (e) => {
@@ -1771,16 +2132,22 @@
                     remoteVideoStream.addTrack(track);
                     const videoEl = document.getElementById(targetSlot === 'teacher' ? 'teacherVideo' : 'studentVideo');
                     const placeholderEl = document.getElementById(targetSlot === 'teacher' ? 'teacher-placeholder' : 'student-placeholder');
-                    if (videoEl) { videoEl.muted = true; videoEl.srcObject = remoteVideoStream; videoEl.play().catch(() => {}); }
+                    if (videoEl) {
+                        videoEl.muted = true;
+                        videoEl.srcObject = null;
+                        videoEl.srcObject = remoteVideoStream;
+                        videoEl.play().catch(() => {});
+                    }
                     if (placeholderEl) placeholderEl.style.display = 'none';
                 } else if (track.kind === 'audio') {
                     remoteAudioStream.getAudioTracks().forEach(t => remoteAudioStream.removeTrack(t));
                     remoteAudioStream.addTrack(track);
+                    remoteVoicePlayer.srcObject = null;
                     remoteVoicePlayer.srcObject = remoteAudioStream;
                     remoteVoicePlayer.muted = remoteSoundMuted;
-                    remoteVoicePlayer.play().catch(() => { setRtcStatus('🔊 Нажмите для звука'); });
+                    remoteVoicePlayer.play().catch(() => { setRtcStatus('Коснитесь экрана для звука'); });
                 }
-                setRtcStatus('🟢 Связь активна');
+                setRtcStatus('Видео и звук подключены');
             };
             return pc;
         }
@@ -1827,10 +2194,17 @@
                         await conn.setLocalDescription(answer);
                         sendRtcSignal({ kind: 'sdp', description: { type: conn.localDescription.type, sdp: conn.localDescription.sdp }, hasVideo: cameraActive, hasAudio: micActive });
                     }
+                    if (data.hasVideo !== undefined || data.hasAudio !== undefined) {
+                        const targetSlot = (role === 'teacher') ? 'student' : 'teacher';
+                        updateRemotePlaceholder(targetSlot, data.hasVideo, data.hasAudio);
+                    }
                 } else if (data.kind === 'ice' && data.candidate) {
                     if (conn.remoteDescription && conn.remoteDescription.type) {
                         try { await conn.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch (err) {}
                     } else { pendingIceCandidates.push(data.candidate); }
+                } else if (data.kind === 'media_state') {
+                    const targetSlot = (role === 'teacher') ? 'student' : 'teacher';
+                    updateRemotePlaceholder(targetSlot, data.hasVideo, data.hasAudio);
                 }
             } catch (err) {}
         }
@@ -1851,6 +2225,8 @@
         }
 
         function reconnectWebRTC() {
+            unlockAudioPlayback();
+            setRtcStatus('Обновление связи...');
             if (pc) { try { pc.close(); } catch (e) {} pc = null; }
             ensurePeerConnection();
             sendRtcSignal({ kind: 'hello' });
@@ -1863,7 +2239,21 @@
         }
 
         function unlockAudioPlayback() {
-            if (remoteVoicePlayer && remoteVoicePlayer.srcObject && remoteVoicePlayer.paused) remoteVoicePlayer.play().catch(() => {});
+            if (remoteVoicePlayer && remoteVoicePlayer.srcObject && remoteVoicePlayer.paused) {
+                remoteVoicePlayer.play().catch(() => {});
+            }
+            ['teacherVideo', 'studentVideo'].forEach(id => {
+                const v = document.getElementById(id);
+                if (v && v.srcObject && v.paused) v.play().catch(() => {});
+            });
+        }
+
+        function updateRemotePlaceholder(slotRole, hasVideo, hasAudio) {
+            const placeholderEl = document.getElementById(slotRole === 'teacher' ? 'teacher-placeholder' : 'student-placeholder');
+            if (!placeholderEl) return;
+            placeholderEl.style.display = hasVideo ? 'none' : 'block';
+            const label = slotRole === 'teacher' ? 'Преподаватель' : 'Ученик';
+            placeholderEl.innerText = hasAudio ? `${label} (Голос активен)` : `Камера (${label})`;
         }
 
         function showLocalPreview() {
@@ -1872,10 +2262,15 @@
             if (!videoEl || !placeholderEl) return;
             videoEl.muted = true;
             if (cameraActive && localStream) {
-                videoEl.srcObject = null; videoEl.srcObject = localStream; videoEl.play().catch(() => {});
+                videoEl.srcObject = null;
+                videoEl.srcObject = localStream;
+                videoEl.play().catch(() => {});
                 placeholderEl.style.display = 'none';
             } else {
-                videoEl.srcObject = null; placeholderEl.style.display = 'block';
+                videoEl.srcObject = null;
+                placeholderEl.style.display = 'block';
+                const label = role === 'teacher' ? 'Преподаватель' : 'Ученик';
+                placeholderEl.innerText = micActive ? `${label} (Голос активен)` : `Камера (${label})`;
             }
         }
 
@@ -1890,12 +2285,13 @@
 
         async function toggleMic() {
             unlockAudioPlayback();
-            const micBtn = document.getElementById('btn-mic-toggle'); const micText = document.getElementById('mic-btn-text');
+            const micBtn = document.getElementById('btn-mic-toggle');
             if (localStream && localStream.getAudioTracks().length > 0) {
                 micActive = !micActive;
                 localStream.getAudioTracks().forEach(t => t.enabled = micActive);
                 micBtn.classList.toggle('lit', micActive);
-                micText.innerText = micActive ? '🎙️ Микрофон вкл' : '🔇 Микрофон выкл';
+                micBtn.innerText = micActive ? 'Микрофон вкл' : 'Микрофон выкл';
+                showLocalPreview();
                 sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
                 return;
             }
@@ -1904,16 +2300,23 @@
                 const audioTrack = audioStream.getAudioTracks()[0];
                 if (!localStream) localStream = new MediaStream();
                 localStream.addTrack(audioTrack);
-                micActive = true; micBtn.classList.add('lit'); micText.innerText = '🎙️ Микрофон вкл';
+                micActive = true;
+                micBtn.classList.add('lit');
+                micBtn.innerText = 'Микрофон вкл';
+                showLocalPreview();
                 await attachOrReplaceTrack(audioTrack);
             } catch (err) { alert('Разрешите доступ к микрофону в настройках браузера.'); }
         }
 
         function toggleRemoteSound() {
             remoteSoundMuted = !remoteSoundMuted;
-            document.getElementById('btn-sound-toggle').classList.toggle('lit', !remoteSoundMuted);
-            document.getElementById('sound-btn-text').innerText = remoteSoundMuted ? '🔇 Звук выкл' : '🔊 Звук';
-            if (remoteVoicePlayer) { remoteVoicePlayer.muted = remoteSoundMuted; if (!remoteSoundMuted) remoteVoicePlayer.play().catch(() => {}); }
+            const soundBtn = document.getElementById('btn-sound-toggle');
+            soundBtn.classList.toggle('lit', !remoteSoundMuted);
+            soundBtn.innerText = remoteSoundMuted ? 'Звук выкл' : 'Звук вкл';
+            if (remoteVoicePlayer) {
+                remoteVoicePlayer.muted = remoteSoundMuted;
+                if (!remoteSoundMuted) remoteVoicePlayer.play().catch(() => {});
+            }
         }
 
         async function toggleCamera() {
@@ -1921,19 +2324,37 @@
             const camBtn = document.getElementById('btn-cam-toggle');
             if (cameraActive && localStream) {
                 localStream.getVideoTracks().forEach(track => { track.stop(); localStream.removeTrack(track); });
-                cameraActive = false; camBtn.classList.remove('lit');
-                showLocalPreview(); sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
-                await makeWebRTCOffer(); return;
+                cameraActive = false;
+                camBtn.classList.remove('lit');
+                showLocalPreview();
+                sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
+                await makeWebRTCOffer();
+                return;
             }
             try {
-                const media = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 480 }, height: { ideal: 360 } }, audio: (!localStream || localStream.getAudioTracks().length === 0) });
+                const media = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 480 }, height: { ideal: 360 }, facingMode: 'user' },
+                    audio: (!localStream || localStream.getAudioTracks().length === 0)
+                });
                 if (!localStream) localStream = new MediaStream();
                 const videoTrack = media.getVideoTracks()[0];
-                if (videoTrack) { localStream.addTrack(videoTrack); cameraActive = true; camBtn.classList.add('lit'); await attachOrReplaceTrack(videoTrack); }
+                if (videoTrack) {
+                    localStream.addTrack(videoTrack);
+                    cameraActive = true;
+                    camBtn.classList.add('lit');
+                    await attachOrReplaceTrack(videoTrack);
+                }
                 const audioTrack = media.getAudioTracks()[0];
-                if (audioTrack) { localStream.addTrack(audioTrack); micActive = true; document.getElementById('btn-mic-toggle').classList.add('lit'); document.getElementById('mic-btn-text').innerText = '🎙️ Микрофон вкл'; await attachOrReplaceTrack(audioTrack); }
-                toggleVideoDock(true); showLocalPreview();
-            } catch (err) { alert('Разрешите доступ к камере.'); }
+                if (audioTrack) {
+                    localStream.addTrack(audioTrack);
+                    micActive = true;
+                    const micBtn = document.getElementById('btn-mic-toggle');
+                    micBtn.classList.add('lit');
+                    micBtn.innerText = 'Микрофон вкл';
+                    await attachOrReplaceTrack(audioTrack);
+                }
+                showLocalPreview();
+            } catch (err) { alert('Разрешите доступ к камере и микрофону.'); }
         }
 
         initRealtimeSync();
