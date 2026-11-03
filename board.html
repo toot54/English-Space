@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Space — Класс</title>
+    <title>English Space — Урок</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,15 +12,15 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
     <style>
         :root {
-            --bg-page: #f3f5f4;
+            --bg-page: #f8faf9;
             --bg-surface: #ffffff;
-            --bg-subtle: #f7f9f8;
-            --bg-hover: #edf2f0;
+            --bg-subtle: #f2f5f3;
+            --bg-hover: #e9efec;
             --text-primary: #111815;
             --text-secondary: #5c6661;
             --text-muted: #8c9691;
-            --border: #e2e7e4;
-            --border-strong: #cbd4cf;
+            --border: #e3e8e5;
+            --border-strong: #cdd6d1;
             --emerald: #0d7350;
             --emerald-hover: #0a5c40;
             --emerald-soft: #e6f4ef;
@@ -28,14 +28,14 @@
             --danger: #b91c1c;
             --danger-soft: #fef2f2;
             --danger-border: #fecaca;
-            --dot-color: #cbd4cf;
+            --dot-color: #d5ddd8;
         }
 
         body.dark-theme {
-            --bg-page: #0f1412;
-            --bg-surface: #171d1a;
-            --bg-subtle: #1d2521;
-            --bg-hover: #252f2a;
+            --bg-page: #111614;
+            --bg-surface: #181f1c;
+            --bg-subtle: #202925;
+            --bg-hover: #28332e;
             --text-primary: #f0f4f2;
             --text-secondary: #9ca8a2;
             --text-muted: #68736e;
@@ -65,113 +65,80 @@
             display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden;
         }
 
-        /* Верхняя шапка урока */
+        /* ================= 1. ВЕРХНЯЯ ПАНЕЛЬ ================= */
         .class-topbar {
             height: 52px; background: var(--bg-surface); border-bottom: 1px solid var(--border);
-            padding: 0 18px; display: flex; align-items: center; justify-content: space-between;
-            gap: 12px; flex-shrink: 0; z-index: 130;
+            padding: 0 14px; display: flex; align-items: center; justify-content: space-between;
+            gap: 10px; flex-shrink: 0; z-index: 150; overflow-x: auto; scrollbar-width: none;
         }
-        .topbar-left, .topbar-right { display: flex; align-items: center; gap: 12px; }
-        .lesson-title-text {
-            font-size: 14px; font-weight: 800; color: var(--text-primary);
-            max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-        }
-        .top-tab-badge {
-            height: 52px; display: inline-flex; align-items: center; padding: 0 12px;
-            font-size: 13px; font-weight: 700; color: var(--text-primary);
-            border-bottom: 2.5px solid var(--emerald);
-        }
+        .class-topbar::-webkit-scrollbar { display: none; }
+        .topbar-left, .topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; height: 100%; }
 
-        /* Таймер урока */
-        .timer-wrap {
-            display: flex; align-items: center; gap: 8px;
-            background: var(--bg-subtle); border: 1px solid var(--border);
-            padding: 4px 10px; border-radius: 8px; font-size: 13px; font-weight: 700;
-            font-variant-numeric: tabular-nums; color: var(--text-secondary);
-        }
-        .timer-dot {
-            width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted);
-        }
-        .timer-dot.running { background: var(--emerald); box-shadow: 0 0 6px var(--emerald); }
-        .timer-dot.paused { background: #d97706; }
-
-        /* Панель инструментов доски */
-        .class-subbar {
-            height: 48px; background: var(--bg-surface); border-bottom: 1px solid var(--border);
-            padding: 0 18px; display: flex; align-items: center; justify-content: space-between;
-            gap: 10px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; z-index: 125;
-        }
-        .class-subbar::-webkit-scrollbar { display: none; }
-        .tool-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-        .bar-divider { width: 1px; height: 20px; background: var(--border); margin: 0 3px; flex-shrink: 0; }
-
-        .btn, .tool-pill {
+        .top-btn {
             height: 32px; padding: 0 12px; border-radius: 8px;
             border: 1px solid var(--border-strong); background: var(--bg-surface);
             color: var(--text-primary); font-size: 12px; font-weight: 600;
             cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
-            gap: 6px; transition: 0.14s; white-space: nowrap; flex-shrink: 0;
+            gap: 6px; transition: 0.14s; white-space: nowrap;
         }
-        .btn:hover, .tool-pill:hover { background: var(--bg-hover); }
-        .tool-pill.active, .btn.active {
-            background: var(--emerald-soft); border-color: var(--emerald);
-            color: var(--emerald); font-weight: 700;
+        .top-btn:hover { background: var(--bg-hover); }
+        .top-btn svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; }
+        .top-btn-icon { width: 32px; padding: 0; }
+        .top-btn-danger {
+            border-color: var(--danger-border); color: var(--danger); font-weight: 700;
         }
-        .tool-pill.disabled-pan { opacity: 0.38; pointer-events: none; }
-        .btn-emerald { background: var(--emerald); border-color: var(--emerald); color: #fff; font-weight: 700; }
-        .btn-emerald:hover { background: var(--emerald-hover); }
-        .btn-danger-outline {
-            background: var(--bg-surface); border-color: var(--danger-border); color: var(--danger); font-weight: 700;
-        }
-        .btn-danger-outline:hover { background: var(--danger-soft); }
-        .btn-icon-only { width: 32px; padding: 0; }
+        .top-btn-danger:hover { background: var(--danger-soft); }
 
-        .color-swatch-row { display: flex; align-items: center; gap: 5px; padding: 0 2px; }
-        .color-dot {
-            width: 20px; height: 20px; border-radius: 50%; cursor: pointer;
-            border: 2px solid var(--bg-surface); box-shadow: 0 0 0 1px var(--border-strong);
-            transition: 0.12s; flex-shrink: 0;
-        }
-        .color-dot.active { box-shadow: 0 0 0 2px var(--emerald); transform: scale(1.12); }
-
-        .size-slider { width: 68px; accent-color: var(--emerald); cursor: pointer; }
-
-        /* Всплывающие окна (Таймер и Виджеты) */
-        .popover-box {
-            position: fixed; top: 106px; right: 18px;
-            background: var(--bg-surface); border: 1px solid var(--border-strong);
-            border-radius: 14px; padding: 14px; width: 340px; max-width: 94vw;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.14); z-index: 220; display: none;
-        }
-        .popover-head {
-            display: flex; justify-content: space-between; align-items: center;
-            padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--border);
-            font-size: 13px; font-weight: 700;
-        }
-        .widget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .widget-pick-btn {
-            border: 1px solid var(--border-strong); border-radius: 9px; padding: 10px 12px;
-            background: var(--bg-subtle); color: var(--text-primary);
-            font-size: 12px; font-weight: 600; cursor: pointer; text-align: left;
-            display: flex; align-items: center; justify-content: space-between; transition: 0.14s;
-        }
-        .widget-pick-btn:hover {
-            background: var(--emerald-soft); border-color: var(--emerald); color: var(--emerald);
+        .lesson-title-text {
+            font-size: 14px; font-weight: 800; color: var(--text-primary);
+            padding: 0 6px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
 
-        #placement-banner {
-            position: fixed; top: 110px; left: 50%; transform: translateX(-50%);
-            background: var(--emerald); color: #fff; padding: 7px 16px;
-            border-radius: 999px; font-size: 12px; font-weight: 700;
-            box-shadow: 0 8px 24px rgba(13, 115, 80, 0.3);
-            display: none; align-items: center; gap: 10px; z-index: 180;
+        .top-tabs { display: flex; align-items: center; height: 100%; margin-left: 4px; }
+        .top-tab {
+            height: 100%; padding: 0 12px; border: none; background: transparent;
+            color: var(--text-secondary); font-size: 12px; font-weight: 600;
+            cursor: pointer; position: relative; display: inline-flex; align-items: center;
         }
-        .placement-cancel-btn {
-            background: rgba(255,255,255,0.2); border: none; color: #fff;
-            padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; cursor: pointer;
+        .top-tab:hover { color: var(--text-primary); }
+        .top-tab.active { color: var(--text-primary); font-weight: 700; }
+        .top-tab.active::after {
+            content: ''; position: absolute; bottom: 0; left: 8px; right: 8px;
+            height: 2.5px; background: var(--emerald); border-radius: 2px 2px 0 0;
         }
 
-        /* Основная рабочая область: Холст слева + Правая колонка с камерами и чатом */
+        /* Таймер [ 00:00 Старт ] */
+        .timer-pill {
+            height: 32px; padding: 0 11px; border-radius: 8px;
+            border: 1px solid var(--border-strong); background: var(--bg-surface);
+            display: inline-flex; align-items: center; gap: 8px; font-size: 12px;
+        }
+        .timer-digits { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+        .timer-action-link {
+            border: none; background: none; color: var(--emerald);
+            font-size: 12px; font-weight: 700; cursor: pointer;
+        }
+        .timer-action-link:hover { color: var(--emerald-hover); }
+
+        /* Тумблер "Вести ученика" */
+        .follow-switch-wrap {
+            height: 32px; padding: 0 10px; border-radius: 8px;
+            display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+            font-size: 12px; font-weight: 600; color: var(--text-primary);
+        }
+        .switch-track {
+            width: 34px; height: 20px; border-radius: 999px;
+            background: var(--border-strong); position: relative; transition: 0.18s;
+        }
+        .switch-thumb {
+            width: 16px; height: 16px; border-radius: 50%; background: #fff;
+            position: absolute; top: 2px; left: 2px; transition: 0.18s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .follow-switch-wrap.active .switch-track { background: var(--emerald); }
+        .follow-switch-wrap.active .switch-thumb { transform: translateX(14px); }
+
+        /* ================= 2. РАБОЧАЯ ЗОНА И ХОЛСТ ================= */
         .class-body {
             flex: 1; display: flex; min-height: 0; position: relative; overflow: hidden;
         }
@@ -179,133 +146,269 @@
         #board-viewport {
             flex: 1; height: 100%; overflow: hidden; position: relative;
             cursor: crosshair; touch-action: none;
-            background-color: var(--bg-surface);
+            background-color: var(--bg-page);
             background-image: radial-gradient(var(--dot-color) 1.35px, transparent 1.35px);
-            background-size: 28px 28px;
+            background-size: 24px 24px;
         }
         #board-world {
             width: 4200px; height: 3000px; position: absolute; top: 0; left: 0;
             transform-origin: 0 0; will-change: transform; touch-action: none;
         }
 
-        /* Холст маркера (z-index: 25) находится НАД фото (z-index: 15), но ПОД остальными виджетами (z-index: 35) */
         canvas { position: absolute; top: 0; left: 0; z-index: 25; pointer-events: none; }
         #temp-canvas { z-index: 26; }
 
-        /* Правая колонка (Камеры + Звук + Чат) */
-        .class-sidebar {
-            width: 285px; background: var(--bg-surface); border-left: 1px solid var(--border);
-            display: flex; flex-direction: column; padding: 12px; gap: 10px;
-            flex-shrink: 0; z-index: 100; min-height: 0;
-        }
-        .class-sidebar.collapsed { display: none; }
-
-        .cams-wrap { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
-        .cam-box {
-            width: 100%; height: 132px; background: #18201c; border-radius: 10px;
-            overflow: hidden; position: relative; border: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .cam-box video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        .cam-placeholder {
-            color: #8c9691; font-size: 12px; font-weight: 600;
-            text-align: center; padding: 8px; position: absolute; z-index: 2;
-        }
-        .cam-tag {
-            position: absolute; bottom: 7px; left: 9px; z-index: 3;
-            background: rgba(0, 0, 0, 0.58); color: #fff; font-size: 11px; font-weight: 700;
-            padding: 2px 8px; border-radius: 6px; pointer-events: none;
-        }
-        .rtc-status-bar {
-            font-size: 11px; font-weight: 600; color: var(--text-secondary);
-            text-align: center; padding: 4px 6px; border-radius: 6px;
-            background: var(--bg-subtle); border: 1px solid var(--border); cursor: pointer;
-        }
-
-        .media-controls-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex-shrink: 0;
-        }
-        .media-btn {
-            height: 32px; border-radius: 7px; border: 1px solid var(--border-strong);
-            background: var(--bg-surface); color: var(--text-primary);
-            font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.14s;
-        }
-        .media-btn.lit {
-            background: var(--emerald-soft); border-color: var(--emerald);
-            color: var(--emerald); font-weight: 700;
-        }
-
-        /* Чат урока */
-        .chat-box {
-            flex: 1; border: 1px solid var(--border); border-radius: 10px;
-            background: var(--bg-subtle); display: flex; flex-direction: column; min-height: 0; overflow: hidden;
-        }
-        .chat-messages {
-            flex: 1; padding: 10px; overflow-y: auto;
-            display: flex; flex-direction: column; gap: 7px; font-size: 12px;
-            user-select: text; -webkit-user-select: text;
-        }
-        .chat-msg {
+        /* Плашка сверху: "Ученик следует за вашей доской" */
+        .follow-status-pill {
+            position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
             background: var(--bg-surface); border: 1px solid var(--border);
-            padding: 7px 10px; border-radius: 8px; line-height: 1.4; word-break: break-word;
+            padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600;
+            color: var(--text-secondary); display: flex; align-items: center; gap: 7px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.04); z-index: 110; pointer-events: none;
         }
-        .chat-msg-author { font-size: 11px; font-weight: 700; color: var(--emerald); margin-bottom: 2px; }
-        .chat-input-row {
-            padding: 8px; background: var(--bg-surface); border-top: 1px solid var(--border);
-            display: flex; gap: 6px;
-        }
-        .chat-input {
-            flex: 1; height: 32px; padding: 0 10px; border-radius: 7px;
-            border: 1px solid var(--border-strong); background: var(--bg-subtle);
-            color: var(--text-primary); font-size: 12px; outline: none;
-            user-select: text; -webkit-user-select: text;
-        }
-        .chat-input:focus { border-color: var(--emerald); }
+        .follow-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--emerald); }
 
-        /* Текст на доске */
-        .board-text-node {
-            position: absolute; z-index: 28; min-width: 70px; max-width: 900px;
-            padding: 6px 14px 10px 8px; border-radius: 10px;
-            border: 1.5px dashed transparent; display: flex; align-items: flex-start; gap: 6px;
+        /* Левая вертикальная панель инструментов */
+        .left-toolbar {
+            position: absolute; top: 14px; left: 14px;
+            background: var(--bg-surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 6px;
+            display: flex; flex-direction: column; gap: 4px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05); z-index: 120;
         }
-        .board-text-node:hover, .board-text-node:focus-within {
-            border-color: var(--border-strong); background: rgba(255, 255, 255, 0.88);
+        .v-tool-btn {
+            width: 34px; height: 34px; border-radius: 8px; border: none;
+            background: transparent; color: var(--text-secondary);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.14s;
         }
-        .board-text-drag {
-            cursor: move; color: var(--text-muted); font-size: 13px;
-            padding: 2px 4px; opacity: 0; touch-action: none;
+        .v-tool-btn svg { width: 17px; height: 17px; stroke: currentColor; stroke-width: 1.9; fill: none; }
+        .v-tool-btn:hover { background: var(--bg-subtle); color: var(--text-primary); }
+        .v-tool-btn.active {
+            background: var(--emerald-soft); color: var(--emerald);
         }
-        .board-text-node:hover .board-text-drag, .board-text-node:focus-within .board-text-drag { opacity: 1; }
-        .board-text-content {
-            outline: none; user-select: text; -webkit-user-select: text; cursor: text;
-            font-weight: 700; line-height: 1.3; white-space: pre-wrap; word-break: break-word; min-width: 45px;
-        }
-        .board-text-content:empty:before { content: 'Введите текст...'; color: var(--text-muted); font-weight: 400; }
-        .board-text-del {
-            opacity: 0; width: 18px; height: 18px; border-radius: 5px;
-            border: 1px solid var(--danger-border); background: var(--danger-soft);
-            color: var(--danger); font-size: 10px; font-weight: 700; cursor: pointer;
-        }
-        .board-text-node:hover .board-text-del, .board-text-node:focus-within .board-text-del { opacity: 1; }
-        .text-resize-handle {
-            position: absolute; right: 2px; bottom: 2px; width: 16px; height: 16px;
-            cursor: nwse-resize; display: flex; align-items: flex-end; justify-content: flex-end;
-            color: var(--text-muted); font-size: 10px; opacity: 0; touch-action: none;
-        }
-        .board-text-node:hover .text-resize-handle, .board-text-node:focus-within .text-resize-handle { opacity: 1; }
+        .v-tool-btn.disabled-pan { opacity: 0.35; pointer-events: none; }
 
-        /* Указка */
+        /* Всплывающая карточка настроек Маркера / Карандаша справа от панели */
+        .tool-settings-card {
+            position: absolute; top: 115px; left: 68px;
+            background: var(--bg-surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 12px 14px; width: 205px;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.08); z-index: 120;
+            display: none; flex-direction: column; gap: 10px;
+        }
+        .tool-settings-title { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+        .color-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+        .color-swatch {
+            width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+            border: 2px solid var(--bg-surface); box-shadow: 0 0 0 1px var(--border-strong);
+            transition: 0.12s;
+        }
+        .color-swatch.active { box-shadow: 0 0 0 2px var(--emerald); transform: scale(1.12); }
+        .thickness-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: -4px; }
+        .thickness-range { width: 100%; accent-color: var(--emerald); cursor: pointer; }
+
+        /* Нижний левый островок: Отменить / Вернуть / Очистить */
+        .bottom-left-island {
+            position: absolute; bottom: 14px; left: 14px;
+            background: var(--bg-surface); border: 1px solid var(--border);
+            border-radius: 10px; padding: 4px 6px;
+            display: flex; align-items: center; gap: 4px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05); z-index: 120;
+        }
+        .island-btn {
+            width: 30px; height: 30px; border-radius: 7px; border: none;
+            background: transparent; color: var(--text-secondary);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .island-btn svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 2; fill: none; }
+        .island-btn:hover { background: var(--bg-subtle); color: var(--text-primary); }
+        .island-btn.danger { color: #dc2626; }
+        .island-btn.danger:hover { background: var(--danger-soft); }
+
+        /* Нижний правый островок: Масштаб ( - 100% + В центр ) */
+        .bottom-right-island {
+            position: absolute; bottom: 14px; right: 14px;
+            background: var(--bg-surface); border: 1px solid var(--border);
+            border-radius: 10px; padding: 4px 8px;
+            display: flex; align-items: center; gap: 6px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05); z-index: 120;
+        }
+        .zoom-pct {
+            font-size: 12px; font-weight: 700; color: var(--text-primary);
+            min-width: 40px; text-align: center; cursor: pointer;
+        }
+
+        /* Живой курсор собеседника */
+        #remote-peer-cursor {
+            position: absolute; pointer-events: none; z-index: 75;
+            display: none; transition: left 0.05s linear, top 0.05s linear;
+        }
+        .peer-cursor-tag {
+            background: #2563eb; color: #fff; font-size: 10px; font-weight: 700;
+            padding: 2px 7px; border-radius: 5px; margin-left: 12px; margin-top: -4px;
+            white-space: nowrap; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+        }
+
         #laser-cursor {
             position: absolute; pointer-events: none; z-index: 80;
             display: none; transform: translate(-50%, -50%);
             transition: left 0.05s linear, top 0.05s linear;
         }
         .laser-dot {
-            width: 16px; height: 16px; background: #dc2626; border-radius: 50%;
-            box-shadow: 0 0 14px #dc2626; border: 2px solid #fff;
+            width: 16px; height: 16px; background: #e11d48; border-radius: 50%;
+            box-shadow: 0 0 14px #e11d48; border: 2px solid #fff;
         }
 
-        /* Виджеты (z-index: 35 — НАД маркером; photo-widget z-index: 15 — ПОД маркером) */
+        /* ================= 3. ПРАВАЯ КОЛОНКА (КАМЕРА PiP + ЗВУК + ЧАТ) ================= */
+        .class-sidebar {
+            width: 278px; background: var(--bg-surface); border-left: 1px solid var(--border);
+            display: flex; flex-direction: column; padding: 12px; gap: 10px;
+            flex-shrink: 0; z-index: 130; min-height: 0;
+        }
+        .class-sidebar.collapsed { display: none; }
+
+        /* Блок камеры Картинка-в-картинке */
+        .pip-camera-stage {
+            width: 100%; height: 158px; background: #202422; border-radius: 10px;
+            position: relative; overflow: hidden; border: 1px solid var(--border); flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #remoteVideo, #remoteRelayImg {
+            width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0;
+        }
+        #remoteVideo { transform: scaleX(-1); z-index: 2; }
+        #remoteRelayImg { transform: scaleX(-1); z-index: 1; display: none; }
+
+        .remote-cam-placeholder {
+            color: #9ca8a2; font-size: 12px; font-weight: 500;
+            z-index: 3; pointer-events: none; text-align: center; padding: 10px;
+        }
+        .remote-role-badge {
+            position: absolute; bottom: 8px; left: 8px; z-index: 4;
+            background: rgba(255, 255, 255, 0.92); color: #111815;
+            font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 5px;
+        }
+
+        /* Маленькое окно "Вы" внутри камеры */
+        .local-pip-box {
+            position: absolute; bottom: 8px; right: 8px; z-index: 5;
+            width: 76px; height: 54px; border-radius: 7px;
+            background: #2d3330; border: 1.5px solid rgba(255, 255, 255, 0.7);
+            overflow: hidden; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+        }
+        #localVideo {
+            width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); display: none;
+        }
+        .local-pip-label {
+            color: #cbd5e1; font-size: 10px; font-weight: 600; pointer-events: none;
+        }
+
+        /* Круглые кнопки управления микрофоном, камерой и звуком */
+        .media-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 6px; padding: 2px 0; flex-shrink: 0;
+        }
+        .media-circles { display: flex; align-items: center; gap: 6px; }
+        .circle-ctrl-btn {
+            width: 34px; height: 34px; border-radius: 50%;
+            border: 1px solid var(--border-strong); background: var(--bg-surface);
+            color: var(--text-primary); cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: 0.15s;
+        }
+        .circle-ctrl-btn svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 2; fill: none; }
+        .circle-ctrl-btn:hover { background: var(--bg-hover); }
+        .circle-ctrl-btn.lit {
+            background: var(--emerald-soft); border-color: var(--emerald); color: var(--emerald);
+        }
+
+        .rtc-status-inline {
+            display: flex; align-items: center; gap: 5px;
+            font-size: 11px; font-weight: 600; color: var(--text-secondary);
+            line-height: 1.15; flex: 1; justify-content: center;
+        }
+        .rtc-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--emerald); flex-shrink: 0; }
+        .rtc-refresh-btn {
+            width: 28px; height: 28px; border-radius: 50%; border: none;
+            background: transparent; color: var(--text-secondary); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .rtc-refresh-btn:hover { background: var(--bg-subtle); color: var(--text-primary); }
+        .rtc-refresh-btn svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; }
+
+        /* Чат */
+        .chat-section {
+            flex: 1; border-top: 1px solid var(--border); padding-top: 8px;
+            display: flex; flex-direction: column; min-height: 0;
+        }
+        .chat-title { font-size: 12px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+        .chat-messages {
+            flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+            gap: 6px; font-size: 12px; padding-right: 2px;
+            user-select: text; -webkit-user-select: text;
+        }
+        .chat-empty {
+            margin: auto; font-size: 12px; color: var(--text-muted); text-align: center;
+        }
+        .chat-msg {
+            background: var(--bg-subtle); border: 1px solid var(--border);
+            padding: 7px 10px; border-radius: 8px; line-height: 1.4; word-break: break-word;
+        }
+        .chat-msg-author { font-size: 11px; font-weight: 700; color: var(--emerald); margin-bottom: 2px; }
+        .chat-input-row {
+            display: flex; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
+        }
+        .chat-input {
+            flex: 1; height: 34px; padding: 0 11px; border-radius: 8px;
+            border: 1px solid var(--border-strong); background: var(--bg-surface);
+            color: var(--text-primary); font-size: 12px; outline: none;
+            user-select: text; -webkit-user-select: text;
+        }
+        .chat-input:focus { border-color: var(--emerald); }
+        .chat-send-btn {
+            width: 34px; height: 34px; border-radius: 8px; border: none;
+            background: var(--emerald); color: #fff; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .chat-send-btn:hover { background: var(--emerald-hover); }
+
+        /* Всплывающее меню виджетов и таймера */
+        .popover-box {
+            position: fixed; top: 58px; right: 90px;
+            background: var(--bg-surface); border: 1px solid var(--border-strong);
+            border-radius: 12px; padding: 14px; width: 320px; max-width: 94vw;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.12); z-index: 220; display: none;
+        }
+        .popover-head {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px solid var(--border);
+            font-size: 13px; font-weight: 700;
+        }
+        .widget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+        .widget-pick-btn {
+            border: 1px solid var(--border-strong); border-radius: 8px; padding: 9px 11px;
+            background: var(--bg-subtle); color: var(--text-primary);
+            font-size: 12px; font-weight: 600; cursor: pointer; text-align: left;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .widget-pick-btn:hover {
+            background: var(--emerald-soft); border-color: var(--emerald); color: var(--emerald);
+        }
+
+        #placement-banner {
+            position: fixed; top: 64px; left: 50%; transform: translateX(-50%);
+            background: var(--emerald); color: #fff; padding: 7px 16px;
+            border-radius: 999px; font-size: 12px; font-weight: 700;
+            box-shadow: 0 8px 24px rgba(13, 115, 80, 0.3);
+            display: none; align-items: center; gap: 10px; z-index: 200;
+        }
+        .placement-cancel-btn {
+            background: rgba(255,255,255,0.2); border: none; color: #fff;
+            padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; cursor: pointer;
+        }
+
+        /* Виджеты на доске (Фото z-index: 15 — ПОД маркером; остальные z-index: 35 — НАД маркером) */
         .widget {
             position: absolute; background: var(--bg-surface); border-radius: 12px;
             box-shadow: 0 10px 28px rgba(0,0,0,0.08); border: 1px solid var(--border-strong);
@@ -340,16 +443,41 @@
             color: var(--text-muted); font-size: 11px; padding: 2px; z-index: 30; touch-action: none;
         }
 
+        .board-text-node {
+            position: absolute; z-index: 28; min-width: 70px; max-width: 900px;
+            padding: 6px 14px 10px 8px; border-radius: 10px;
+            border: 1.5px dashed transparent; display: flex; align-items: flex-start; gap: 6px;
+        }
+        .board-text-node:hover, .board-text-node:focus-within {
+            border-color: var(--border-strong); background: rgba(255, 255, 255, 0.88);
+        }
+        .board-text-drag { cursor: move; color: var(--text-muted); font-size: 13px; padding: 2px 4px; opacity: 0; touch-action: none; }
+        .board-text-node:hover .board-text-drag, .board-text-node:focus-within .board-text-drag { opacity: 1; }
+        .board-text-content {
+            outline: none; user-select: text; -webkit-user-select: text; cursor: text;
+            font-weight: 700; line-height: 1.3; white-space: pre-wrap; word-break: break-word; min-width: 45px;
+        }
+        .board-text-content:empty:before { content: 'Введите текст...'; color: var(--text-muted); font-weight: 400; }
+        .board-text-del {
+            opacity: 0; width: 18px; height: 18px; border-radius: 5px;
+            border: 1px solid var(--danger-border); background: var(--danger-soft);
+            color: var(--danger); font-size: 10px; font-weight: 700; cursor: pointer;
+        }
+        .board-text-node:hover .board-text-del, .board-text-node:focus-within .board-text-del { opacity: 1; }
+        .text-resize-handle {
+            position: absolute; right: 2px; bottom: 2px; width: 16px; height: 16px;
+            cursor: nwse-resize; display: flex; align-items: flex-end; justify-content: flex-end;
+            color: var(--text-muted); font-size: 10px; opacity: 0; touch-action: none;
+        }
+        .board-text-node:hover .text-resize-handle, .board-text-node:focus-within .text-resize-handle { opacity: 1; }
+
         .video-widget-box { width: 350px; height: 255px; min-width: 230px; min-height: 180px; }
         .upload-video-btn {
             background: var(--emerald-soft); color: var(--emerald); border: 1px solid var(--emerald-border);
             padding: 6px 10px; border-radius: 7px; font-size: 11px; font-weight: 700;
             cursor: pointer; margin-bottom: 6px; width: 100%; text-align: center; display: block;
         }
-        .video-widget-box video {
-            width: 100%; flex: 1; min-height: 0; border-radius: 7px;
-            background: #111815; object-fit: contain;
-        }
+        .video-widget-box video { width: 100%; flex: 1; min-height: 0; border-radius: 7px; background: #111815; object-fit: contain; }
         .video-unmute-hint {
             position: absolute; bottom: 44px; left: 50%; transform: translateX(-50%);
             background: var(--emerald); color: #fff; border: none;
@@ -365,21 +493,12 @@
             resize: none; user-select: text; -webkit-user-select: text; outline: none;
         }
         .word-counter { margin-top: 6px; font-size: 11px; font-weight: 700; color: var(--text-secondary); flex-shrink: 0; }
+        .photo-widget img { width: 100%; flex: 1; min-height: 0; object-fit: fill; border-radius: 7px; display: block; pointer-events: none; }
 
-        .photo-widget img {
-            width: 100%; flex: 1; min-height: 0; object-fit: fill;
-            border-radius: 7px; display: block; pointer-events: none;
-        }
-
-        .sticker-widget {
-            width: 210px; height: 175px; min-width: 145px; min-height: 115px;
-            background: #fef9c3; border: 1px solid #fde047;
-        }
+        .sticker-widget { width: 210px; height: 175px; min-width: 145px; min-height: 115px; background: #fef9c3; border: 1px solid #fde047; }
         .sticker-widget textarea {
-            width: 100%; flex: 1; min-height: 0; resize: none;
-            user-select: text; -webkit-user-select: text;
-            background: transparent; border: none; color: #111815;
-            font-weight: 600; font-size: 14px; line-height: 1.4; outline: none; padding: 4px;
+            width: 100%; flex: 1; min-height: 0; resize: none; user-select: text; -webkit-user-select: text;
+            background: transparent; border: none; color: #111815; font-weight: 600; font-size: 14px; line-height: 1.4; outline: none; padding: 4px;
         }
         .sticker-dot { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.2); }
 
@@ -387,41 +506,27 @@
         .speaking-presets { display: flex; gap: 5px; margin-bottom: 8px; flex-shrink: 0; }
         .spk-preset-btn {
             flex: 1; border: 1px solid var(--border-strong); background: var(--bg-subtle);
-            color: var(--text-primary); padding: 6px; border-radius: 7px;
-            font-size: 11px; font-weight: 600; cursor: pointer;
+            color: var(--text-primary); padding: 6px; border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer;
         }
-        .spk-preset-btn.active {
-            background: var(--emerald-soft); color: var(--emerald); border-color: var(--emerald); font-weight: 700;
-        }
+        .spk-preset-btn.active { background: var(--emerald-soft); color: var(--emerald); border-color: var(--emerald); font-weight: 700; }
         .speaking-timer-row {
             display: flex; align-items: center; justify-content: space-between;
-            background: #111815; color: #fff; padding: 8px 10px;
-            border-radius: 8px; margin-bottom: 8px; flex-shrink: 0; gap: 6px;
+            background: #111815; color: #fff; padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; flex-shrink: 0; gap: 6px;
         }
         .speaking-clock { font-size: 17px; font-weight: 800; color: #34d399; min-width: 52px; font-variant-numeric: tabular-nums; }
-        .spk-ctrl-btn {
-            border: none; background: var(--emerald); color: #fff; padding: 5px 10px;
-            border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;
-        }
-        .speaking-rec-btn {
-            border: none; background: #dc2626; color: #fff; padding: 5px 10px;
-            border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;
-        }
+        .spk-ctrl-btn { border: none; background: var(--emerald); color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .speaking-rec-btn { border: none; background: #dc2626; color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; }
         .speaking-rec-btn.recording { background: #d97706; }
         .speaking-audio-player { width: 100%; height: 32px; margin-top: auto; flex-shrink: 0; }
 
         .dict-widget-box { width: 345px; height: 275px; min-width: 260px; min-height: 210px; }
         .dict-search-row { display: flex; gap: 6px; margin-bottom: 8px; flex-shrink: 0; }
         .dict-input {
-            flex: 1; padding: 6px 10px; border: 1px solid var(--border-strong);
-            background: var(--bg-subtle); color: var(--text-primary);
-            border-radius: 7px; font-size: 12px; font-weight: 600; outline: none;
+            flex: 1; padding: 6px 10px; border: 1px solid var(--border-strong); background: var(--bg-subtle);
+            color: var(--text-primary); border-radius: 7px; font-size: 12px; font-weight: 600; outline: none;
             user-select: text; -webkit-user-select: text;
         }
-        .dict-search-btn {
-            background: var(--emerald); color: #fff; border: none; padding: 0 12px;
-            border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer;
-        }
+        .dict-search-btn { background: var(--emerald); color: #fff; border: none; padding: 0 12px; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; }
         .dict-body {
             flex: 1; overflow-y: auto; background: var(--bg-subtle); border: 1px solid var(--border);
             border-radius: 7px; padding: 8px 10px; font-size: 12px; color: var(--text-primary);
@@ -429,17 +534,16 @@
         }
         .dict-links-row { display: flex; gap: 6px; margin-top: 6px; flex-shrink: 0; }
         .dict-ext-link {
-            flex: 1; text-align: center; text-decoration: none; font-size: 10px;
-            font-weight: 700; padding: 5px; border-radius: 6px;
-            background: var(--bg-subtle); color: var(--text-secondary); border: 1px solid var(--border);
+            flex: 1; text-align: center; text-decoration: none; font-size: 10px; font-weight: 700;
+            padding: 5px; border-radius: 6px; background: var(--bg-subtle); color: var(--text-secondary); border: 1px solid var(--border);
         }
 
         @media (max-width: 860px) {
             .class-sidebar {
-                position: fixed; top: 100px; right: 0; bottom: 0;
+                position: fixed; top: 52px; right: 0; bottom: 0;
                 box-shadow: -10px 0 30px rgba(0,0,0,0.15);
             }
-            .lesson-title-text { max-width: 150px; }
+            .lesson-title-text { max-width: 130px; }
         }
 
         /* Права ученика */
@@ -454,12 +558,11 @@
         body.role-student .board-text-drag,
         body.role-student .board-text-del { display: none !important; }
         body.role-student #btn-open-widgets,
-        body.role-student #btn-follow,
+        body.role-student #follow-switch-btn,
         body.role-student #btn-clear-board,
         body.role-student #btn-reset-all,
         body.role-student #btn-center-board,
-        body.role-student #btn-timer-menu,
-        body.role-student #btn-pause-timer { display: none !important; }
+        body.role-student #btn-timer-start { display: none !important; }
     </style>
 </head>
 <body class="role-teacher">
@@ -467,147 +570,220 @@
     <audio id="remote-voice-player" autoplay playsinline></audio>
 
     <div class="classroom-layout">
-        <!-- 1. ВЕРХНЯЯ ПАНЕЛЬ УРОКА -->
+        <!-- 1. ВЕРХНЯЯ ПАНЕЛЬ -->
         <header class="class-topbar">
             <div class="topbar-left">
-                <button class="btn" onclick="exitToCabinet()">← В кабинет</button>
-                <span class="lesson-title-text" id="board-title-label">Доска урока</span>
-                <span class="top-tab-badge">Доска</span>
+                <button class="top-btn" onclick="exitToCabinet()">← Кабинет</button>
+                <span class="lesson-title-text" id="board-title-label">Тема урока</span>
+
+                <nav class="top-tabs">
+                    <button class="top-tab active" id="top-tab-board" onclick="switchTopTab('board')">Доска</button>
+                    <button class="top-tab" id="top-tab-notebook" onclick="switchTopTab('notebook')">Тетрадь</button>
+                    <button class="top-tab" id="top-tab-materials" onclick="toggleWidgetsModal(event)">Материалы</button>
+                </nav>
             </div>
 
             <div class="topbar-right">
-                <div class="timer-wrap">
-                    <span class="timer-dot" id="timer-status-dot"></span>
-                    <span id="timer-text">00:00</span>
-                    <button class="btn" style="height:24px; padding:0 8px; font-size:11px; display:none;" id="btn-pause-timer" onclick="togglePauseLessonTimer(true)">Пауза</button>
-                    <button class="btn" style="height:24px; padding:0 8px; font-size:11px;" id="btn-timer-menu" onclick="toggleLessonTimeMenu(event)">Таймер</button>
+                <div class="timer-pill">
+                    <span class="timer-digits" id="timer-text">00:00</span>
+                    <button class="timer-action-link" id="btn-timer-start" onclick="toggleLessonTimeMenu(event)">Старт</button>
                 </div>
 
-                <button class="btn" onclick="toggleSidebarPanel()" id="btn-toggle-sidebar">Панель</button>
-                <button class="btn btn-danger-outline" onclick="exitToCabinet()">Завершить урок</button>
+                <div class="follow-switch-wrap active" id="follow-switch-btn" onclick="toggleFollow()">
+                    <div class="switch-track"><div class="switch-thumb"></div></div>
+                    <span>Вести ученика</span>
+                </div>
+
+                <button class="top-btn" id="btn-open-widgets" onclick="toggleWidgetsModal(event)">
+                    <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L8 8m4-4l4 4M4 20h16"/></svg>
+                    Файл
+                </button>
+
+                <button class="top-btn top-btn-icon" onclick="toggleSidebarPanel()" title="Скрыть / показать правую панель">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg>
+                </button>
+
+                <button class="top-btn top-btn-danger" onclick="exitToCabinet()">Завершить урок</button>
             </div>
         </header>
 
-        <!-- 2. ПАНЕЛЬ ИНСТРУМЕНТОВ ДОСКИ -->
-        <div class="class-subbar">
-            <div class="tool-group">
-                <button class="tool-pill" id="tool-pan" onclick="setTool('pan')">Двигать</button>
-                <button class="tool-pill active" data-tool="marker" onclick="selectDrawTool('marker')">Маркер</button>
-                <button class="tool-pill" data-tool="pencil" onclick="selectDrawTool('pencil')">Карандаш</button>
-                <button class="tool-pill" data-tool="highlighter" onclick="selectDrawTool('highlighter')">Выделитель</button>
-                <button class="tool-pill" data-tool="text" onclick="selectDrawTool('text')">Текст</button>
-                <button class="tool-pill" data-tool="pointer" onclick="selectDrawTool('pointer')">Указка</button>
-                <button class="tool-pill" data-tool="eraser" onclick="selectDrawTool('eraser')">Ластик</button>
-
-                <div class="bar-divider"></div>
-
-                <div class="color-swatch-row" id="color-swatch-group">
-                    <div class="color-dot active" style="background:#0d7350;" onclick="pickColor('#0d7350', this)"></div>
-                    <div class="color-dot" style="background:#111815;" onclick="pickColor('#111815', this)"></div>
-                    <div class="color-dot" style="background:#2563eb;" onclick="pickColor('#2563eb', this)"></div>
-                    <div class="color-dot" style="background:#dc2626;" onclick="pickColor('#dc2626', this)"></div>
-                    <div class="color-dot" style="background:#d97706;" onclick="pickColor('#d97706', this)"></div>
-                    <div class="color-dot" style="background:#7c3aed;" onclick="pickColor('#7c3aed', this)"></div>
-                </div>
-
-                <input type="range" min="2" max="22" value="4" class="size-slider" id="stroke-size-slider" oninput="changeStrokeSize(this.value)" title="Толщина линии">
-
-                <div class="bar-divider"></div>
-
-                <button class="tool-pill btn-icon-only" onclick="undoAction()" title="Отменить (Ctrl+Z)">↩</button>
-                <button class="tool-pill btn-icon-only" onclick="redoAction()" title="Вернуть (Ctrl+Y)">↪</button>
-                <button class="tool-pill" id="btn-clear-board" onclick="clearBoard(true)">Очистить</button>
-            </div>
-
-            <div class="tool-group">
-                <button class="tool-pill btn-icon-only" onclick="changeZoom(-0.15)">−</button>
-                <button class="tool-pill" id="zoom-display" onclick="resetZoom()" style="min-width:54px;">100%</button>
-                <button class="tool-pill btn-icon-only" onclick="changeZoom(0.15)">+</button>
-                <button class="tool-pill" id="btn-center-board" onclick="returnToCenter(true)">В центр</button>
-                <button class="tool-pill active" id="btn-follow" onclick="toggleFollow()">Вести ученика</button>
-                <button class="btn btn-emerald" id="btn-open-widgets" onclick="toggleWidgetsModal(event)">Загрузить файл</button>
-            </div>
-        </div>
-
-        <!-- Баннер размещения виджета -->
-        <div id="placement-banner">
-            <span id="placement-text">Нажмите на доску, чтобы разместить виджет</span>
-            <button class="placement-cancel-btn" onclick="cancelPendingPlacement()">Отмена</button>
-        </div>
-
-        <!-- Всплывающее меню виджетов и файлов (Кнопка фото через прямую <label> для iPad Safari) -->
+        <!-- Всплывающее меню файлов и виджетов -->
         <div class="popover-box" id="widgets-modal">
             <div class="popover-head">
-                <span>Виджеты и материалы урока</span>
-                <button class="close-btn" onclick="toggleWidgetsModal()">✕</button>
+                <span>Добавить на доску</span>
+                <button class="close-btn" onclick="closePopovers()">✕</button>
             </div>
             <div class="widget-grid">
                 <label for="photo-upload-input" class="widget-pick-btn">Фото / Учебник</label>
                 <button class="widget-pick-btn" onclick="startWidgetPlacement('video', 'Видео / Аудио')">Видео / Аудио</button>
                 <button class="widget-pick-btn" onclick="startWidgetPlacement('essay', 'Редактор Эссе')">Редактор Эссе</button>
                 <button class="widget-pick-btn" onclick="startWidgetPlacement('sticker', 'Стикер')">Стикер</button>
-                <button class="widget-pick-btn" onclick="startWidgetPlacement('speaking', 'Тренажер Speaking')">Speaking</button>
+                <button class="widget-pick-btn" onclick="startWidgetPlacement('speaking', 'Speaking')">Speaking</button>
                 <button class="widget-pick-btn" onclick="startWidgetPlacement('dict', 'Словарь')">Словарь</button>
             </div>
-            <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border); display:flex; justify-content:space-between;">
-                <button class="btn btn-danger-outline" style="width:100%; height:30px; font-size:11px;" id="btn-reset-all" onclick="resetSavedLesson(); closePopovers();">
-                    Сбросить всю доску целиком
+            <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border);" id="btn-reset-all">
+                <button class="top-btn top-btn-danger" style="width:100%; height:30px; font-size:11px;" onclick="resetSavedLesson(); closePopovers();">
+                    Очистить всю доску целиком
                 </button>
             </div>
             <input type="file" id="photo-upload-input" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
         </div>
 
         <!-- Всплывающее меню таймера -->
-        <div class="popover-box" id="lesson-time-popover" style="width:260px;">
+        <div class="popover-box" id="lesson-time-popover" style="width:240px; right:260px;">
             <div class="popover-head">
                 <span>Таймер урока</span>
                 <button class="close-btn" onclick="closePopovers()">✕</button>
             </div>
             <div style="display:flex; flex-direction:column; gap:6px;">
-                <button class="widget-pick-btn" onclick="triggerLessonStart(60)">Запустить на 60 минут</button>
-                <button class="widget-pick-btn" onclick="triggerLessonStart(45)">Запустить на 45 минут</button>
-                <button class="widget-pick-btn" onclick="triggerLessonStart(30)">Запустить на 30 минут</button>
-                <button class="btn btn-danger-outline" style="height:30px; font-size:11px; margin-top:4px;" onclick="stopLessonTimer(true); closePopovers();">Сбросить таймер</button>
+                <button class="widget-pick-btn" onclick="triggerLessonStart(60)">60 минут</button>
+                <button class="widget-pick-btn" onclick="triggerLessonStart(45)">45 минут</button>
+                <button class="widget-pick-btn" onclick="triggerLessonStart(30)">30 минут</button>
+                <button class="widget-pick-btn" id="btn-pause-timer" onclick="togglePauseLessonTimer(true); closePopovers();">Пауза / Продолжить</button>
+                <button class="top-btn top-btn-danger" style="height:30px; font-size:11px; margin-top:4px;" onclick="stopLessonTimer(true); closePopovers();">Сбросить таймер</button>
             </div>
         </div>
 
-        <!-- 3. РАБОЧАЯ ОБЛАСТЬ И ПРАВАЯ КОЛОНКА -->
+        <div id="placement-banner">
+            <span id="placement-text">Нажмите на доску, чтобы разместить виджет</span>
+            <button class="placement-cancel-btn" onclick="cancelPendingPlacement()">Отмена</button>
+        </div>
+
+        <!-- 2. ОСНОВНАЯ ОБЛАСТЬ: ХОЛСТ + ПРАВАЯ КОЛОНКА -->
         <div class="class-body">
             <div id="board-viewport">
+                <!-- Плашка статуса следования -->
+                <div class="follow-status-pill" id="follow-status-pill">
+                    <span class="follow-status-dot"></span>
+                    <span id="follow-status-text">Ученик следует за вашей доской</span>
+                </div>
+
+                <!-- Левая вертикальная панель инструментов -->
+                <div class="left-toolbar">
+                    <button class="v-tool-btn" id="tool-pan" onclick="setTool('pan')" title="Двигать доску">
+                        <svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20M12 2l-3 3m3-3l3 3M12 22l-3-3m3 3l3-3M2 12l3-3m-3 3l3 3M22 12l-3-3m3 3l-3 3"/></svg>
+                    </button>
+                    <button class="v-tool-btn" data-tool="select" onclick="setTool('select')" title="Выбор">
+                        <svg viewBox="0 0 24 24"><path d="M4 4l7.07 17 2.51-7.39L21 11.07z"/></svg>
+                    </button>
+                    <button class="v-tool-btn" data-tool="pencil" onclick="selectDrawTool('pencil', 'Карандаш')" title="Карандаш">
+                        <svg viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                    </button>
+                    <button class="v-tool-btn active" data-tool="marker" onclick="selectDrawTool('marker', 'Маркер')" title="Маркер">
+                        <svg viewBox="0 0 24 24"><path d="m15 5 4 4M13 7 8 12v4h4l5-5m-4-4 3-3 4 4-3 3m-9 9H4v-4"/></svg>
+                    </button>
+                    <button class="v-tool-btn" data-tool="text" onclick="setTool('text')" title="Текст">
+                        <svg viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+                    </button>
+                    <button class="v-tool-btn" data-tool="pointer" onclick="setTool('pointer')" title="Указка">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
+                    </button>
+                    <button class="v-tool-btn" data-tool="eraser" onclick="setTool('eraser')" title="Ластик">
+                        <svg viewBox="0 0 24 24"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21M22 21H7M5 11l9 9"/></svg>
+                    </button>
+                </div>
+
+                <!-- Карточка настроек цвета и толщины -->
+                <div class="tool-settings-card" id="tool-settings-card" style="display:flex;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="tool-settings-title" id="settings-tool-title">Маркер</span>
+                        <button class="close-btn" style="height:18px; padding:0 4px;" onclick="document.getElementById('tool-settings-card').style.display='none'">✕</button>
+                    </div>
+                    <div class="color-row" id="color-swatch-group">
+                        <div class="color-swatch active" style="background:#0d7350;" onclick="pickColor('#0d7350', this)"></div>
+                        <div class="color-swatch" style="background:#111815;" onclick="pickColor('#111815', this)"></div>
+                        <div class="color-swatch" style="background:#2563eb;" onclick="pickColor('#2563eb', this)"></div>
+                        <div class="color-swatch" style="background:#e11d48;" onclick="pickColor('#e11d48', this)"></div>
+                        <div class="color-swatch" style="background:#d97706;" onclick="pickColor('#d97706', this)"></div>
+                        <div class="color-swatch" style="background:#7c3aed;" onclick="pickColor('#7c3aed', this)"></div>
+                    </div>
+                    <div class="thickness-label">Толщина</div>
+                    <input type="range" min="2" max="24" value="5" class="thickness-range" id="stroke-size-slider" oninput="changeStrokeSize(this.value)">
+                </div>
+
+                <!-- Нижний левый островок: Undo / Redo / Clear -->
+                <div class="bottom-left-island">
+                    <button class="island-btn" onclick="undoAction()" title="Отменить (Ctrl+Z)">
+                        <svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+                    </button>
+                    <button class="island-btn" onclick="redoAction()" title="Вернуть (Ctrl+Y)">
+                        <svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5v0A5.5 5.5 0 0 0 9.5 20H13"/></svg>
+                    </button>
+                    <button class="island-btn danger" id="btn-clear-board" onclick="clearBoard(true)" title="Очистить линии">
+                        <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                </div>
+
+                <!-- Нижний правый островок: Масштаб -->
+                <div class="bottom-right-island">
+                    <button class="island-btn" onclick="changeZoom(-0.15)" title="Отдалить">−</button>
+                    <span class="zoom-pct" id="zoom-display" onclick="resetZoom()">100%</span>
+                    <button class="island-btn" onclick="changeZoom(0.15)" title="Приблизить">+</button>
+                    <button class="island-btn" id="btn-center-board" onclick="returnToCenter(true)" title="В центр доски">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
+                    </button>
+                </div>
+
+                <!-- Мир доски -->
                 <div id="board-world">
                     <div id="dynamic-items"></div>
                     <canvas id="canvas" width="4200" height="3000"></canvas>
                     <canvas id="temp-canvas" width="4200" height="3000"></canvas>
+
                     <div id="laser-cursor"><div class="laser-dot"></div></div>
+
+                    <div id="remote-peer-cursor">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#2563eb" stroke="#fff" stroke-width="1.5"><path d="M4 4l7.07 17 2.51-7.39L21 11.07z"/></svg>
+                        <div class="peer-cursor-tag" id="remote-peer-cursor-label">Ученик</div>
+                    </div>
                 </div>
             </div>
 
+            <!-- 3. ПРАВАЯ КОЛОНКА (КАМЕРА PiP + ЗВУК + ЧАТ) -->
             <aside class="class-sidebar" id="class-sidebar">
-                <div class="cams-wrap">
-                    <div class="cam-box">
-                        <div class="cam-placeholder" id="student-placeholder">Камера ученика</div>
-                        <video id="studentVideo" autoplay muted playsinline></video>
-                        <span class="cam-tag">Ученик</span>
+                <div class="pip-camera-stage">
+                    <div class="remote-cam-placeholder" id="remote-placeholder">Камера ученика</div>
+                    <img id="remoteRelayImg" alt="">
+                    <video id="remoteVideo" autoplay muted playsinline webkit-playsinline></video>
+                    <span class="remote-role-badge" id="remote-role-badge">Ученик</span>
+
+                    <div class="local-pip-box">
+                        <span class="local-pip-label" id="local-pip-label">Вы</span>
+                        <video id="localVideo" autoplay muted playsinline webkit-playsinline></video>
                     </div>
-                    <div class="cam-box">
-                        <div class="cam-placeholder" id="teacher-placeholder">Камера преподавателя</div>
-                        <video id="teacherVideo" autoplay muted playsinline></video>
-                        <span class="cam-tag">Преподаватель</span>
-                    </div>
-                    <div class="rtc-status-bar" id="rtc-status-bar" onclick="reconnectWebRTC()">Связь готова (обновить)</div>
                 </div>
 
-                <div class="media-controls-grid">
-                    <button class="media-btn" id="btn-mic-toggle" onclick="toggleMic()">Микрофон</button>
-                    <button class="media-btn" id="btn-cam-toggle" onclick="toggleCamera()">Камера</button>
-                    <button class="media-btn lit" id="btn-sound-toggle" onclick="toggleRemoteSound()">Звук вкл</button>
+                <div class="media-bar">
+                    <div class="media-circles">
+                        <button class="circle-ctrl-btn" id="btn-mic-toggle" onclick="toggleMic()" title="Включить / выключить микрофон">
+                            <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
+                        </button>
+                        <button class="circle-ctrl-btn" id="btn-cam-toggle" onclick="toggleCamera()" title="Включить / выключить камеру">
+                            <svg viewBox="0 0 24 24"><path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+                        </button>
+                        <button class="circle-ctrl-btn lit" id="btn-sound-toggle" onclick="toggleRemoteSound()" title="Звук собеседника вкл/выкл">
+                            <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                        </button>
+                    </div>
+
+                    <div class="rtc-status-inline">
+                        <span class="rtc-dot" id="rtc-dot"></span>
+                        <span id="rtc-status-bar">Связь готова</span>
+                    </div>
+
+                    <button class="rtc-refresh-btn" onclick="reconnectWebRTC()" title="Обновить соединение">
+                        <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+                    </button>
                 </div>
 
-                <div class="chat-box">
-                    <div class="chat-messages" id="chat-messages-list"></div>
+                <div class="chat-section">
+                    <div class="chat-title">Чат</div>
+                    <div class="chat-messages" id="chat-messages-list">
+                        <div class="chat-empty">Сообщений пока нет</div>
+                    </div>
                     <div class="chat-input-row">
-                        <input type="text" class="chat-input" id="chat-input-field" placeholder="Сообщение..." onkeydown="if(event.key==='Enter') sendChatMessage()">
-                        <button class="btn btn-emerald" style="height:32px; padding:0 10px;" onclick="sendChatMessage()">→</button>
+                        <input type="text" class="chat-input" id="chat-input-field" placeholder="Сообщение" onkeydown="if(event.key==='Enter') sendChatMessage()">
+                        <button class="chat-send-btn" onclick="sendChatMessage()">→</button>
                     </div>
                 </div>
             </aside>
@@ -655,6 +831,7 @@
         const boardWorld = document.getElementById('board-world');
         const viewport = document.getElementById('board-viewport');
         const laserCursor = document.getElementById('laser-cursor');
+        const remotePeerCursor = document.getElementById('remote-peer-cursor');
         const widgetsModal = document.getElementById('widgets-modal');
         const dynamicItems = document.getElementById('dynamic-items');
         const lessonTimePopover = document.getElementById('lesson-time-popover');
@@ -683,7 +860,7 @@
         let tool = 'marker';
         let lastDrawTool = 'marker';
         let currentColor = '#0d7350';
-        let baseStrokeSize = 4;
+        let baseStrokeSize = 5;
 
         let drawing = false;
         let panning = false;
@@ -744,8 +921,34 @@
         function applyVerifiedRole(verifiedRole) {
             role = (verifiedRole === 'student') ? 'student' : 'teacher';
             document.body.className = (localStorage.getItem('es_theme') === 'dark' ? 'dark-theme ' : '') + 'role-' + role;
+
+            const isTeacher = role === 'teacher';
+            document.getElementById('remote-placeholder').innerText = isTeacher ? 'Камера ученика' : 'Камера учителя';
+            document.getElementById('remote-role-badge').innerText = isTeacher ? 'Ученик' : 'Учитель';
+            document.getElementById('remote-peer-cursor-label').innerText = isTeacher ? 'Ученик' : 'Учитель';
+            document.getElementById('follow-status-text').innerText = isTeacher
+                ? 'Ученик следует за вашей доской'
+                : 'Вы следуете за доской учителя';
+
             updateStudentPanLock();
             updateLaserVisibility();
+        }
+
+        function switchTopTab(tab) {
+            document.getElementById('top-tab-board').classList.toggle('active', tab === 'board');
+            document.getElementById('top-tab-notebook').classList.toggle('active', tab === 'notebook');
+            if (tab === 'notebook') {
+                const existingEssay = dynamicItems.querySelector('.essay-widget-box');
+                if (existingEssay) {
+                    existingEssay.style.display = 'flex';
+                    bringToFront(existingEssay);
+                } else if (role === 'teacher') {
+                    const vw = viewport.clientWidth || window.innerWidth;
+                    const vh = viewport.clientHeight || window.innerHeight;
+                    const pt = screenToWorld(vw / 2 - 175, vh / 2 - 120);
+                    createEssayWidget({ id: 'essay-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 360, height: 260, text: '' }, true, true);
+                }
+            }
         }
 
         function toggleSidebarPanel() {
@@ -820,6 +1023,14 @@
                     handleTeacherMoveData(data);
                 });
 
+                roomRef.child('studentCursor').on('value', (snap) => {
+                    const data = snap.val();
+                    if (!data || data.sender === myClientId) return;
+                    remotePeerCursor.style.display = 'block';
+                    remotePeerCursor.style.left = data.worldX + 'px';
+                    remotePeerCursor.style.top = data.worldY + 'px';
+                });
+
                 let initialEventsSkipped = false;
                 roomRef.child('events').limitToLast(1).on('child_added', (snap) => {
                     if (!initialEventsSkipped) { initialEventsSkipped = true; return; }
@@ -830,7 +1041,6 @@
             } catch (e) {}
         }
 
-        // Чат урока
         function sendChatMessage() {
             const input = document.getElementById('chat-input-field');
             const text = input.value.trim();
@@ -846,6 +1056,10 @@
         }
 
         function renderChatMessages() {
+            if (!chatHistory || chatHistory.length === 0) {
+                chatMessagesList.innerHTML = '<div class="chat-empty">Сообщений пока нет</div>';
+                return;
+            }
             chatMessagesList.innerHTML = chatHistory.map(m => `
                 <div class="chat-msg">
                     <div class="chat-msg-author">${m.author}</div>
@@ -876,11 +1090,19 @@
 
         function handleTeacherMoveData(data) {
             followMode = data.followMode;
+            document.getElementById('follow-status-pill').style.display = followMode ? 'flex' : 'none';
             updateStudentPanLock();
+
             laserCursor.style.display = data.pointerActive ? 'block' : 'none';
             if (data.pointerActive && data.worldX !== undefined) {
                 laserCursor.style.left = data.worldX + 'px';
                 laserCursor.style.top = data.worldY + 'px';
+            }
+
+            if (data.worldX !== undefined) {
+                remotePeerCursor.style.display = 'block';
+                remotePeerCursor.style.left = data.worldX + 'px';
+                remotePeerCursor.style.top = data.worldY + 'px';
             }
 
             if (role === 'student' && followMode) {
@@ -1092,7 +1314,7 @@
             lessonTimePopover.style.display = 'none';
             remainingSeconds = durationMinutes * 60;
             timerPaused = false;
-            updateTimerPauseUI(true);
+            document.getElementById('btn-timer-start').innerText = 'Идёт';
             renderTimerText();
 
             if (timerInterval) clearInterval(timerInterval);
@@ -1110,26 +1332,8 @@
 
         function togglePauseLessonTimer(broadcast) {
             timerPaused = !timerPaused;
-            updateTimerPauseUI(true);
+            document.getElementById('btn-timer-start').innerText = timerPaused ? 'Пауза' : 'Идёт';
             if (broadcast) broadcastEvent({ type: 'timer_sync', remainingSeconds, active: true, paused: timerPaused });
-        }
-
-        function updateTimerPauseUI(active) {
-            const pauseBtn = document.getElementById('btn-pause-timer');
-            const dot = document.getElementById('timer-status-dot');
-            if (!active) {
-                pauseBtn.style.display = 'none';
-                dot.className = 'timer-dot';
-                return;
-            }
-            if (role === 'teacher') pauseBtn.style.display = 'inline-flex';
-            if (timerPaused) {
-                pauseBtn.innerText = 'Старт';
-                dot.className = 'timer-dot paused';
-            } else {
-                pauseBtn.innerText = 'Пауза';
-                dot.className = 'timer-dot running';
-            }
         }
 
         function stopLessonTimer(broadcast) {
@@ -1137,8 +1341,8 @@
             timerInterval = null;
             timerPaused = false;
             remainingSeconds = 0;
+            document.getElementById('btn-timer-start').innerText = 'Старт';
             renderTimerText();
-            updateTimerPauseUI(false);
             if (broadcast) broadcastEvent({ type: 'timer_sync', remainingSeconds: 0, active: false, paused: false });
         }
 
@@ -1155,17 +1359,20 @@
             if (broadcast && role === 'teacher') sendTeacherViewportSync();
         }
 
-        function selectDrawTool(selected) {
+        function selectDrawTool(selected, titleText) {
             lastDrawTool = selected;
+            const card = document.getElementById('tool-settings-card');
+            if (titleText) document.getElementById('settings-tool-title').innerText = titleText;
+            card.style.display = 'flex';
             setTool(selected);
         }
 
         function pickColor(hex, dotEl) {
             currentColor = hex;
-            document.querySelectorAll('#color-swatch-group .color-dot').forEach(d => d.classList.remove('active'));
+            document.querySelectorAll('#color-swatch-group .color-swatch').forEach(d => d.classList.remove('active'));
             if (dotEl) dotEl.classList.add('active');
-            if (tool === 'pan' || tool === 'eraser' || tool === 'pointer') {
-                selectDrawTool('marker');
+            if (tool === 'pan' || tool === 'select' || tool === 'eraser' || tool === 'pointer') {
+                setTool(lastDrawTool || 'marker');
             }
         }
 
@@ -1177,7 +1384,8 @@
         window.addEventListener('pointerdown', (e) => {
             unlockAudioPlayback();
             if (!e.target.closest('#widgets-modal') && !e.target.closest('#btn-open-widgets') &&
-                !e.target.closest('#lesson-time-popover') && !e.target.closest('#btn-timer-menu')) {
+                !e.target.closest('#top-tab-materials') &&
+                !e.target.closest('#lesson-time-popover') && !e.target.closest('#btn-timer-start')) {
                 closePopovers();
             }
         });
@@ -1367,7 +1575,6 @@
             });
         }
 
-        // ================= ВИДЕО-ВИДЖЕТ С ПАКЕТНОЙ СИНХРОНИЗАЦИЕЙ =================
         function createVideoWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
             const data = existingData || { id: 'video-' + Date.now(), left: 1600, top: 1100, width: 350, height: 255 };
@@ -1428,7 +1635,7 @@
             if (!file || !v) return;
 
             v.src = URL.createObjectURL(file); v.muted = false;
-            if (file.size > 45 * 1024 * 1024) { alert('Файл больше 45 МБ. Выберите ролик покороче.'); return; }
+            if (file.size > 45 * 1024 * 1024) { alert('Файл больше 45 МБ.'); return; }
             if (btnLabel) btnLabel.innerText = 'Загрузка для ученика: 0%';
 
             const reader = new FileReader();
@@ -1842,16 +2049,24 @@
             if (selected === 'pan' && role === 'student' && followMode) return;
             tool = selected;
             document.getElementById('tool-pan').classList.toggle('active', selected === 'pan');
-            document.querySelectorAll('.class-subbar [data-tool]').forEach(btn => {
+            document.querySelectorAll('.left-toolbar [data-tool]').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.tool === selected);
             });
-            viewport.style.cursor = pendingWidgetType ? 'copy' : (selected === 'pan' ? 'grab' : (selected === 'pointer' ? 'none' : (selected === 'text' ? 'text' : 'crosshair')));
+            if (selected !== 'marker' && selected !== 'pencil' && selected !== 'highlighter') {
+                document.getElementById('tool-settings-card').style.display = 'none';
+            }
+            viewport.style.cursor = pendingWidgetType ? 'copy'
+                : (selected === 'pan' ? 'grab'
+                : (selected === 'select' ? 'default'
+                : (selected === 'pointer' ? 'none'
+                : (selected === 'text' ? 'text' : 'crosshair'))));
             updateLaserVisibility();
         }
 
         function toggleFollow() {
             followMode = !followMode;
-            document.getElementById('btn-follow').classList.toggle('active', followMode);
+            document.getElementById('follow-switch-btn').classList.toggle('active', followMode);
+            document.getElementById('follow-status-pill').style.display = followMode ? 'flex' : 'none';
             sendTeacherViewportSync();
             broadcastEvent({ type: 'follow_toggle', followMode });
             updateStudentPanLock();
@@ -1865,15 +2080,15 @@
             boardX = Math.min(0, Math.max(minX, boardX));
             boardY = Math.min(0, Math.max(minY, boardY));
             boardWorld.style.transform = `translate3d(${boardX}px, ${boardY}px, 0) scale(${boardScale})`;
-            const step = +(28 * boardScale).toFixed(2);
+            const step = +(24 * boardScale).toFixed(2);
             viewport.style.backgroundSize = `${step}px ${step}px`;
             viewport.style.backgroundPosition = `${boardX}px ${boardY}px`;
         }
 
         function getToolWidth(strokeTool, size) {
             if (strokeTool === 'eraser') return size * 5;
-            if (strokeTool === 'pencil') return Math.max(2, size * 0.85);
-            if (strokeTool === 'highlighter') return size * 4.5;
+            if (strokeTool === 'pencil') return Math.max(2, size * 0.8);
+            if (strokeTool === 'marker') return size * 2.2;
             return size;
         }
 
@@ -1886,7 +2101,7 @@
             targetCtx.lineWidth = getToolWidth(strokeTool, size);
             if (strokeTool === 'eraser') targetCtx.globalCompositeOperation = 'destination-out';
             else if (strokeTool === 'highlighter') { targetCtx.globalCompositeOperation = 'source-over'; targetCtx.strokeStyle = color; targetCtx.globalAlpha = 0.28; }
-            else if (strokeTool === 'pencil') { targetCtx.globalCompositeOperation = 'source-over'; targetCtx.strokeStyle = getPencilPattern(color); targetCtx.globalAlpha = 0.9; }
+            else if (strokeTool === 'pencil') { targetCtx.globalCompositeOperation = 'source-over'; targetCtx.strokeStyle = getPencilPattern(color); targetCtx.globalAlpha = 0.92; }
             else { targetCtx.globalCompositeOperation = 'source-over'; targetCtx.strokeStyle = color; }
             targetCtx.stroke(); targetCtx.restore();
         }
@@ -1896,7 +2111,10 @@
         }
 
         viewport.addEventListener('pointerdown', (e) => {
-            if (e.target.closest('.resize-handle') || e.target.closest('.text-resize-handle') || e.target.closest('.widget-header') || e.target.closest('.board-text-node')) return;
+            if (e.target.closest('.left-toolbar') || e.target.closest('.tool-settings-card') ||
+                e.target.closest('.bottom-left-island') || e.target.closest('.bottom-right-island') ||
+                e.target.closest('.resize-handle') || e.target.closest('.text-resize-handle') ||
+                e.target.closest('.widget-header') || e.target.closest('.board-text-node')) return;
 
             if (pendingWidgetType && role === 'teacher') {
                 const pt = screenToWorld(e.clientX, e.clientY);
@@ -1910,6 +2128,7 @@
             }
 
             if (e.target.closest('.widget') && !e.target.closest('.photo-widget')) return;
+            if (tool === 'select') return;
 
             if (tool === 'pan') {
                 if (role === 'student' && followMode) return;
@@ -1935,32 +2154,27 @@
 
             if (panning) {
                 boardX = e.clientX - startPanX; boardY = e.clientY - startPanY; applyBoardTransform();
-            } else if (drawing && tool !== 'pointer' && tool !== 'pan' && tool !== 'text') {
+            } else if (drawing && tool !== 'pointer' && tool !== 'pan' && tool !== 'select' && tool !== 'text') {
                 currentStrokePoints.push({ x: worldX, y: worldY });
-                const pad = getToolWidth(tool, baseStrokeSize) + 10;
-                if (tool === 'highlighter') {
-                    clearTempBounds(strokeBounds, pad);
-                    strokeBounds.minX = Math.min(strokeBounds.minX, worldX); strokeBounds.minY = Math.min(strokeBounds.minY, worldY);
-                    strokeBounds.maxX = Math.max(strokeBounds.maxX, worldX); strokeBounds.maxY = Math.max(strokeBounds.maxY, worldY);
-                    renderSmoothPath(tempCtx, currentStrokePoints, currentColor, tool, baseStrokeSize);
-                } else {
-                    const len = currentStrokePoints.length;
-                    renderSmoothPath(ctx, [currentStrokePoints[len - 2], currentStrokePoints[len - 1]], currentColor, tool, baseStrokeSize);
-                    broadcastEvent({ type: 'draw_seg', p0: currentStrokePoints[len - 2], p1: currentStrokePoints[len - 1], color: currentColor, strokeTool: tool, size: baseStrokeSize });
-                }
+                const len = currentStrokePoints.length;
+                renderSmoothPath(ctx, [currentStrokePoints[len - 2], currentStrokePoints[len - 1]], currentColor, tool, baseStrokeSize);
+                broadcastEvent({ type: 'draw_seg', p0: currentStrokePoints[len - 2], p1: currentStrokePoints[len - 1], color: currentColor, strokeTool: tool, size: baseStrokeSize });
             }
 
+            const now = Date.now();
             if (role === 'teacher') {
                 const pointerActive = (tool === 'pointer');
                 laserCursor.style.display = pointerActive ? 'block' : 'none';
                 if (pointerActive) { laserCursor.style.left = worldX + 'px'; laserCursor.style.top = worldY + 'px'; }
-                if (Date.now() - lastMoveSentTime > 40) { lastMoveSentTime = Date.now(); sendTeacherViewportSync(worldX, worldY); }
+                if (now - lastMoveSentTime > 45) { lastMoveSentTime = now; sendTeacherViewportSync(worldX, worldY); }
+            } else if (now - lastMoveSentTime > 60 && roomRef) {
+                lastMoveSentTime = now;
+                try { roomRef.child('studentCursor').set({ sender: myClientId, worldX, worldY }).catch(() => {}); } catch (err) {}
             }
         });
 
         window.addEventListener('pointerup', () => {
-            if (drawing && currentStrokePoints.length > 0 && tool !== 'pointer' && tool !== 'pan' && tool !== 'text') {
-                if (tool === 'highlighter') clearTempBounds(strokeBounds, getToolWidth(tool, baseStrokeSize) + 15), renderSmoothPath(ctx, currentStrokePoints, currentColor, tool, baseStrokeSize);
+            if (drawing && currentStrokePoints.length > 0 && tool !== 'pointer' && tool !== 'pan' && tool !== 'select' && tool !== 'text') {
                 const finishedStroke = { points: currentStrokePoints, color: currentColor, strokeTool: tool, size: baseStrokeSize };
                 strokeHistory.push(finishedStroke);
                 recordAction({ kind: 'stroke', stroke: finishedStroke });
@@ -1980,16 +2194,15 @@
         function handleRemoteEvent(data) {
             if (data.type === 'teacher_move_local') {
                 handleTeacherMoveData(data);
-            } else if (data.type === 'teacher_zoom') {
-                if (role === 'student' && followMode) { targetFollowScale = data.boardScale; targetFollowX = data.boardX; targetFollowY = data.boardY; }
             } else if (data.type === 'follow_toggle') {
-                followMode = data.followMode; updateStudentPanLock();
+                followMode = data.followMode;
+                document.getElementById('follow-status-pill').style.display = followMode ? 'flex' : 'none';
+                updateStudentPanLock();
             } else if (data.type === 'draw_seg') {
                 renderSmoothPath(ctx, [data.p0, data.p1], data.color, data.strokeTool, data.size);
             } else if (data.type === 'draw_commit') {
                 strokeHistory.push(data.stroke);
                 actionHistory.push({ kind: 'stroke', stroke: data.stroke });
-                if (data.stroke.strokeTool === 'highlighter') renderSmoothPath(ctx, data.stroke.points, data.stroke.color, data.stroke.strokeTool, data.stroke.size);
                 saveBoardState();
             } else if (data.type === 'strokes_sync') {
                 strokeHistory = data.strokeHistory || []; redrawAllStrokes();
@@ -2059,22 +2272,19 @@
             } else if (data.type === 'timer_sync') {
                 remainingSeconds = data.remainingSeconds;
                 timerPaused = !!data.paused;
-                updateTimerPauseUI(data.active);
+                document.getElementById('btn-timer-start').innerText = data.active ? (timerPaused ? 'Пауза' : 'Идёт') : 'Старт';
                 renderTimerText();
             } else if (data.type === 'webrtc_signal') {
                 handleWebRTCSignal(data);
             }
         }
 
-        // ================= WEBRTC ВИДЕОСВЯЗЬ И ГОЛОС (IPAD + ПК) =================
+        // ================= ДВОЙНОЙ ДВИЖОК ВИДЕО И ЗВУКА: WEBRTC + АВТО-РЕТРАНСЛЯТОР FIREBASE =================
         const RTC_CONFIG = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun.cloudflare.com:3478' },
-                { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
-                { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
-                { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+                { urls: 'stun:stun.cloudflare.com:3478' }
             ]
         };
 
@@ -2089,6 +2299,20 @@
         let ignoreOffer = false;
         let pendingIceCandidates = [];
         let rtcSignalRef = null;
+        let offerDebounceTimer = null;
+        let p2pConnected = false;
+
+        // Переменные для резервной передачи кадров и звука через Firebase (если провайдер режет WebRTC)
+        let videoRelayTimer = null;
+        let relayCaptureCanvas = document.createElement('canvas');
+        relayCaptureCanvas.width = 180;
+        relayCaptureCanvas.height = 132;
+        let relayCaptureCtx = relayCaptureCanvas.getContext('2d');
+
+        let audioCtx = null;
+        let audioProcessor = null;
+        let audioSourceNode = null;
+        let nextAudioPlayTime = 0;
 
         function setRtcStatus(text) {
             const el = document.getElementById('rtc-status-bar');
@@ -2108,6 +2332,7 @@
             pc = new RTCPeerConnection(RTC_CONFIG);
             remoteVideoStream = new MediaStream();
             remoteAudioStream = new MediaStream();
+            p2pConnected = false;
 
             if (localStream) {
                 localStream.getTracks().forEach(track => { pc.addTrack(track, localStream); });
@@ -2119,25 +2344,33 @@
 
             pc.onconnectionstatechange = () => {
                 if (!pc) return;
-                if (pc.connectionState === 'connected') setRtcStatus('Видео и звук подключены');
-                else if (pc.connectionState === 'connecting') setRtcStatus('Соединение...');
-                else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') setRtcStatus('Нажмите для переподключения');
+                if (pc.connectionState === 'connected') {
+                    p2pConnected = true;
+                    setRtcStatus('В эфире (HD)');
+                } else if (pc.connectionState === 'connecting') {
+                    setRtcStatus('Соединение...');
+                } else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+                    p2pConnected = false;
+                    setRtcStatus('Резервный канал');
+                }
             };
 
             pc.ontrack = (e) => {
                 const track = e.track;
-                const targetSlot = (role === 'teacher') ? 'student' : 'teacher';
+                p2pConnected = true;
                 if (track.kind === 'video') {
                     remoteVideoStream.getVideoTracks().forEach(t => remoteVideoStream.removeTrack(t));
                     remoteVideoStream.addTrack(track);
-                    const videoEl = document.getElementById(targetSlot === 'teacher' ? 'teacherVideo' : 'studentVideo');
-                    const placeholderEl = document.getElementById(targetSlot === 'teacher' ? 'teacher-placeholder' : 'student-placeholder');
+                    const videoEl = document.getElementById('remoteVideo');
+                    const relayImg = document.getElementById('remoteRelayImg');
+                    const placeholderEl = document.getElementById('remote-placeholder');
                     if (videoEl) {
                         videoEl.muted = true;
                         videoEl.srcObject = null;
                         videoEl.srcObject = remoteVideoStream;
                         videoEl.play().catch(() => {});
                     }
+                    if (relayImg) relayImg.style.display = 'none';
                     if (placeholderEl) placeholderEl.style.display = 'none';
                 } else if (track.kind === 'audio') {
                     remoteAudioStream.getAudioTracks().forEach(t => remoteAudioStream.removeTrack(t));
@@ -2145,33 +2378,48 @@
                     remoteVoicePlayer.srcObject = null;
                     remoteVoicePlayer.srcObject = remoteAudioStream;
                     remoteVoicePlayer.muted = remoteSoundMuted;
-                    remoteVoicePlayer.play().catch(() => { setRtcStatus('Коснитесь экрана для звука'); });
+                    remoteVoicePlayer.play().catch(() => {});
                 }
-                setRtcStatus('Видео и звук подключены');
+                setRtcStatus('В эфире');
             };
             return pc;
         }
 
+        function scheduleDebouncedOffer() {
+            clearTimeout(offerDebounceTimer);
+            offerDebounceTimer = setTimeout(() => {
+                makeWebRTCOffer();
+            }, 160);
+        }
+
         async function makeWebRTCOffer() {
             const conn = ensurePeerConnection();
+            if (makingOffer || conn.signalingState !== 'stable') return;
             try {
                 makingOffer = true;
                 const offer = await conn.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
                 if (conn.signalingState !== 'stable') return;
                 await conn.setLocalDescription(offer);
-                sendRtcSignal({ kind: 'sdp', description: { type: conn.localDescription.type, sdp: conn.localDescription.sdp }, hasVideo: cameraActive, hasAudio: micActive });
-            } catch (e) {} finally { makingOffer = false; }
+                sendRtcSignal({
+                    kind: 'sdp',
+                    description: { type: conn.localDescription.type, sdp: conn.localDescription.sdp },
+                    hasVideo: cameraActive,
+                    hasAudio: micActive
+                });
+            } catch (e) {} finally {
+                makingOffer = false;
+            }
         }
 
         async function handleWebRTCSignal(data) {
             if (!data || data.sender === myClientId) return;
             const conn = ensurePeerConnection();
-            const polite = (role === 'student') || (myClientId < data.sender);
+            const polite = myClientId < data.sender;
 
             try {
                 if (data.kind === 'hello') {
                     sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
-                    await makeWebRTCOffer();
+                    scheduleDebouncedOffer();
                 } else if (data.kind === 'sdp' && data.description) {
                     const desc = data.description;
                     const offerCollision = (desc.type === 'offer') && (makingOffer || conn.signalingState !== 'stable');
@@ -2179,7 +2427,10 @@
                     if (ignoreOffer) return;
 
                     if (offerCollision) {
-                        await Promise.all([conn.setLocalDescription({ type: 'rollback' }), conn.setRemoteDescription(new RTCSessionDescription(desc))]);
+                        await Promise.all([
+                            conn.setLocalDescription({ type: 'rollback' }),
+                            conn.setRemoteDescription(new RTCSessionDescription(desc))
+                        ]);
                     } else {
                         await conn.setRemoteDescription(new RTCSessionDescription(desc));
                     }
@@ -2192,95 +2443,268 @@
                     if (desc.type === 'offer') {
                         const answer = await conn.createAnswer();
                         await conn.setLocalDescription(answer);
-                        sendRtcSignal({ kind: 'sdp', description: { type: conn.localDescription.type, sdp: conn.localDescription.sdp }, hasVideo: cameraActive, hasAudio: micActive });
+                        sendRtcSignal({
+                            kind: 'sdp',
+                            description: { type: conn.localDescription.type, sdp: conn.localDescription.sdp },
+                            hasVideo: cameraActive,
+                            hasAudio: micActive
+                        });
                     }
                     if (data.hasVideo !== undefined || data.hasAudio !== undefined) {
-                        const targetSlot = (role === 'teacher') ? 'student' : 'teacher';
-                        updateRemotePlaceholder(targetSlot, data.hasVideo, data.hasAudio);
+                        updateRemotePlaceholder(data.hasVideo, data.hasAudio);
                     }
                 } else if (data.kind === 'ice' && data.candidate) {
                     if (conn.remoteDescription && conn.remoteDescription.type) {
                         try { await conn.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch (err) {}
-                    } else { pendingIceCandidates.push(data.candidate); }
+                    } else {
+                        pendingIceCandidates.push(data.candidate);
+                    }
                 } else if (data.kind === 'media_state') {
-                    const targetSlot = (role === 'teacher') ? 'student' : 'teacher';
-                    updateRemotePlaceholder(targetSlot, data.hasVideo, data.hasAudio);
+                    updateRemotePlaceholder(data.hasVideo, data.hasAudio);
                 }
             } catch (err) {}
         }
 
+        // Инициализация WebRTC + Резервного ретранслятора Firebase (для обхода блокировок на iPad и ПК)
         function initWebRTC() {
             ensurePeerConnection();
+            if (!roomRef) return;
+
+            rtcSignalRef = roomRef.child('rtcSignals');
+            let initialSignalsSkipped = false;
+            rtcSignalRef.limitToLast(1).on('child_added', (snap) => {
+                if (!initialSignalsSkipped) {
+                    initialSignalsSkipped = true;
+                    return;
+                }
+                const val = snap.val();
+                if (!val || val.sender === myClientId) return;
+                handleWebRTCSignal(val);
+            });
+
+            // Прием видеокадров через Firebase (работает мгновенно, даже если WebRTC P2P заблокирован!)
+            roomRef.child('liveFrame').on('value', (snap) => {
+                const data = snap.val();
+                if (!data || data.sender === myClientId) return;
+                const relayImg = document.getElementById('remoteRelayImg');
+                const placeholderEl = document.getElementById('remote-placeholder');
+                if (data.active && data.frame) {
+                    if (!p2pConnected || !remoteVideoStream.getVideoTracks().length) {
+                        relayImg.src = data.frame;
+                        relayImg.style.display = 'block';
+                        placeholderEl.style.display = 'none';
+                        setRtcStatus('В эфире');
+                    }
+                } else if (!data.active) {
+                    relayImg.style.display = 'none';
+                }
+            });
+
+            // Прием голосовых пакетов через Firebase (работает на iPad Safari и Windows Chrome!)
+            let initialAudioSkipped = false;
+            roomRef.child('liveAudio').on('value', (snap) => {
+                if (!initialAudioSkipped) { initialAudioSkipped = true; return; }
+                const data = snap.val();
+                if (!data || data.sender === myClientId || remoteSoundMuted) return;
+                // Если WebRTC аудио уже играет напрямую — не дублируем
+                if (p2pConnected && remoteAudioStream.getAudioTracks().some(t => t.enabled && t.readyState === 'live')) return;
+                playPcmAudioPacket(data.pcm);
+                setRtcStatus('Голос активен');
+            });
+
+            setTimeout(() => {
+                sendRtcSignal({ kind: 'hello' });
+            }, 400);
+        }
+
+        function ensureAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) audioCtx = new AudioContextClass();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(() => {});
+            }
+            return audioCtx;
+        }
+
+        // Декодирование и воспроизведение голосового пакета на iPad и ПК
+        function playPcmAudioPacket(b64) {
+            if (!b64 || remoteSoundMuted) return;
+            const actx = ensureAudioContext();
+            if (!actx) return;
+            try {
+                const binary = atob(b64);
+                const len = binary.length / 2;
+                const buffer = actx.createBuffer(1, len, 8000);
+                const channel = buffer.getChannelData(0);
+                for (let i = 0; i < len; i++) {
+                    const lo = binary.charCodeAt(i * 2);
+                    const hi = binary.charCodeAt(i * 2 + 1);
+                    let val = (hi << 8) | lo;
+                    if (val >= 0x8000) val -= 0x10000;
+                    channel[i] = val / 32768;
+                }
+                const src = actx.createBufferSource();
+                src.buffer = buffer;
+                src.connect(actx.destination);
+                const now = actx.currentTime;
+                if (nextAudioPlayTime < now) nextAudioPlayTime = now + 0.04;
+                src.start(nextAudioPlayTime);
+                nextAudioPlayTime += buffer.duration;
+            } catch (e) {}
+        }
+
+        // Отправка голосовых пакетов с микрофона через Firebase
+        function startFirebaseAudioRelay() {
+            if (!localStream || !roomRef) return;
+            const actx = ensureAudioContext();
+            if (!actx) return;
+            stopFirebaseAudioRelay();
+
+            try {
+                audioSourceNode = actx.createMediaStreamSource(localStream);
+                audioProcessor = actx.createScriptProcessor(4096, 1, 1);
+                const inRate = actx.sampleRate || 44100;
+                const outRate = 8000;
+                const ratio = inRate / outRate;
+                let accum = [];
+
+                audioProcessor.onaudioprocess = (e) => {
+                    if (!micActive) return;
+                    // Если прямой P2P WebRTC уже соединен, не нагружаем базу
+                    if (p2pConnected && pc && pc.connectionState === 'connected') return;
+
+                    const input = e.inputBuffer.getChannelData(0);
+                    let sumSq = 0;
+                    for (let i = 0; i < input.length; i += 4) sumSq += input[i] * input[i];
+                    const rms = Math.sqrt(sumSq / (input.length / 4));
+                    if (rms < 0.008 && accum.length === 0) return; // Порог тишины
+
+                    for (let i = 0; i < input.length; i += ratio) {
+                        const s = Math.max(-1, Math.min(1, input[Math.floor(i)] || 0));
+                        accum.push(s < 0 ? s * 0x8000 : s * 0x7FFF);
+                    }
+
+                    if (accum.length >= 2800) {
+                        const int16 = new Int16Array(accum.splice(0, 2800));
+                        const bytes = new Uint8Array(int16.buffer);
+                        let bin = '';
+                        for (let j = 0; j < bytes.length; j++) bin += String.fromCharCode(bytes[j]);
+                        roomRef.child('liveAudio').set({
+                            sender: myClientId,
+                            pcm: btoa(bin),
+                            ts: Date.now()
+                        }).catch(() => {});
+                    }
+                };
+
+                audioSourceNode.connect(audioProcessor);
+                audioProcessor.connect(actx.destination);
+            } catch (e) {}
+        }
+
+        function stopFirebaseAudioRelay() {
+            if (audioProcessor) { try { audioProcessor.disconnect(); } catch (e) {} audioProcessor = null; }
+            if (audioSourceNode) { try { audioSourceNode.disconnect(); } catch (e) {} audioSourceNode = null; }
+        }
+
+        // Отправка кадров камеры через Firebase
+        function startFirebaseVideoRelay() {
+            clearInterval(videoRelayTimer);
+            const localVid = document.getElementById('localVideo');
+            videoRelayTimer = setInterval(() => {
+                if (!cameraActive || !localVid || !roomRef) return;
+                if (p2pConnected && pc && pc.connectionState === 'connected') return;
+                if (localVid.readyState >= 2) {
+                    try {
+                        relayCaptureCtx.drawImage(localVid, 0, 0, 180, 132);
+                        const frameData = relayCaptureCanvas.toDataURL('image/jpeg', 0.48);
+                        roomRef.child('liveFrame').set({
+                            sender: myClientId,
+                            active: true,
+                            frame: frameData,
+                            ts: Date.now()
+                        }).catch(() => {});
+                    } catch (e) {}
+                }
+            }, 260);
+        }
+
+        function stopFirebaseVideoRelay() {
+            clearInterval(videoRelayTimer);
+            videoRelayTimer = null;
             if (roomRef) {
-                rtcSignalRef = roomRef.child('rtcSignals');
-                rtcSignalRef.remove().then(() => {
-                    rtcSignalRef.on('child_added', (snap) => {
-                        const val = snap.val();
-                        if (!val || val.sender === myClientId) return;
-                        handleWebRTCSignal(val);
-                    });
-                    sendRtcSignal({ kind: 'hello' });
-                }).catch(() => {});
+                roomRef.child('liveFrame').set({ sender: myClientId, active: false, ts: Date.now() }).catch(() => {});
             }
         }
 
         function reconnectWebRTC() {
             unlockAudioPlayback();
-            setRtcStatus('Обновление связи...');
+            setRtcStatus('Обновление...');
             if (pc) { try { pc.close(); } catch (e) {} pc = null; }
             ensurePeerConnection();
             sendRtcSignal({ kind: 'hello' });
-            makeWebRTCOffer();
+            scheduleDebouncedOffer();
         }
 
         function cleanupWebRTC() {
+            stopFirebaseVideoRelay();
+            stopFirebaseAudioRelay();
             if (localStream) localStream.getTracks().forEach(t => t.stop());
             if (pc) { try { pc.close(); } catch (e) {} }
         }
 
         function unlockAudioPlayback() {
+            ensureAudioContext();
             if (remoteVoicePlayer && remoteVoicePlayer.srcObject && remoteVoicePlayer.paused) {
                 remoteVoicePlayer.play().catch(() => {});
             }
-            ['teacherVideo', 'studentVideo'].forEach(id => {
+            ['localVideo', 'remoteVideo'].forEach(id => {
                 const v = document.getElementById(id);
                 if (v && v.srcObject && v.paused) v.play().catch(() => {});
             });
         }
 
-        function updateRemotePlaceholder(slotRole, hasVideo, hasAudio) {
-            const placeholderEl = document.getElementById(slotRole === 'teacher' ? 'teacher-placeholder' : 'student-placeholder');
+        function updateRemotePlaceholder(hasVideo, hasAudio) {
+            const placeholderEl = document.getElementById('remote-placeholder');
+            const relayImg = document.getElementById('remoteRelayImg');
             if (!placeholderEl) return;
-            placeholderEl.style.display = hasVideo ? 'none' : 'block';
-            const label = slotRole === 'teacher' ? 'Преподаватель' : 'Ученик';
-            placeholderEl.innerText = hasAudio ? `${label} (Голос активен)` : `Камера (${label})`;
+            const showingRelay = relayImg && relayImg.style.display === 'block';
+            placeholderEl.style.display = (hasVideo || showingRelay) ? 'none' : 'block';
+            const label = role === 'teacher' ? 'Ученик' : 'Учитель';
+            placeholderEl.innerText = hasAudio ? `${label} (Голос активен)` : `Камера (${label.toLowerCase()})`;
         }
 
         function showLocalPreview() {
-            const videoEl = document.getElementById(role === 'teacher' ? 'teacherVideo' : 'studentVideo');
-            const placeholderEl = document.getElementById(role === 'teacher' ? 'teacher-placeholder' : 'student-placeholder');
-            if (!videoEl || !placeholderEl) return;
-            videoEl.muted = true;
-            if (cameraActive && localStream) {
-                videoEl.srcObject = null;
-                videoEl.srcObject = localStream;
-                videoEl.play().catch(() => {});
-                placeholderEl.style.display = 'none';
+            const localVid = document.getElementById('localVideo');
+            const localLbl = document.getElementById('local-pip-label');
+            if (!localVid || !localLbl) return;
+            localVid.muted = true;
+            if (cameraActive && localStream && localStream.getVideoTracks().length > 0) {
+                localVid.srcObject = null;
+                localVid.srcObject = localStream;
+                localVid.style.display = 'block';
+                localVid.play().catch(() => {});
+                localLbl.style.display = 'none';
             } else {
-                videoEl.srcObject = null;
-                placeholderEl.style.display = 'block';
-                const label = role === 'teacher' ? 'Преподаватель' : 'Ученик';
-                placeholderEl.innerText = micActive ? `${label} (Голос активен)` : `Камера (${label})`;
+                localVid.srcObject = null;
+                localVid.style.display = 'none';
+                localLbl.style.display = 'block';
+                localLbl.innerText = micActive ? 'Вы (Микр.)' : 'Вы';
             }
         }
 
         async function attachOrReplaceTrack(newTrack) {
             const conn = ensurePeerConnection();
             const sender = conn.getSenders().find(s => s.track && s.track.kind === newTrack.kind);
-            if (sender) await sender.replaceTrack(newTrack);
-            else conn.addTrack(newTrack, localStream);
+            if (sender) {
+                await sender.replaceTrack(newTrack);
+            } else {
+                conn.addTrack(newTrack, localStream);
+            }
             sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
-            await makeWebRTCOffer();
+            scheduleDebouncedOffer();
         }
 
         async function toggleMic() {
@@ -2290,29 +2714,32 @@
                 micActive = !micActive;
                 localStream.getAudioTracks().forEach(t => t.enabled = micActive);
                 micBtn.classList.toggle('lit', micActive);
-                micBtn.innerText = micActive ? 'Микрофон вкл' : 'Микрофон выкл';
                 showLocalPreview();
                 sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
                 return;
             }
             try {
-                const audioStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });
+                const audioStream = await navigator.mediaDevices.getUserMedia({
+                    audio: { echoCancellation: true, noiseSuppression: true },
+                    video: false
+                });
                 const audioTrack = audioStream.getAudioTracks()[0];
                 if (!localStream) localStream = new MediaStream();
                 localStream.addTrack(audioTrack);
                 micActive = true;
                 micBtn.classList.add('lit');
-                micBtn.innerText = 'Микрофон вкл';
                 showLocalPreview();
+                startFirebaseAudioRelay();
                 await attachOrReplaceTrack(audioTrack);
-            } catch (err) { alert('Разрешите доступ к микрофону в настройках браузера.'); }
+            } catch (err) {
+                alert('Разрешите доступ к микрофону в настройках браузера.');
+            }
         }
 
         function toggleRemoteSound() {
             remoteSoundMuted = !remoteSoundMuted;
             const soundBtn = document.getElementById('btn-sound-toggle');
             soundBtn.classList.toggle('lit', !remoteSoundMuted);
-            soundBtn.innerText = remoteSoundMuted ? 'Звук выкл' : 'Звук вкл';
             if (remoteVoicePlayer) {
                 remoteVoicePlayer.muted = remoteSoundMuted;
                 if (!remoteSoundMuted) remoteVoicePlayer.play().catch(() => {});
@@ -2323,20 +2750,26 @@
             unlockAudioPlayback();
             const camBtn = document.getElementById('btn-cam-toggle');
             if (cameraActive && localStream) {
-                localStream.getVideoTracks().forEach(track => { track.stop(); localStream.removeTrack(track); });
+                localStream.getVideoTracks().forEach(track => {
+                    track.stop();
+                    localStream.removeTrack(track);
+                });
                 cameraActive = false;
                 camBtn.classList.remove('lit');
+                stopFirebaseVideoRelay();
                 showLocalPreview();
                 sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
-                await makeWebRTCOffer();
+                scheduleDebouncedOffer();
                 return;
             }
             try {
+                const needAudio = !localStream || localStream.getAudioTracks().length === 0;
                 const media = await navigator.mediaDevices.getUserMedia({
-                    video: { width: { ideal: 480 }, height: { ideal: 360 }, facingMode: 'user' },
-                    audio: (!localStream || localStream.getAudioTracks().length === 0)
+                    video: { width: { ideal: 360 }, height: { ideal: 260 }, facingMode: 'user' },
+                    audio: needAudio ? { echoCancellation: true, noiseSuppression: true } : false
                 });
                 if (!localStream) localStream = new MediaStream();
+
                 const videoTrack = media.getVideoTracks()[0];
                 if (videoTrack) {
                     localStream.addTrack(videoTrack);
@@ -2344,17 +2777,21 @@
                     camBtn.classList.add('lit');
                     await attachOrReplaceTrack(videoTrack);
                 }
+
                 const audioTrack = media.getAudioTracks()[0];
                 if (audioTrack) {
                     localStream.addTrack(audioTrack);
                     micActive = true;
-                    const micBtn = document.getElementById('btn-mic-toggle');
-                    micBtn.classList.add('lit');
-                    micBtn.innerText = 'Микрофон вкл';
+                    document.getElementById('btn-mic-toggle').classList.add('lit');
+                    startFirebaseAudioRelay();
                     await attachOrReplaceTrack(audioTrack);
                 }
+
                 showLocalPreview();
-            } catch (err) { alert('Разрешите доступ к камере и микрофону.'); }
+                startFirebaseVideoRelay();
+            } catch (err) {
+                alert('Разрешите доступ к камере и микрофону в настройках браузера.');
+            }
         }
 
         initRealtimeSync();
