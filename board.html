@@ -155,7 +155,7 @@
         .follow-switch-wrap.active .switch-track { background: var(--emerald); }
         .follow-switch-wrap.active .switch-thumb { transform: translateX(14px); }
 
-        /* ================= 2. РАБОЧАЯ ЗОНА И ХОЛСТ (GPU ACCELERATED) ================= */
+        /* ================= 2. РАБОЧАЯ ЗОНА И ХОЛСТ ================= */
         .class-body {
             flex: 1; display: flex; min-height: 0; position: relative; overflow: hidden;
         }
@@ -165,7 +165,6 @@
             cursor: crosshair; touch-action: none; background-color: var(--bg-page);
         }
 
-        /* Сетка точек нанесена прямо на #board-world для 60 FPS GPU-трансформации без лагов перерисовки */
         #board-world {
             width: 4200px; height: 3000px; position: absolute; top: 0; left: 0;
             transform-origin: 0 0; will-change: transform; touch-action: none;
@@ -263,7 +262,7 @@
             min-width: 44px; text-align: center; cursor: pointer;
         }
 
-        /* Плавный GPU-курсор собеседника без рывков */
+        /* Плавный GPU-курсор собеседника */
         #remote-peer-cursor {
             position: absolute; top: 0; left: 0; pointer-events: none; z-index: 75;
             display: none; will-change: transform;
@@ -274,7 +273,7 @@
             white-space: nowrap; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
         }
 
-        /* ================= 3. ПРАВАЯ КОЛОНКА (БЕЗ ПУСТОЙ ЗОНЫ ПРИ СКРЫТИИ ЧАТА!) ================= */
+        /* ================= 3. ПРАВАЯ КОЛОНКА ================= */
         .class-sidebar {
             width: 292px; background: var(--bg-surface); background-image: var(--surface-grad);
             border-left: 1px solid var(--border);
@@ -283,7 +282,6 @@
         }
         .class-sidebar.collapsed { display: none !important; }
 
-        /* Когда чат скрыт, панель превращается в компактный плавающий блок камер в правом верхнем углу — пустая зона внизу полностью исчезает! */
         .class-sidebar.chat-hidden-mode {
             position: absolute; top: 12px; right: 12px;
             height: auto; width: 286px;
@@ -894,6 +892,7 @@
     </div>
 
     <script>
+        // ================= 1. ВСЕ ПЕРЕМЕННЫЕ И КОНСТАНТЫ В НАЧАЛЕ СКРИПТА =================
         const firebaseConfig = {
             apiKey: "AIzaSyAmlK0KFtxAWUNdEw8OEK0sZzWgf_KUIyE",
             authDomain: "english-space-13381.firebaseapp.com",
@@ -904,6 +903,25 @@
             appId: "1:54553238353:web:e269ccf594e77f21bad170",
             measurementId: "G-RQ2YW5CYV7"
         };
+
+        const RTC_CONFIG = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun.cloudflare.com:3478' }
+            ]
+        };
+
+        const STICKER_THEMES = {
+            yellow: { bg: '#fef9c3', border: '#fde047' },
+            mint:   { bg: '#d1fae5', border: '#6ee7b7' },
+            sky:    { bg: '#e0f2fe', border: '#7dd3fc' },
+            pink:   { bg: '#fce7f3', border: '#f9a8d4' }
+        };
+
+        const CENTER_X = -1400;
+        const CENTER_Y = -950;
 
         const isLightTheme = localStorage.getItem('es_theme') === 'light';
         if (isLightTheme) {
@@ -945,8 +963,40 @@
         const chatMessagesList = document.getElementById('chat-messages-list');
         const toolSettingsCard = document.getElementById('tool-settings-card');
 
-        const CENTER_X = -1400;
-        const CENTER_Y = -950;
+        // Состояние WebRTC и Медиа (объявлено до любых вызовов функций!)
+        let pc = null;
+        let localStream = null;
+        let remoteVideoStream = new MediaStream();
+        let remoteAudioStream = new MediaStream();
+        let micActive = false;
+        let cameraActive = false;
+        let remoteSoundMuted = false;
+        let makingOffer = false;
+        let ignoreOffer = false;
+        let pendingIceCandidates = [];
+        let rtcSignalRef = null;
+        let offerDebounceTimer = null;
+        let p2pVideoWorking = false;
+        let p2pAudioWorking = false;
+
+        let videoRelayTimer = null;
+        let isUploadingFrame = false;
+        let relayCaptureCanvas = document.createElement('canvas');
+        relayCaptureCanvas.width = 300;
+        relayCaptureCanvas.height = 220;
+        let relayCaptureCtx = relayCaptureCanvas.getContext('2d');
+
+        let audioCtx = null;
+        let audioProcessor = null;
+        let audioSourceNode = null;
+        let nextAudioPlayTime = 0;
+
+        // Вспомогательные кэши и объекты виджетов
+        const pencilPatternCache = {};
+        const speakingRecorders = {};
+        const speakingTimers = {};
+        const speakingPlayers = {};
+        let lastPinchDist = null;
 
         function detectInitialRole() {
             const paramRole = urlParams.get('role');
@@ -965,7 +1015,6 @@
         let peerRole = role === 'teacher' ? 'student' : 'teacher';
         let myClientId = 'cl_' + Math.random().toString(36).slice(2, 9);
 
-        // Реальные имена участников урока (автоматически подтягиваются из кэша / Firebase)
         let myUserName = role === 'teacher' ? 'Преподаватель' : 'Ученик';
         let peerUserName = peerRole === 'teacher' ? 'Преподаватель' : 'Ученик';
         let roomParticipants = {};
@@ -1001,7 +1050,6 @@
         let targetFollowY = CENTER_Y;
         let targetFollowScale = 1;
 
-        // Плавная интерполяция удаленного курсора (60 FPS без рывков)
         let peerCursorTargetX = 1800, peerCursorTargetY = 1200;
         let peerCursorCurX = 1800, peerCursorCurY = 1200;
         let peerCursorVisible = false;
@@ -1016,7 +1064,7 @@
 
         let pendingWidgetType = null;
         let strokeHistory = [];
-        const deletedStrokeIds = new Set(); // Защита от возврата стертых ластиком линий
+        const deletedStrokeIds = new Set();
         let actionHistory = [];
         let redoActionStack = [];
         let chatHistory = [];
@@ -1035,10 +1083,7 @@
         remoteLiveCtx.lineCap = 'round';
         remoteLiveCtx.lineJoin = 'round';
 
-        applyVerifiedRole(role);
-        applyBoardTransform();
-
-        // Подтягиваем точное имя из Firebase Auth при инициализации
+        // ================= 2. ФУНКЦИИ ИНТЕРФЕЙСА И СИНХРОНИЗАЦИИ =================
         if (auth) {
             auth.onAuthStateChanged(async (u) => {
                 if (!u) return;
@@ -1068,13 +1113,18 @@
         }
 
         function updateParticipantLabelsUI() {
-            document.getElementById('local-role-badge').innerText = myUserName;
-            document.getElementById('remote-role-badge').innerText = peerUserName;
-            document.getElementById('remote-peer-cursor-label').innerText = peerUserName;
-            if (!cameraActive) {
-                document.getElementById('local-pip-label').innerText = myUserName;
-            }
+            const locBadge = document.getElementById('local-role-badge');
+            const remBadge = document.getElementById('remote-role-badge');
+            const curLabel = document.getElementById('remote-peer-cursor-label');
+            const locPipLbl = document.getElementById('local-pip-label');
             const remPlaceholder = document.getElementById('remote-placeholder');
+
+            if (locBadge) locBadge.innerText = myUserName;
+            if (remBadge) remBadge.innerText = peerUserName;
+            if (curLabel) curLabel.innerText = peerUserName;
+            if (!cameraActive && locPipLbl) {
+                locPipLbl.innerText = myUserName;
+            }
             if (remPlaceholder && remPlaceholder.style.display !== 'none') {
                 remPlaceholder.innerText = `Камера: ${peerUserName}`;
             }
@@ -1095,7 +1145,6 @@
             localSlot.className = isLocalCamMain ? 'cam-slot cam-main' : 'cam-slot cam-pip';
         }
 
-        // Скрытие чата превращает правую колонку в компактный плавающий блок камер (без пустой зоны внизу!)
         function toggleChatSection() {
             const chatSec = document.getElementById('chat-section');
             const sidebar = document.getElementById('class-sidebar');
@@ -1107,7 +1156,6 @@
             setTimeout(applyBoardTransform, 30);
         }
 
-        // Единый цикл 60 FPS для плавного следования экрана ученика и плавного скольжения курсора собеседника
         function startSmoothAnimationLoop() {
             function step() {
                 if (role === 'student' && followMode) {
@@ -1133,7 +1181,6 @@
             }
             requestAnimationFrame(step);
         }
-        startSmoothAnimationLoop();
 
         function applyVerifiedRole(verifiedRole) {
             role = (verifiedRole === 'student') ? 'student' : 'teacher';
@@ -1232,7 +1279,6 @@
             publishMyParticipantInfo();
 
             try {
-                // Слушаем реальные имена участников комнаты
                 roomRef.child('participants').on('value', (snap) => {
                     roomParticipants = snap.val() || {};
                     if (roomParticipants[peerRole]?.name) {
@@ -1249,28 +1295,24 @@
                     if (val) restoreSnapshotData(val);
                 });
 
-                // Слушаем синхронный таймер урока (работает и у учителя, и у ученика!)
                 roomRef.child('timerState').on('value', (snap) => {
                     const st = snap.val();
                     if (!st) return;
                     applySyncedTimerState(st);
                 });
 
-                // Слушаем перемещение доски и курсор учителя
                 roomRef.child('teacherMove').on('value', (snap) => {
                     const data = snap.val();
                     if (!data || data.sender === myClientId) return;
                     handleTeacherMoveData(data);
                 });
 
-                // Слушаем курсор ученика
                 roomRef.child('studentCursor').on('value', (snap) => {
                     const data = snap.val();
                     if (!data || data.sender === myClientId) return;
                     setRemoteCursorTarget(data.worldX, data.worldY);
                 });
 
-                // Слушаем живую рисуемую линию собеседника (без спама в events)
                 roomRef.child(`liveStroke/${peerRole}`).on('value', (snap) => {
                     const data = snap.val();
                     remoteLiveCtx.clearRect(0, 0, remoteLiveCanvas.width, remoteLiveCanvas.height);
@@ -1301,7 +1343,6 @@
             peerCursorTargetY = wy;
         }
 
-        // Чат урока с автоматической подстановкой настоящих имен пользователей
         function resolveChatAuthorName(msg) {
             if (msg.authorRole === role && myUserName) return myUserName;
             if (msg.authorRole === peerRole && peerUserName) return peerUserName;
@@ -1393,7 +1434,6 @@
             }
         }
 
-        const pencilPatternCache = {};
         function getPencilPattern(colorHex) {
             if (pencilPatternCache[colorHex]) return pencilPatternCache[colorHex];
             const pCanvas = document.createElement('canvas');
@@ -1561,7 +1601,6 @@
             return (p.x - projX) ** 2 + (p.y - projY) ** 2;
         }
 
-        // Ластик удаляет линию по уникальному ID и синхронизирует удаление без возврата
         function eraseWholeStrokeAtPoint(wx, wy) {
             const pt = { x: wx, y: wy };
             for (let i = strokeHistory.length - 1; i >= 0; i--) {
@@ -1638,7 +1677,6 @@
             baseStrokeSize = parseInt(val, 10);
         }
 
-        // ================= СИНХРОННЫЙ ТАЙМЕР УРОКА (ИДЁТ И У УЧИТЕЛЯ, И У УЧЕНИКА!) =================
         function toggleLessonTimeMenu(e) {
             if (e) e.stopPropagation();
             widgetsModal.style.display = 'none';
@@ -1792,7 +1830,6 @@
             changeZoom(e.deltaY < 0 ? 0.1 : -0.1, e.clientX - rect.left, e.clientY - rect.top);
         }, { passive: false });
 
-        let lastPinchDist = null;
         viewport.addEventListener('touchstart', (e) => {
             if (e.touches.length === 2) {
                 drawing = false; panning = false;
@@ -2152,13 +2189,6 @@
             if (broadcast) broadcastEvent({ type: 'spawn_photo', data });
         }
 
-        const STICKER_THEMES = {
-            yellow: { bg: '#fef9c3', border: '#fde047' },
-            mint:   { bg: '#d1fae5', border: '#6ee7b7' },
-            sky:    { bg: '#e0f2fe', border: '#7dd3fc' },
-            pink:   { bg: '#fce7f3', border: '#f9a8d4' }
-        };
-
         function createSticker(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
             const data = existingData || { id: 'sticker-' + Date.now(), left: 1800, top: 1200, width: 210, height: 175, theme: 'yellow', text: '' };
@@ -2200,10 +2230,6 @@
         }
 
         function syncStickerText(id, text) { saveBoardState(); broadcastEvent({ type: 'sticker_text', id, text }); }
-
-        const speakingRecorders = {};
-        const speakingTimers = {};
-        const speakingPlayers = {};
 
         function createSpeakingWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
@@ -2451,7 +2477,6 @@
             if (broadcast) { recordAction({ kind: 'remove_item', id, prevDisplay }); broadcastEvent({ type: 'item_display', id, display: 'none' }); }
         }
 
-        // Отложенное сохранение снимка доски (не блокирует рисование и не перезаписывает удаленные линии)
         function saveBoardState() {
             clearTimeout(saveStateDebounceTimer);
             saveStateDebounceTimer = setTimeout(flushBoardStateImmediate, 450);
@@ -2524,7 +2549,6 @@
             updateStudentPanLock();
         }
 
-        // Чистая GPU-трансформация без пересчета backgroundSize/backgroundPosition на каждый кадр
         function applyBoardTransform() {
             const vw = viewport.clientWidth || window.innerWidth;
             const vh = viewport.clientHeight || window.innerHeight;
@@ -2568,6 +2592,7 @@
             tempCtx.clearRect(Math.max(0, bounds.minX - pad), Math.max(0, bounds.minY - pad), (bounds.maxX - bounds.minX) + pad * 2, (bounds.maxY - bounds.minY) + pad * 2);
         }
 
+        // ================= 3. СОБЫТИЯ РИСОВАНИЯ НА ХОЛСТЕ =================
         viewport.addEventListener('pointerdown', (e) => {
             if (e.target.closest('.left-toolbar') || e.target.closest('.tool-settings-card') ||
                 e.target.closest('.bottom-left-island') || e.target.closest('.bottom-right-island') ||
@@ -2607,6 +2632,11 @@
                 currentStrokeId = 'st_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
                 currentStrokePoints = [startPt];
                 strokeBounds = { minX: startPt.x, minY: startPt.y, maxX: startPt.x, maxY: startPt.y };
+                if (tool === 'highlighter') {
+                    renderSmoothPath(tempCtx, currentStrokePoints, currentColor, tool, baseStrokeSize);
+                } else {
+                    renderSmoothPath(ctx, currentStrokePoints, currentColor, tool, baseStrokeSize);
+                }
             }
         });
 
@@ -2637,7 +2667,6 @@
                         renderSmoothPath(ctx, [currentStrokePoints[len - 2], currentStrokePoints[len - 1]], currentColor, tool, baseStrokeSize);
                     }
 
-                    // Легкая отправка текущей рисуемой линии раз в 55 мс (вместо сотни events.push в секунду!)
                     if (roomRef && now - lastLiveStrokeSentTime > 55) {
                         lastLiveStrokeSentTime = now;
                         roomRef.child(`liveStroke/${role}`).set({
@@ -2795,44 +2824,7 @@
             }
         }
 
-        // ================= ВИДЕОСВЯЗЬ И ЧИСТЫЙ ЗВУК БЕЗ ЗАДЕРЖКИ =================
-        const RTC_CONFIG = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'stun:stun.cloudflare.com:3478' }
-            ]
-        };
-
-        let pc = null;
-        let localStream = null;
-        let remoteVideoStream = new MediaStream();
-        let remoteAudioStream = new MediaStream();
-        let micActive = false;
-        let cameraActive = false;
-        let remoteSoundMuted = false;
-        let makingOffer = false;
-        let ignoreOffer = false;
-        let pendingIceCandidates = [];
-        let rtcSignalRef = null;
-        let offerDebounceTimer = null;
-
-        let p2pVideoWorking = false;
-        let p2pAudioWorking = false;
-
-        let videoRelayTimer = null;
-        let isUploadingFrame = false;
-        let relayCaptureCanvas = document.createElement('canvas');
-        relayCaptureCanvas.width = 300;
-        relayCaptureCanvas.height = 220;
-        let relayCaptureCtx = relayCaptureCanvas.getContext('2d');
-
-        let audioCtx = null;
-        let audioProcessor = null;
-        let audioSourceNode = null;
-        let nextAudioPlayTime = 0;
-
+        // ================= 4. ВИДЕОСВЯЗЬ И ЗВУК =================
         function setRtcStatus(text) {
             const el = document.getElementById('rtc-status-bar');
             if (el) el.innerText = text;
@@ -3001,7 +2993,6 @@
                 handleWebRTCSignal(val);
             });
 
-            // Резервный видеопоток (активируется только если прямой WebRTC P2P видеопоток не идет)
             roomRef.child(`liveMedia/${peerRole}/video`).on('value', (snap) => {
                 const data = snap.val();
                 if (!data) return;
@@ -3024,14 +3015,12 @@
                 }
             });
 
-            // Резервный аудиопоток 16 кГц с защитой от накопления задержки
             let initialAudioSkipped = false;
             roomRef.child(`liveMedia/${peerRole}/audio`).on('value', (snap) => {
                 if (!initialAudioSkipped) { initialAudioSkipped = true; return; }
                 const data = snap.val();
                 if (!data || remoteSoundMuted) return;
                 if (p2pAudioWorking && pc && pc.connectionState === 'connected') return;
-                // Отбрасываем пакеты старше 1.5 сек, чтобы никогда не воспроизводить старую очередь
                 if (data.ts && Math.abs(Date.now() - data.ts) > 2500) return;
                 playPcmAudioPacket(data.pcm, data.rate || 16000);
                 setRtcStatus('В эфире');
@@ -3053,7 +3042,6 @@
             return audioCtx;
         }
 
-        // Воспроизведение звука 16 кГц с жестким сбросом очереди (задержка никогда не превышает 0.22 сек!)
         function playPcmAudioPacket(b64, sampleRate = 16000) {
             if (!b64 || remoteSoundMuted) return;
             const actx = ensureAudioContext();
@@ -3074,7 +3062,6 @@
                 src.buffer = buffer;
                 src.connect(actx.destination);
                 const now = actx.currentTime;
-                // Сброс накопившейся задержки!
                 if (nextAudioPlayTime < now || nextAudioPlayTime > now + 0.24) {
                     nextAudioPlayTime = now + 0.025;
                 }
@@ -3093,7 +3080,7 @@
                 audioSourceNode = actx.createMediaStreamSource(localStream);
                 audioProcessor = actx.createScriptProcessor(4096, 1, 1);
                 const inRate = actx.sampleRate || 44100;
-                const outRate = 16000; // Чистый голос 16 кГц (в 2 раза четче прежнего)
+                const outRate = 16000;
                 const ratio = inRate / outRate;
                 let accum = [];
                 let isSendingAudio = false;
@@ -3113,10 +3100,9 @@
                         accum.push(s < 0 ? s * 0x8000 : s * 0x7FFF);
                     }
 
-                    // Короткие пакеты по ~160 мс без наслоения очереди
                     if (accum.length >= 2560) {
                         const chunk = accum.splice(0, 2560);
-                        if (accum.length > 5120) accum = []; // Сброс хвоста при медленной сети
+                        if (accum.length > 5120) accum = [];
                         if (isSendingAudio) return;
                         isSendingAudio = true;
 
@@ -3143,7 +3129,6 @@
             if (audioSourceNode) { try { audioSourceNode.disconnect(); } catch (e) {} audioSourceNode = null; }
         }
 
-        // Отправка четких кадров камеры с защитой от очереди (in-flight lock)
         function startFirebaseVideoRelay() {
             clearInterval(videoRelayTimer);
             const localVid = document.getElementById('localVideo');
@@ -3341,6 +3326,10 @@
             }
         }
 
+        // ================= 5. ЗАПУСК ВСЕХ СИСТЕМ В КОНЦЕ СКРИПТА =================
+        applyVerifiedRole(role);
+        applyBoardTransform();
+        startSmoothAnimationLoop();
         initRealtimeSync();
         initWebRTC();
     </script>
