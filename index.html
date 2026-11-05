@@ -6,66 +6,88 @@
     <title>ESpace — Образовательная платформа</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
     <style>
         :root {
-            --bg-page: #0b0f0e;
-            --bg-surface: #121715;
-            --bg-elevated: #171e1b;
-            --bg-subtle: #1b2320;
-            --bg-hover: #222c28;
-            --text-primary: #f0f5f3;
-            --text-secondary: #95a39d;
-            --text-muted: #5e6b66;
-            --border: #1e2824;
-            --border-strong: #2a3732;
-            --emerald: #109868;
-            --emerald-hover: #0d8057;
-            --emerald-soft: rgba(16, 152, 104, 0.16);
-            --emerald-border: rgba(16, 152, 104, 0.38);
-            --amber: #d97706;
-            --amber-soft: rgba(217, 119, 6, 0.16);
-            --amber-border: rgba(217, 119, 6, 0.38);
+            --bg-page: #080c0b;
+            --bg-surface: #0f1513;
+            --bg-elevated: #151d1a;
+            --bg-subtle: #1a2420;
+            --bg-hover: #212e29;
+            --surface-grad: linear-gradient(180deg, rgba(255, 255, 255, 0.038) 0%, rgba(255, 255, 255, 0.0) 100%);
+            --spec-top: rgba(255, 255, 255, 0.095);
+            --text-primary: #f2f7f5;
+            --text-secondary: #92a39c;
+            --text-muted: #596963;
+            --border: #1c2622;
+            --border-strong: #283731;
+            --emerald: #10a372;
+            --emerald-hover: #0d8a60;
+            --emerald-glow: rgba(16, 163, 114, 0.24);
+            --emerald-soft: rgba(16, 163, 114, 0.14);
+            --emerald-border: rgba(16, 163, 114, 0.38);
+            --amber: #f59e0b;
+            --amber-soft: rgba(245, 158, 11, 0.14);
+            --amber-border: rgba(245, 158, 11, 0.36);
             --danger: #ef4444;
             --danger-soft: rgba(239, 68, 68, 0.14);
             --danger-border: rgba(239, 68, 68, 0.35);
-            --dot-grid: #232f2a;
+            --dot-grid: rgba(146, 163, 156, 0.17);
+            --card-shadow: 0 14px 34px -10px rgba(0, 0, 0, 0.55);
         }
 
         body.light-theme {
-            --bg-page: #f3f6f4;
+            --bg-page: #f1f5f3;
             --bg-surface: #ffffff;
-            --bg-elevated: #f8faf9;
-            --bg-subtle: #eef2f0;
-            --bg-hover: #e3eae6;
-            --text-primary: #111815;
-            --text-secondary: #586560;
-            --text-muted: #889690;
-            --border: #dfe6e2;
-            --border-strong: #cbd5d0;
-            --emerald: #0d7a54;
-            --emerald-hover: #0a6344;
-            --emerald-soft: #e5f5ee;
-            --emerald-border: #a5dec6;
-            --amber: #b45309;
+            --bg-elevated: #f7faf8;
+            --bg-subtle: #ebf1ee;
+            --bg-hover: #e0e9e4;
+            --surface-grad: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 251, 249, 0.5) 100%);
+            --spec-top: rgba(255, 255, 255, 1);
+            --text-primary: #0f1714;
+            --text-secondary: #55665f;
+            --text-muted: #84948d;
+            --border: #dce5e0;
+            --border-strong: #c6d4cd;
+            --emerald: #0c855c;
+            --emerald-hover: #096c4a;
+            --emerald-glow: rgba(12, 133, 92, 0.14);
+            --emerald-soft: #e3f5ee;
+            --emerald-border: #9edbc4;
+            --amber: #d97706;
             --amber-soft: #fef3c7;
-            --amber-border: #fde68a;
+            --amber-border: #fcd34d;
             --danger: #dc2626;
             --danger-soft: #fef2f2;
             --danger-border: #fecaca;
-            --dot-grid: #ced8d3;
+            --dot-grid: rgba(15, 23, 20, 0.12);
+            --card-shadow: 0 10px 26px -8px rgba(15, 23, 20, 0.07);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, system-ui, sans-serif; }
         body {
-            background: var(--bg-page); color: var(--text-primary);
+            background-color: var(--bg-page);
+            background-image:
+                radial-gradient(circle at 18% -8%, var(--emerald-glow), transparent 42%),
+                radial-gradient(circle at 85% 12%, rgba(59, 130, 246, 0.05), transparent 35%);
+            color: var(--text-primary);
             min-height: 100vh; overflow-x: hidden;
-            transition: background 0.2s, color 0.2s;
+            transition: background-color 0.25s, color 0.25s;
             font-size: 13px;
         }
+
+        /* Матовая микро-текстура студийного графита */
+        body::before {
+            content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+            opacity: 0.026;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        .font-display { font-family: 'Unbounded', 'Inter', sans-serif; letter-spacing: -0.02em; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
 
         #loading-screen {
             position: fixed; inset: 0; background: var(--bg-page); z-index: 6000;
@@ -78,28 +100,40 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Кнопки */
+        /* Кнопки с верхним бликом */
         .btn {
-            height: 34px; padding: 0 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
-            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-            border: 1px solid var(--border-strong); background: var(--bg-elevated); color: var(--text-primary);
-            transition: 0.14s; white-space: nowrap; text-decoration: none;
+            height: 34px; padding: 0 14px; border-radius: 9px; font-size: 12px; font-weight: 600;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+            border: 1px solid var(--border-strong); border-top-color: var(--spec-top);
+            background: var(--bg-elevated); color: var(--text-primary);
+            transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap; text-decoration: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
         }
-        .btn:hover { background: var(--bg-hover); }
+        .btn:hover { background: var(--bg-hover); transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
         .btn svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; flex-shrink: 0; }
-        .btn-emerald { background: var(--emerald); border-color: var(--emerald); color: #fff; font-weight: 700; }
-        .btn-emerald:hover { background: var(--emerald-hover); border-color: var(--emerald-hover); }
+        .btn-emerald {
+            background: linear-gradient(180deg, #14b881 0%, #0d8a60 100%);
+            border-color: #0d8a60; border-top-color: rgba(255, 255, 255, 0.28);
+            color: #fff; font-weight: 700;
+            box-shadow: 0 6px 18px -4px var(--emerald-glow);
+        }
+        .btn-emerald:hover {
+            background: linear-gradient(180deg, #18c98e 0%, #0f9668 100%);
+            box-shadow: 0 8px 22px -3px var(--emerald-glow);
+        }
         .btn-danger { background: var(--danger-soft); border-color: var(--danger-border); color: var(--danger); font-weight: 700; }
         .btn-danger:hover { background: var(--danger); color: #fff; }
-        .btn-sm { height: 28px; padding: 0 10px; font-size: 11px; border-radius: 6px; }
-        .btn-icon { width: 28px; height: 28px; padding: 0; border-radius: 6px; }
+        .btn-sm { height: 28px; padding: 0 10px; font-size: 11px; border-radius: 7px; }
+        .btn-icon { width: 28px; height: 28px; padding: 0; border-radius: 7px; }
+
         .link-emerald {
             background: none; border: none; color: var(--emerald);
-            font-size: 12px; font-weight: 600; cursor: pointer;
+            font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.15s;
         }
-        .link-emerald:hover { text-decoration: underline; }
+        .link-emerald:hover { color: var(--emerald-hover); text-decoration: underline; }
 
-        /* Бейджи и индикаторы */
+        /* Статусы и индикаторы */
         .status-pill {
             display: inline-flex; align-items: center; gap: 5px;
             padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; white-space: nowrap;
@@ -108,24 +142,29 @@
         .status-amber { background: var(--amber-soft); color: var(--amber); border: 1px solid var(--amber-border); }
         .status-neutral { background: var(--bg-subtle); color: var(--text-secondary); border: 1px solid var(--border); }
 
-        /* Красная точка нового сообщения */
         .unread-red-dot {
             width: 8px; height: 8px; border-radius: 50%;
-            background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.85);
+            background: #ef4444; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
             display: inline-block; flex-shrink: 0;
+            animation: pulseRed 2s infinite;
+        }
+        @keyframes pulseRed {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        /* Индикатор онлайн статуса */
         .presence-dot {
             width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 4px;
         }
-        .presence-dot.online { background: var(--emerald); box-shadow: 0 0 6px var(--emerald); }
-        .presence-dot.offline { background: var(--text-muted); opacity: 0.6; }
+        .presence-dot.online { background: var(--emerald); box-shadow: 0 0 7px var(--emerald); }
+        .presence-dot.offline { background: var(--text-muted); opacity: 0.55; }
 
         .avatar {
-            width: 34px; height: 34px; border-radius: 50%;
-            background: var(--emerald-soft); border: 1px solid var(--emerald-border);
-            color: var(--emerald); font-size: 12px; font-weight: 700;
+            width: 34px; height: 34px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--emerald-soft), rgba(16, 163, 114, 0.05));
+            border: 1px solid var(--emerald-border);
+            color: var(--emerald); font-size: 12px; font-weight: 800;
             display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden;
         }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -141,11 +180,20 @@
         }
         .auth-form-wrap { width: 100%; max-width: 380px; }
         .brand-logo {
-            display: inline-flex; align-items: center; gap: 9px;
-            font-size: 16px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em;
+            display: inline-flex; align-items: center; gap: 10px;
+            font-size: 15px; font-weight: 800; color: var(--text-primary); cursor: pointer;
         }
-        .brand-sq { width: 18px; height: 18px; border-radius: 5px; background: var(--emerald); display: inline-block; }
-        .auth-h1 { font-size: 26px; font-weight: 800; margin: 22px 0 6px; letter-spacing: -0.02em; }
+        .brand-sq {
+            width: 22px; height: 22px; border-radius: 6px;
+            background: linear-gradient(135deg, #16c78a, #0b7a53);
+            box-shadow: 0 4px 12px var(--emerald-glow);
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .brand-sq::after {
+            content: ''; width: 8px; height: 8px; border-radius: 2px;
+            border: 2px solid #fff;
+        }
+        .auth-h1 { font-size: 24px; font-weight: 800; margin: 22px 0 6px; }
         .auth-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
 
         .auth-mode-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
@@ -170,31 +218,36 @@
         .or-divider::before { left: 0; } .or-divider::after { right: 0; }
 
         .auth-showcase { background: var(--bg-page); display: flex; flex-direction: column; justify-content: center; padding: 56px; }
-        .showcase-title { font-size: 32px; font-weight: 800; line-height: 1.2; letter-spacing: -0.03em; max-width: 500px; margin-bottom: 24px; }
+        .showcase-title { font-size: 28px; font-weight: 800; line-height: 1.25; max-width: 500px; margin-bottom: 24px; }
         .showcase-board-frame {
-            background: var(--bg-surface); border: 1px solid var(--border); border-radius: 14px;
-            padding: 16px; max-width: 540px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            background: var(--bg-surface); border: 1px solid var(--border); border-top-color: var(--spec-top);
+            border-radius: 16px; padding: 16px; max-width: 540px; box-shadow: var(--card-shadow);
         }
 
         /* ================= 2. ВЕРХНЯЯ НАВИГАЦИЯ ================= */
         .top-nav {
             position: sticky; top: 0; z-index: 200;
-            height: 54px; background: var(--bg-surface); border-bottom: 1px solid var(--border);
+            height: 56px; background: rgba(15, 21, 19, 0.82);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
             padding: 0 24px; display: none; align-items: center; justify-content: space-between; gap: 14px;
         }
-        .nav-left { display: flex; align-items: center; gap: 22px; height: 100%; overflow-x: auto; scrollbar-width: none; }
+        body.light-theme .top-nav { background: rgba(255, 255, 255, 0.86); }
+        .nav-left { display: flex; align-items: center; gap: 24px; height: 100%; overflow-x: auto; scrollbar-width: none; }
         .nav-left::-webkit-scrollbar { display: none; }
-        .nav-tabs { display: flex; height: 100%; gap: 2px; }
+        .nav-tabs { display: flex; height: 100%; gap: 4px; }
         .nav-tab {
-            height: 100%; padding: 0 12px; border: none; background: none;
+            height: 100%; padding: 0 13px; border: none; background: none;
             color: var(--text-secondary); font-size: 12px; font-weight: 600;
             cursor: pointer; position: relative; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+            transition: color 0.15s;
         }
         .nav-tab:hover { color: var(--text-primary); }
         .nav-tab.active { color: var(--text-primary); font-weight: 700; }
         .nav-tab.active::after {
-            content: ''; position: absolute; bottom: 0; left: 8px; right: 8px;
-            height: 2px; background: var(--emerald); border-radius: 2px 2px 0 0;
+            content: ''; position: absolute; bottom: 0; left: 10px; right: 10px;
+            height: 2.5px; background: var(--emerald); border-radius: 3px 3px 0 0;
+            box-shadow: 0 -2px 10px var(--emerald-glow);
         }
         .nav-badge {
             background: var(--emerald); color: #fff; font-size: 10px; font-weight: 800;
@@ -204,7 +257,7 @@
         .nav-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         .search-box {
             width: 210px; height: 32px; background: var(--bg-elevated);
-            border: 1px solid var(--border); border-radius: 8px;
+            border: 1px solid var(--border-strong); border-radius: 8px;
             padding: 0 10px; display: flex; align-items: center; gap: 7px;
         }
         @media (max-width: 920px) { .search-box { display: none; } }
@@ -215,7 +268,7 @@
         }
 
         .icon-circle-btn {
-            width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border);
+            width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border-strong);
             background: var(--bg-elevated); color: var(--text-secondary);
             cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
@@ -224,67 +277,173 @@
 
         .user-chip {
             display: flex; align-items: center; gap: 8px; padding: 3px 8px 3px 4px;
-            border-radius: 8px; cursor: pointer; border: 1px solid transparent;
+            border-radius: 9px; cursor: pointer; border: 1px solid transparent;
         }
         .user-chip:hover { background: var(--bg-elevated); border-color: var(--border); }
 
-        /* ================= 3. СЕТКА СТРАНИЦ ================= */
-        .page-wrap { max-width: 1180px; margin: 0 auto; padding: 24px 24px 70px; display: none; }
-        .page-wrap.active { display: block; }
+        /* ================= 3. СЕТКА СТРАНИЦ И ОБЪЁМНЫЕ КАРТОЧКИ ================= */
+        .page-wrap { max-width: 1200px; margin: 0 auto; padding: 26px 24px 80px; display: none; }
+        .page-wrap.active { display: block; animation: fadeUp 0.22s ease-out; }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         .hero-greeting-row {
-            display: flex; align-items: flex-start; justify-content: space-between;
-            gap: 16px; margin-bottom: 18px; flex-wrap: wrap;
+            display: flex; align-items: flex-end; justify-content: space-between;
+            gap: 16px; margin-bottom: 20px; flex-wrap: wrap;
         }
-        .greeting-h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+        .greeting-h1 { font-size: 24px; font-weight: 700; margin-bottom: 5px; }
         .greeting-sub { font-size: 12px; color: var(--text-secondary); }
 
         .top-alerts-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px;
         }
         @media (max-width: 900px) { .top-alerts-grid { grid-template-columns: 1fr; } }
         .alert-card {
-            background: var(--bg-surface); border: 1px solid var(--border);
-            border-radius: 11px; padding: 12px 14px;
+            background: var(--bg-surface); background-image: var(--surface-grad);
+            border: 1px solid var(--border); border-top-color: var(--spec-top);
+            border-radius: 13px; padding: 13px 15px;
             display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            box-shadow: var(--card-shadow); transition: transform 0.16s, border-color 0.16s;
         }
-        .alert-left { display: flex; align-items: center; gap: 11px; min-width: 0; }
+        .alert-card:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+        .alert-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .alert-icon {
-            width: 32px; height: 32px; border-radius: 8px;
+            width: 34px; height: 34px; border-radius: 9px;
             display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
-        .alert-icon svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 2; fill: none; }
+        .alert-icon svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; }
         .alert-title { font-size: 12px; font-weight: 700; margin-bottom: 2px; display: flex; align-items: center; gap: 6px; }
         .alert-sub { font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .main-bento {
-            display: grid; grid-template-columns: 1.95fr 1fr; gap: 16px; align-items: start;
+            display: grid; grid-template-columns: 1.92fr 1fr; gap: 18px; align-items: start;
         }
         @media (max-width: 960px) { .main-bento { grid-template-columns: 1fr; } }
-        .col-stack { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+        .col-stack { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 
         .card {
-            background: var(--bg-surface); border: 1px solid var(--border);
-            border-radius: 12px; overflow: hidden;
+            background: var(--bg-surface); background-image: var(--surface-grad);
+            border: 1px solid var(--border); border-top-color: var(--spec-top);
+            border-radius: 14px; overflow: hidden; box-shadow: var(--card-shadow);
         }
         .card-head {
-            padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 18px; display: flex; align-items: center; justify-content: space-between;
             border-bottom: 1px solid var(--border); gap: 10px; flex-wrap: wrap;
         }
-        .card-title { font-size: 14px; font-weight: 700; }
+        .card-title { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
 
-        /* Папки учеников для фильтрации досок */
+        /* ================= ГЛАВНЫЙ БЛОК "БЛИЖАЙШИЙ УРОК" С 3D-ДОСКОЙ ================= */
+        .hero-lesson-card {
+            position: relative;
+            background:
+                radial-gradient(circle at 85% 50%, var(--emerald-glow), transparent 60%),
+                var(--surface-grad),
+                var(--bg-surface);
+            border: 1px solid var(--emerald-border);
+            border-top-color: rgba(52, 211, 153, 0.45);
+            border-radius: 16px; padding: 22px;
+            display: grid; grid-template-columns: 1.18fr 1fr; gap: 22px; align-items: stretch;
+            box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.65), 0 0 35px -12px var(--emerald-glow);
+        }
+        @media (max-width: 720px) { .hero-lesson-card { grid-template-columns: 1fr; } }
+
+        .hl-eyebrow {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 4px 10px; border-radius: 999px;
+            background: var(--emerald-soft); border: 1px solid var(--emerald-border);
+            font-size: 11px; font-weight: 700; color: var(--emerald); margin-bottom: 12px; width: fit-content;
+        }
+        .hl-title { font-size: 20px; font-weight: 700; line-height: 1.25; margin-bottom: 14px; }
+        .hl-meta { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text-secondary); margin-bottom: 20px; }
+        .hl-meta-row { display: flex; align-items: center; gap: 8px; }
+        .hl-meta-row svg { width: 14px; height: 14px; stroke: var(--emerald); stroke-width: 2; fill: none; }
+        .hl-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+
+        /* 3D-превью доски с параллаксом */
+        .board-3d-scene {
+            perspective: 750px; min-height: 185px; display: flex;
+        }
+        .board-3d-canvas {
+            flex: 1;
+            background-color: var(--bg-elevated);
+            background-image: radial-gradient(var(--dot-grid) 1.3px, transparent 1.3px);
+            background-size: 14px 14px;
+            border: 1px solid var(--border-strong);
+            border-top-color: var(--spec-top);
+            border-radius: 12px; padding: 14px;
+            position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.18s ease-out, box-shadow 0.18s ease-out;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.25), 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+        .board-3d-badge {
+            position: absolute; bottom: 10px; right: 10px;
+            padding: 3px 8px; border-radius: 6px;
+            background: rgba(15, 21, 19, 0.78); backdrop-filter: blur(6px);
+            border: 1px solid var(--border-strong);
+            font-size: 10px; color: var(--text-secondary);
+        }
+        body.light-theme .board-3d-badge { background: rgba(255, 255, 255, 0.85); }
+
+        /* ================= ВЕРТИКАЛЬНЫЙ ТАЙМЛАЙН РАСПИСАНИЯ ================= */
+        .timeline-container { padding: 8px 18px 14px; position: relative; }
+        .timeline-item {
+            display: grid; grid-template-columns: 70px 24px 1fr auto;
+            align-items: center; gap: 10px; padding: 11px 0; position: relative;
+        }
+        @media (max-width: 640px) {
+            .timeline-item { grid-template-columns: 58px 18px 1fr; }
+            .timeline-actions { grid-column: 1 / -1; justify-content: flex-end; margin-top: 6px; }
+        }
+        .timeline-time {
+            font-size: 12px; font-weight: 700; color: var(--text-primary); text-align: right;
+        }
+        .timeline-node-col {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; position: relative;
+        }
+        .timeline-node-col::before {
+            content: ''; position: absolute; top: -12px; bottom: -12px; width: 2px;
+            background: var(--border-strong); z-index: 1;
+        }
+        .timeline-item:first-child .timeline-node-col::before { top: 50%; }
+        .timeline-item:last-child .timeline-node-col::before { bottom: 50%; }
+        .timeline-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: var(--bg-elevated); border: 2px solid var(--emerald);
+            z-index: 2; box-shadow: 0 0 10px var(--emerald-glow);
+        }
+        .timeline-body {
+            background: var(--bg-elevated); border: 1px solid var(--border);
+            border-radius: 10px; padding: 10px 14px;
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            transition: border-color 0.15s, background 0.15s; min-width: 0;
+        }
+        .timeline-body:hover { border-color: var(--border-strong); background: var(--bg-hover); }
+        .timeline-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+        .now-marker-row {
+            display: flex; align-items: center; gap: 10px; margin: 2px 0 2px 58px;
+        }
+        .now-marker-dot { width: 7px; height: 7px; border-radius: 50%; background: #f43f5e; box-shadow: 0 0 8px #f43f5e; }
+        .now-marker-line { flex: 1; height: 1.5px; background: linear-gradient(90deg, #f43f5e, transparent); }
+        .now-marker-tag { font-size: 10px; font-weight: 700; color: #f43f5e; }
+
+        /* ================= ВИТРИНА ХОЛСТОВ (ГАЛЕРЕЯ ДОСОК И ТЕТРАДЕЙ) ================= */
         .folder-tabs-bar {
             display: flex; align-items: center; gap: 6px; padding: 10px 16px;
             border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none;
-            background: var(--bg-elevated);
+            background: rgba(0, 0, 0, 0.14);
         }
+        body.light-theme .folder-tabs-bar { background: var(--bg-subtle); }
         .folder-tabs-bar::-webkit-scrollbar { display: none; }
         .folder-tab {
-            padding: 5px 11px; border-radius: 7px; border: 1px solid var(--border-strong);
-            background: var(--bg-surface); color: var(--text-secondary);
+            padding: 6px 11px; border-radius: 8px; border: 1px solid var(--border-strong);
+            background: var(--bg-elevated); color: var(--text-secondary);
             font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap;
-            display: inline-flex; align-items: center; gap: 6px; transition: 0.12s;
+            display: inline-flex; align-items: center; gap: 6px; transition: 0.14s;
         }
         .folder-tab:hover { color: var(--text-primary); border-color: var(--emerald-border); }
         .folder-tab.active {
@@ -292,28 +451,58 @@
             color: var(--emerald); font-weight: 700;
         }
 
-        /* Главная карточка ближайшего урока */
-        .hero-lesson-card {
-            background: var(--bg-surface); border: 1px solid var(--border);
-            border-radius: 12px; padding: 20px;
-            display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; align-items: stretch;
+        .board-gallery-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+            gap: 12px; padding: 16px;
         }
-        @media (max-width: 720px) { .hero-lesson-card { grid-template-columns: 1fr; } }
-        .hl-eyebrow { font-size: 11px; font-weight: 700; color: var(--emerald); margin-bottom: 8px; }
-        .hl-title { font-size: 22px; font-weight: 800; line-height: 1.22; letter-spacing: -0.02em; margin-bottom: 12px; }
-        .hl-meta { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--text-secondary); margin-bottom: 18px; }
-        .hl-meta-row { display: flex; align-items: center; gap: 7px; }
-        .hl-meta-row svg { width: 14px; height: 14px; stroke: var(--text-muted); stroke-width: 2; fill: none; }
-        .hl-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .canvas-card {
+            background: var(--bg-elevated); border: 1px solid var(--border-strong);
+            border-top-color: var(--spec-top); border-radius: 11px; overflow: hidden;
+            display: flex; flex-direction: column; cursor: pointer;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1); position: relative;
+        }
+        .canvas-card:hover {
+            transform: translateY(-3px); border-color: var(--emerald);
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.5), 0 0 16px -4px var(--emerald-glow);
+        }
+        .canvas-card-thumb {
+            height: 88px; background-color: var(--bg-surface);
+            background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
+            background-size: 10px 10px; border-bottom: 1px solid var(--border);
+            position: relative; display: flex; align-items: center; justify-content: center;
+            padding: 10px; overflow: hidden;
+        }
+        .canvas-card-body {
+            padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        }
+        .canvas-card-title {
+            font-size: 12px; font-weight: 700; color: var(--text-primary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;
+        }
+        .canvas-card-sub { font-size: 10px; color: var(--text-secondary); }
 
-        .board-preview-box {
-            background-color: var(--bg-elevated);
-            background-image: radial-gradient(var(--dot-grid) 1.25px, transparent 1.25px);
-            background-size: 14px 14px;
-            border: 1px solid var(--emerald-border); border-radius: 10px;
-            position: relative; min-height: 175px; overflow: hidden;
-            display: flex; align-items: center; justify-content: center; padding: 14px;
+        /* ================= ТАКТИЛЬНЫЕ СТОПКИ ПАПОК (ПРАКТИКА) ================= */
+        .decks-stack-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 16px; padding: 16px 16px 20px;
         }
+        .deck-stack-card {
+            position: relative; background: var(--bg-elevated);
+            border: 1px solid var(--border-strong); border-top-color: var(--spec-top);
+            border-radius: 12px; padding: 14px; cursor: pointer; z-index: 2;
+            transition: transform 0.18s ease, border-color 0.18s ease;
+        }
+        .deck-stack-card::before, .deck-stack-card::after {
+            content: ''; position: absolute; left: 6px; right: 6px; height: 100%;
+            background: var(--bg-subtle); border: 1px solid var(--border-strong);
+            border-radius: 12px; z-index: -1; transition: transform 0.18s ease;
+            pointer-events: none;
+        }
+        .deck-stack-card::before { top: 4px; opacity: 0.65; }
+        .deck-stack-card::after { left: 12px; right: 12px; top: 8px; opacity: 0.35; z-index: -2; }
+        .deck-stack-card:hover { transform: translateY(-3px); border-color: var(--emerald); }
+        .deck-stack-card:hover::before { transform: translateY(5px) rotate(-1deg); }
+        .deck-stack-card:hover::after { transform: translateY(9px) rotate(1.2deg); }
 
         /* Строки списков */
         .row-item {
@@ -323,16 +512,12 @@
         .row-item:last-child { border-bottom: none; }
         .row-item:hover { background: var(--bg-elevated); }
         .row-left { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
-        .row-time { font-size: 12px; font-weight: 700; color: var(--text-primary); min-width: 54px; font-variant-numeric: tabular-nums; }
         .row-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; display: flex; align-items: center; gap: 6px; }
         .row-sub { font-size: 11px; color: var(--text-secondary); }
         .row-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
-        .two-col-subgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        @media (max-width: 680px) { .two-col-subgrid { grid-template-columns: 1fr; } }
-
         .board-mini-thumb {
-            width: 36px; height: 30px; border-radius: 6px;
+            width: 36px; height: 30px; border-radius: 7px;
             background-color: var(--bg-subtle);
             background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
             background-size: 5px 5px; border: 1px solid var(--border-strong); flex-shrink: 0;
@@ -352,8 +537,11 @@
             cursor: pointer; position: relative; color: var(--text-primary); border: 1px solid transparent;
         }
         .cal-day:hover { background: var(--bg-subtle); }
-        .cal-day.muted { color: var(--text-muted); opacity: 0.45; pointer-events: none; }
-        .cal-day.active { background: var(--emerald); color: #fff; font-weight: 800; }
+        .cal-day.muted { color: var(--text-muted); opacity: 0.4; pointer-events: none; }
+        .cal-day.active {
+            background: var(--emerald); color: #fff; font-weight: 800;
+            box-shadow: 0 4px 12px var(--emerald-glow);
+        }
         .cal-dot {
             width: 4px; height: 4px; border-radius: 50%; background: var(--emerald);
             position: absolute; bottom: 3px;
@@ -371,7 +559,6 @@
             height: 30px; border-radius: 7px; border: 1px solid var(--border-strong);
             background: var(--bg-elevated); color: var(--text-secondary);
             font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.12s;
-            font-variant-numeric: tabular-nums;
         }
         .time-slot-pill:hover { color: var(--text-primary); background: var(--bg-hover); }
         .time-slot-pill.active {
@@ -379,7 +566,7 @@
         }
 
         /* ================= 4. РАЗДЕЛ "ЗАДАНИЯ" ================= */
-        .assignments-layout { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: start; }
+        .assignments-layout { display: grid; grid-template-columns: 340px 1fr; gap: 18px; align-items: start; }
         @media (max-width: 900px) { .assignments-layout { grid-template-columns: 1fr; } }
         .filter-pills-row { display: flex; gap: 4px; padding: 10px 12px; border-bottom: 1px solid var(--border); overflow-x: auto; }
         .filter-pill {
@@ -402,8 +589,8 @@
         }
         .grade-btn.active { background: var(--emerald); border-color: var(--emerald); color: #fff; }
 
-        /* ================= 5. РАЗДЕЛ "ПРАКТИКА" (ПАПКИ С КАРТОЧКАМИ) ================= */
-        .practice-layout { display: grid; grid-template-columns: 280px 1fr 320px; gap: 16px; align-items: start; }
+        /* ================= 5. РАЗДЕЛ "ПРАКТИКА" ================= */
+        .practice-layout { display: grid; grid-template-columns: 280px 1fr 320px; gap: 18px; align-items: start; }
         @media (max-width: 980px) { .practice-layout { grid-template-columns: 1fr; } }
         .deck-item {
             padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer;
@@ -413,13 +600,16 @@
         .deck-item.active { background: var(--emerald-soft); border-left-color: var(--emerald); }
 
         .flashcard-stage {
-            background: var(--bg-elevated); border: 1px solid var(--border-strong);
-            border-radius: 12px; min-height: 250px; padding: 28px;
+            background: radial-gradient(circle at 50% 0%, var(--emerald-soft), transparent 70%), var(--bg-elevated);
+            border: 1px solid var(--border-strong); border-top-color: var(--spec-top);
+            border-radius: 14px; min-height: 260px; padding: 28px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; cursor: pointer; margin: 14px 0; transition: transform 0.15s;
+            text-align: center; cursor: pointer; margin: 14px 0;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 14px 30px rgba(0,0,0,0.28);
+            transition: transform 0.16s, border-color 0.16s;
         }
-        .flashcard-stage:hover { border-color: var(--emerald); }
-        .fc-term { font-size: 25px; font-weight: 800; margin: 10px 0 6px; }
+        .flashcard-stage:hover { border-color: var(--emerald); transform: translateY(-2px); }
+        .fc-term { font-size: 24px; font-weight: 800; margin: 12px 0 6px; }
         .fc-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 18px; }
         .fc-hint { font-size: 11px; color: var(--text-muted); }
 
@@ -432,7 +622,6 @@
         .match-tile.selected { border-color: var(--emerald); background: var(--emerald-soft); color: var(--emerald); }
         .match-tile.matched { opacity: 0.2; pointer-events: none; }
 
-        /* Конструктор пар внутри модалки папки */
         .deck-builder-rows {
             display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; padding-right: 4px;
         }
@@ -441,22 +630,25 @@
         }
 
         /* ================= 6. РАЗДЕЛ "СООБЩЕНИЯ" ================= */
-        .messages-layout { display: grid; grid-template-columns: 280px 1fr 270px; gap: 16px; height: 560px; }
+        .messages-layout { display: grid; grid-template-columns: 280px 1fr 270px; gap: 18px; height: 560px; }
         @media (max-width: 960px) { .messages-layout { grid-template-columns: 1fr; height: auto; } }
         .chat-center-card { display: flex; flex-direction: column; height: 100%; }
         .chat-stream { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
         .msg-bubble {
-            max-width: 74%; padding: 10px 13px; border-radius: 11px; font-size: 12px; line-height: 1.45;
-            background: var(--bg-elevated); border: 1px solid var(--border); align-self: flex-start; word-break: break-word;
+            max-width: 74%; padding: 10px 13px; border-radius: 12px; font-size: 12px; line-height: 1.45;
+            background: var(--bg-elevated); border: 1px solid var(--border-strong); align-self: flex-start; word-break: break-word;
         }
-        .msg-bubble.mine { background: var(--emerald); border-color: var(--emerald); color: #fff; align-self: flex-end; }
+        .msg-bubble.mine {
+            background: linear-gradient(180deg, #12b07b 0%, #0d8a60 100%);
+            border-color: #0d8a60; color: #fff; align-self: flex-end;
+        }
         .msg-attachment-card {
             max-width: 330px; background: var(--bg-elevated); border: 1px solid var(--border-strong);
-            border-radius: 10px; padding: 11px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            border-radius: 11px; padding: 11px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
         }
 
         /* ================= 7. РАЗДЕЛ "ПРОФИЛЬ" ================= */
-        .profile-grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: 16px; align-items: start; }
+        .profile-grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: 18px; align-items: start; }
         @media (max-width: 860px) { .profile-grid { grid-template-columns: 1fr; } }
         .subject-tag {
             display: inline-block; padding: 4px 9px; border-radius: 6px;
@@ -466,13 +658,15 @@
 
         /* Модалки */
         .modal-backdrop {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
+            position: fixed; inset: 0; background: rgba(5, 8, 7, 0.72); backdrop-filter: blur(6px);
             z-index: 3000; display: none; align-items: center; justify-content: center; padding: 16px;
         }
         .modal-box {
-            background: var(--bg-surface); border: 1px solid var(--border-strong);
-            border-radius: 14px; width: 460px; max-width: 96vw; padding: 22px;
+            background: var(--bg-surface); background-image: var(--surface-grad);
+            border: 1px solid var(--border-strong); border-top-color: var(--spec-top);
+            border-radius: 16px; width: 460px; max-width: 96vw; padding: 22px;
             display: flex; flex-direction: column; gap: 14px; max-height: 92vh; overflow-y: auto;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
         }
 
         #board-overlay {
@@ -485,7 +679,7 @@
             position: fixed; bottom: 20px; right: 20px; z-index: 7000;
             background: var(--emerald); color: #fff; padding: 10px 16px;
             border-radius: 9px; font-size: 12px; font-weight: 700;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.35); display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4); display: none;
         }
     </style>
 </head>
@@ -493,7 +687,7 @@
 
     <div id="loading-screen">
         <div class="spinner"></div>
-        <div style="font-size:12px; font-weight:600; color:var(--text-secondary);">Загрузка платформы...</div>
+        <div style="font-size:12px; font-weight:600; color:var(--text-secondary);">Загрузка рабочего пространства...</div>
     </div>
 
     <input type="file" id="avatar-file-input" accept="image/*" style="display:none;" onchange="handleAvatarFilePicked(event)">
@@ -503,8 +697,8 @@
         <div class="auth-split">
             <div class="auth-left">
                 <div class="auth-form-wrap">
-                    <div class="brand-logo"><span class="brand-sq"></span> ESpace</div>
-                    <h1 class="auth-h1" id="auth-main-heading">Войти</h1>
+                    <div class="brand-logo font-display"><span class="brand-sq"></span> ESpace</div>
+                    <h1 class="auth-h1 font-display" id="auth-main-heading">Войти</h1>
                     <p class="auth-sub" id="auth-subtitle">Войдите или создайте аккаунт</p>
 
                     <div id="auth-step-credentials">
@@ -535,7 +729,7 @@
 
                         <div style="margin-bottom:16px;">
                             <label class="field-label">Пароль</label>
-                            <input type="password" id="auth-pass-input" class="field-input" placeholder="Минимум 6 символов">
+                            <input type="password" id="auth-pass-input" class="field-input" placeholder="Минимум 6 символов" onkeydown="if(event.key==='Enter') handleEmailAuth()">
                         </div>
 
                         <button class="btn btn-emerald" style="width:100%; height:40px;" id="auth-main-btn" onclick="handleEmailAuth()">Войти</button>
@@ -555,18 +749,18 @@
             </div>
 
             <div class="auth-showcase">
-                <h2 class="showcase-title">Интерактивная доска, видеосвязь, задания и практика в одном окне</h2>
+                <h2 class="showcase-title font-display">Интерактивная доска, видеосвязь, задания и практика в одном окне</h2>
                 <div class="showcase-board-frame">
-                    <div class="board-preview-box" style="min-height:220px;" id="auth-preview-graphic"></div>
+                    <div class="board-3d-scene" style="min-height:220px;" id="auth-preview-graphic"></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ================= 2. ВЕРХНЯЯ НАВИГАЦИЯ (БЕЗ ДУБЛИРУЮЩЕЙ ВКЛАДКИ ПРЕПОДАВАТЕЛИ) ================= -->
+    <!-- ================= 2. ВЕРХНЯЯ НАВИГАЦИЯ ================= -->
     <header class="top-nav" id="main-navbar">
         <div class="nav-left">
-            <div class="brand-logo" onclick="switchSection('home')" style="cursor:pointer;">
+            <div class="brand-logo font-display" onclick="switchSection('home')">
                 <span class="brand-sq"></span>
                 <span>ESpace</span>
             </div>
@@ -575,7 +769,7 @@
                 <button class="nav-tab active" data-sec="home" onclick="switchSection('home')">Главная</button>
                 <button class="nav-tab" data-sec="practice" onclick="switchSection('practice')">Практика</button>
                 <button class="nav-tab" data-sec="assignments" onclick="switchSection('assignments')">
-                    Задания <span class="nav-badge" id="nav-hw-badge" style="display:none;">0</span>
+                    Задания <span class="nav-badge font-mono" id="nav-hw-badge" style="display:none;">0</span>
                 </button>
                 <button class="nav-tab" data-sec="messages" onclick="switchSection('messages')">
                     Сообщения <span class="unread-red-dot" id="nav-msg-red-dot" style="display:none;"></span>
@@ -587,7 +781,7 @@
         <div class="nav-right">
             <div class="search-box">
                 <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <input type="text" id="global-search-input" placeholder="Поиск..." oninput="handleGlobalSearch(this.value)">
+                <input type="text" id="global-search-input" placeholder="Поиск по доскам и урокам..." oninput="handleGlobalSearch(this.value)">
             </div>
 
             <button class="icon-circle-btn" onclick="toggleThemeQuick()" title="Сменить тему оформления">
@@ -595,7 +789,7 @@
             </button>
 
             <div class="user-chip" onclick="switchSection('profile')">
-                <div class="avatar" style="width:26px; height:26px; font-size:11px;" id="nav-user-avatar">U</div>
+                <div class="avatar" style="width:28px; height:28px; font-size:11px;" id="nav-user-avatar">U</div>
                 <span style="font-size:12px; font-weight:700;" id="nav-user-name">Профиль</span>
             </div>
 
@@ -607,7 +801,7 @@
     <main class="page-wrap" id="sec-home-teacher">
         <div class="hero-greeting-row">
             <div>
-                <h1 class="greeting-h1" id="t-greeting-title">Добрый вечер</h1>
+                <h1 class="greeting-h1 font-display" id="t-greeting-title">Добрый вечер</h1>
                 <p class="greeting-sub" id="t-greeting-sub">Управление расписанием, досками и работами учеников</p>
             </div>
             <div style="display:flex; gap:8px;">
@@ -623,13 +817,13 @@
 
         <div class="main-bento">
             <div class="col-stack">
-                <!-- Карточка ближайшего урока -->
+                <!-- Карточка ближайшего урока с 3D-параллаксом -->
                 <div class="hero-lesson-card">
-                    <div id="t-hero-lesson-info"></div>
-                    <div class="board-preview-box" id="t-hero-board-graphic"></div>
+                    <div id="t-hero-lesson-info" style="display:flex; flex-direction:column;"></div>
+                    <div class="board-3d-scene" id="t-hero-board-graphic" onmousemove="handleParallaxBoard(event, this)" onmouseleave="resetParallaxBoard(this)"></div>
                 </div>
 
-                <!-- Расписание -->
+                <!-- Расписание (Вертикальная нить времени) -->
                 <div class="card">
                     <div class="card-head">
                         <span class="card-title" id="t-schedule-card-title">Расписание</span>
@@ -641,7 +835,7 @@
                     <div id="t-schedule-list"></div>
                 </div>
 
-                <!-- Доски для подготовки (С папками по ученикам и сортировкой по алфавиту!) -->
+                <!-- Доски для подготовки (Витрина холстов + папки учеников по алфавиту) -->
                 <div class="card">
                     <div class="card-head">
                         <span class="card-title">Доски для подготовки</span>
@@ -651,23 +845,22 @@
                     <div id="t-prep-boards-list"></div>
                 </div>
 
-                <!-- Работы учеников и Папки карточек -->
-                <div class="two-col-subgrid">
-                    <div class="card">
-                        <div class="card-head">
-                            <span class="card-title">Работы учеников</span>
-                            <button class="link-emerald" onclick="switchSection('assignments')">Все задания</button>
-                        </div>
-                        <div id="t-home-hw-list"></div>
+                <!-- Папки карточек (Тактильные колоды) -->
+                <div class="card">
+                    <div class="card-head">
+                        <span class="card-title">Папки карточек (Практика)</span>
+                        <button class="btn btn-sm" onclick="openDeckBuilderModal()">+ Новая папка</button>
                     </div>
+                    <div id="t-home-decks-list"></div>
+                </div>
 
-                    <div class="card">
-                        <div class="card-head">
-                            <span class="card-title">Папки карточек</span>
-                            <button class="btn btn-sm" onclick="openDeckBuilderModal()">+ Новая папка</button>
-                        </div>
-                        <div id="t-home-decks-list"></div>
+                <!-- Работы учеников -->
+                <div class="card">
+                    <div class="card-head">
+                        <span class="card-title">Работы учеников</span>
+                        <button class="link-emerald" onclick="switchSection('assignments')">Все задания</button>
                     </div>
+                    <div id="t-home-hw-list"></div>
                 </div>
             </div>
 
@@ -676,7 +869,7 @@
                 <div class="card">
                     <div class="cal-wrap">
                         <div class="cal-header">
-                            <span class="cal-month-title" id="sidebar-cal-title">Ноябрь 2026</span>
+                            <span class="cal-month-title font-display" style="font-size:12px;" id="sidebar-cal-title">Ноябрь 2026</span>
                             <div style="display:flex; gap:4px;">
                                 <button class="btn btn-icon" onclick="shiftSidebarMonth(-1)">‹</button>
                                 <button class="btn btn-icon" onclick="shiftSidebarMonth(1)">›</button>
@@ -685,15 +878,15 @@
                         <div class="cal-weekdays">
                             <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
                         </div>
-                        <div class="cal-days" id="sidebar-cal-days"></div>
+                        <div class="cal-days font-mono" id="sidebar-cal-days"></div>
                     </div>
-                    <div class="cal-footer">Нажмите на дату для фильтрации расписания</div>
+                    <div class="cal-footer">Нажмите на число для фильтрации расписания</div>
                 </div>
 
                 <div class="card">
                     <div class="card-head">
                         <span class="card-title">Мои ученики</span>
-                        <button class="link-emerald" onclick="openInviteModal()">Пригласить</button>
+                        <button class="link-emerald" onclick="openInviteModal()">+ Пригласить</button>
                     </div>
                     <div id="t-home-students-list"></div>
                 </div>
@@ -705,17 +898,17 @@
     <main class="page-wrap" id="sec-home-student">
         <div class="hero-greeting-row">
             <div>
-                <h1 class="greeting-h1" id="s-greeting-title">Привет!</h1>
+                <h1 class="greeting-h1 font-display" id="s-greeting-title">Привет!</h1>
                 <p class="greeting-sub" id="s-greeting-sub">Ваше расписание, задания и конспекты</p>
             </div>
         </div>
 
         <div class="main-bento">
             <div class="col-stack">
-                <!-- Ближайший урок + Векторная картинка доски справа (как у учителя!) -->
+                <!-- Ближайший урок + 3D-превью доски справа -->
                 <div class="hero-lesson-card">
-                    <div id="s-hero-lesson-info"></div>
-                    <div class="board-preview-box" id="s-hero-board-graphic"></div>
+                    <div id="s-hero-lesson-info" style="display:flex; flex-direction:column;"></div>
+                    <div class="board-3d-scene" id="s-hero-board-graphic" onmousemove="handleParallaxBoard(event, this)" onmouseleave="resetParallaxBoard(this)"></div>
                 </div>
 
                 <!-- Домашние задания ученика -->
@@ -727,22 +920,22 @@
                     <div id="s-home-hw-list"></div>
                 </div>
 
-                <!-- Практика -->
-                <div class="card">
-                    <div class="card-head">
-                        <span class="card-title">Практика и карточки</span>
-                        <button class="link-emerald" onclick="switchSection('practice')">Открыть раздел</button>
-                    </div>
-                    <div id="s-home-decks-list"></div>
-                </div>
-
-                <!-- Моя тетрадь -->
+                <!-- Моя тетрадь (Витрина холстов) -->
                 <div class="card">
                     <div class="card-head">
                         <span class="card-title">Моя тетрадь</span>
                         <button class="btn btn-emerald btn-sm" onclick="openCreateNotebookModal()">+ Новый лист</button>
                     </div>
                     <div id="s-notebook-list"></div>
+                </div>
+
+                <!-- Папки карточек (Тактильные колоды) -->
+                <div class="card">
+                    <div class="card-head">
+                        <span class="card-title">Практика и карточки</span>
+                        <button class="link-emerald" onclick="switchSection('practice')">Все тренажёры</button>
+                    </div>
+                    <div id="s-home-decks-list"></div>
                 </div>
             </div>
 
@@ -769,7 +962,7 @@
     <main class="page-wrap" id="sec-assignments">
         <div class="hero-greeting-row">
             <div>
-                <h1 class="greeting-h1">Задания</h1>
+                <h1 class="greeting-h1 font-display">Задания</h1>
                 <p class="greeting-sub">Выдавайте, выполняйте и проверяйте домашние работы</p>
             </div>
             <button class="btn btn-emerald" id="btn-assign-hw" onclick="openCreateHwModal()">+ Выдать задание</button>
@@ -794,7 +987,7 @@
     <main class="page-wrap" id="sec-practice">
         <div class="hero-greeting-row">
             <div>
-                <h1 class="greeting-h1">Практика</h1>
+                <h1 class="greeting-h1 font-display">Практика</h1>
                 <p class="greeting-sub">Создавайте папки с карточками и тренируйтесь в 3 режимах</p>
             </div>
             <div style="display:flex; gap:8px;">
@@ -815,7 +1008,7 @@
                         <button class="filter-pill" id="pmode-match" onclick="setPracticeMode('match')">Пары на время</button>
                         <button class="filter-pill" id="pmode-quiz" onclick="setPracticeMode('quiz')">Блиц-тест</button>
                     </div>
-                    <span style="font-size:11px; color:var(--text-secondary);" id="practice-counter-label">0 карточек</span>
+                    <span class="font-mono" style="font-size:11px; color:var(--text-secondary);" id="practice-counter-label">0 карточек</span>
                 </div>
                 <div id="practice-stage-container"></div>
             </div>
@@ -823,18 +1016,18 @@
             <div class="card">
                 <div class="card-head">
                     <span class="card-title">Карточки в папке</span>
-                    <button class="btn btn-sm" id="btn-edit-current-deck" onclick="editActiveDeck()" style="display:none;">Редактировать папку</button>
+                    <button class="btn btn-sm" id="btn-edit-current-deck" onclick="editActiveDeck()" style="display:none;">Редактировать</button>
                 </div>
                 <div id="practice-terms-list"></div>
             </div>
         </div>
     </main>
 
-    <!-- ================= 7. РАЗДЕЛ "СООБЩЕНИЯ" (ЖИВАЯ СИНХРОНИЗАЦИЯ И СТАТУС В СЕТИ) ================= -->
+    <!-- ================= 7. РАЗДЕЛ "СООБЩЕНИЯ" ================= -->
     <main class="page-wrap" id="sec-messages">
         <div class="hero-greeting-row">
             <div>
-                <h1 class="greeting-h1">Сообщения</h1>
+                <h1 class="greeting-h1 font-display">Сообщения</h1>
                 <p class="greeting-sub">Общение, доски, папки карточек и задания в одном диалоге</p>
             </div>
         </div>
@@ -879,7 +1072,7 @@
     <main class="page-wrap" id="sec-profile">
         <div class="hero-greeting-row">
             <div>
-                <h1 class="greeting-h1">Профиль</h1>
+                <h1 class="greeting-h1 font-display">Профиль</h1>
                 <p class="greeting-sub">Личная карточка и настройки платформы</p>
             </div>
         </div>
@@ -917,7 +1110,7 @@
             <div class="col-stack">
                 <div class="card" style="padding:20px;">
                     <div class="avatar" style="width:52px; height:52px; font-size:18px; margin-bottom:12px;" id="prof-preview-avatar">U</div>
-                    <div style="font-size:17px; font-weight:800; margin-bottom:2px;" id="prof-preview-name">Имя</div>
+                    <div class="font-display" style="font-size:16px; font-weight:700; margin-bottom:3px;" id="prof-preview-name">Имя</div>
                     <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;" id="prof-preview-role">Роль</div>
                     <div id="prof-preview-tags" style="margin-bottom:10px;"></div>
                     <p style="font-size:12px; color:var(--text-secondary); line-height:1.45;" id="prof-preview-bio"></p>
@@ -948,13 +1141,13 @@
         </div>
     </main>
 
-    <!-- ================= 9. КРАСИВЫЕ МОДАЛЬНЫЕ ПАНЕЛИ (БЕЗ PROMPT БРАУЗЕРА!) ================= -->
+    <!-- ================= 9. МОДАЛЬНЫЕ ПАНЕЛИ (БЕЗ PROMPT БРАУЗЕРА) ================= -->
 
-    <!-- Панель создания новой доски (С выбором папки ученика!) -->
+    <!-- Создание новой доски (С выбором папки ученика!) -->
     <div class="modal-backdrop" id="create-board-modal">
         <div class="modal-box" style="width:420px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="font-size:16px; font-weight:800;">Новая интерактивная доска</h3>
+                <h3 class="font-display" style="font-size:15px;">Новая интерактивная доска</h3>
                 <button class="btn btn-icon" onclick="closeModals()">✕</button>
             </div>
             <div>
@@ -962,7 +1155,7 @@
                 <input type="text" id="new-board-title-input" class="field-input" placeholder="Например: Алгоритмы · Урок 1" onkeydown="if(event.key==='Enter') confirmCreatePrepBoard()">
             </div>
             <div>
-                <label class="field-label">Прикрепить к папке ученика</label>
+                <label class="field-label">Папка ученика</label>
                 <select id="new-board-student-select" class="form-select"></select>
             </div>
             <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
@@ -972,11 +1165,11 @@
         </div>
     </div>
 
-    <!-- Панель создания нового листа тетради у ученика -->
+    <!-- Создание нового листа тетради у ученика -->
     <div class="modal-backdrop" id="create-notebook-modal">
         <div class="modal-box" style="width:400px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="font-size:16px; font-weight:800;">Новый лист в тетради</h3>
+                <h3 class="font-display" style="font-size:15px;">Новый лист в тетради</h3>
                 <button class="btn btn-icon" onclick="closeModals()">✕</button>
             </div>
             <div>
@@ -990,11 +1183,11 @@
         </div>
     </div>
 
-    <!-- Конструктор Папки Карточек (Создание и Редактирование набора как папки!) -->
+    <!-- Конструктор Папки Карточек -->
     <div class="modal-backdrop" id="deck-builder-modal">
         <div class="modal-box" style="width:560px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="font-size:16px; font-weight:800;" id="deck-modal-heading">Создать папку карточек</h3>
+                <h3 class="font-display" style="font-size:15px;" id="deck-modal-heading">Создать папку карточек</h3>
                 <button class="btn btn-icon" onclick="closeModals()">✕</button>
             </div>
             <input type="hidden" id="edit-deck-id">
@@ -1028,11 +1221,11 @@
         </div>
     </div>
 
-    <!-- Создать живой урок (С умной фильтрацией досок выбранного ученика!) -->
+    <!-- Создать живой урок (С фильтрацией досок выбранного ученика по алфавиту!) -->
     <div class="modal-backdrop" id="start-lesson-modal">
         <div class="modal-box">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="font-size:16px; font-weight:800;">Создать урок</h3>
+                <h3 class="font-display" style="font-size:15px;">Создать урок</h3>
                 <button class="btn btn-icon" onclick="closeModals()">✕</button>
             </div>
 
@@ -1066,7 +1259,7 @@
     <div class="modal-backdrop" id="schedule-modal">
         <div class="modal-box" style="width:480px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="font-size:16px; font-weight:800;" id="sch-modal-title">Поставить урок</h3>
+                <h3 class="font-display" style="font-size:15px;" id="sch-modal-title">Поставить урок</h3>
                 <button class="btn btn-icon" onclick="closeModals()">✕</button>
             </div>
             <input type="hidden" id="edit-sch-id">
@@ -1076,7 +1269,7 @@
                 <div class="card" style="background:var(--bg-elevated);">
                     <div class="cal-wrap" style="padding:10px 12px;">
                         <div class="cal-header" style="margin-bottom:8px;">
-                            <span class="cal-month-title" id="modal-cal-title">Ноябрь 2026</span>
+                            <span class="cal-month-title font-display" style="font-size:12px;" id="modal-cal-title">Ноябрь 2026</span>
                             <div style="display:flex; gap:4px;">
                                 <button type="button" class="btn btn-icon" onclick="shiftModalPickerMonth(-1)">‹</button>
                                 <button type="button" class="btn btn-icon" onclick="shiftModalPickerMonth(1)">›</button>
@@ -1085,7 +1278,7 @@
                         <div class="cal-weekdays">
                             <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
                         </div>
-                        <div class="cal-days" id="modal-cal-days"></div>
+                        <div class="cal-days font-mono" id="modal-cal-days"></div>
                     </div>
                 </div>
             </div>
@@ -1093,9 +1286,9 @@
             <div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <label class="field-label" style="margin:0;">Время начала</label>
-                    <input type="time" id="sch-time" class="field-input" style="width:110px; height:28px; font-size:12px; font-weight:700;" value="17:00" onchange="syncTimePillsWithInput(this.value)">
+                    <input type="time" id="sch-time" class="field-input font-mono" style="width:110px; height:28px; font-size:12px; font-weight:700;" value="17:00" onchange="syncTimePillsWithInput(this.value)">
                 </div>
-                <div class="time-slots-grid" id="modal-time-slots">
+                <div class="time-slots-grid font-mono" id="modal-time-slots">
                     <button type="button" class="time-slot-pill" onclick="pickModalTimeSlot('10:00')">10:00</button>
                     <button type="button" class="time-slot-pill" onclick="pickModalTimeSlot('12:00')">12:00</button>
                     <button type="button" class="time-slot-pill" onclick="pickModalTimeSlot('14:00')">14:00</button>
@@ -1129,11 +1322,11 @@
         </div>
     </div>
 
-    <!-- Выдать домашнее задание (С выбором конкретной доски или папки карточек!) -->
+    <!-- Выдать домашнее задание -->
     <div class="modal-backdrop" id="create-hw-modal">
         <div class="modal-box">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="font-size:16px; font-weight:800;">Выдать домашнее задание</h3>
+                <h3 class="font-display" style="font-size:15px;">Выдать домашнее задание</h3>
                 <button class="btn btn-icon" onclick="closeModals()">✕</button>
             </div>
             <div>
@@ -1176,7 +1369,7 @@
     <div class="modal-backdrop" id="invite-link-modal">
         <div class="modal-box">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="font-size:16px; font-weight:800;">Пригласить ученика в друзья</h3>
+                <h3 class="font-display" style="font-size:15px;">Пригласить ученика в друзья</h3>
                 <button class="btn btn-icon" onclick="closeModals()">✕</button>
             </div>
             <p style="font-size:12px; color:var(--text-secondary); line-height:1.45;">
@@ -1191,7 +1384,7 @@
     <div class="modal-backdrop" id="incoming-invite-modal">
         <div class="modal-box" style="text-align:center;">
             <span class="status-pill status-emerald" style="margin:0 auto;">ПРИГЛАШЕНИЕ В ДРУЗЬЯ</span>
-            <h3 style="font-size:18px; font-weight:800;" id="inv-teacher-title">Преподаватель</h3>
+            <h3 class="font-display" style="font-size:17px;" id="inv-teacher-title">Преподаватель</h3>
             <p style="font-size:13px; color:var(--emerald); font-weight:600;" id="inv-teacher-subject">Предмет</p>
             <div style="display:flex; gap:10px; margin-top:8px;">
                 <button class="btn" style="flex:1; height:38px;" onclick="declineTeacherInvite()">Отклонить</button>
@@ -1204,7 +1397,7 @@
     <div class="modal-backdrop" id="live-lesson-invite-modal">
         <div class="modal-box" style="text-align:center;">
             <span class="status-pill status-emerald" style="margin:0 auto;">ВЫЗОВ НА УРОК</span>
-            <h3 style="font-size:18px; font-weight:800;" id="live-inv-teacher-name">Преподаватель ждёт вас на доске</h3>
+            <h3 class="font-display" style="font-size:17px;" id="live-inv-teacher-name">Преподаватель ждёт вас на доске</h3>
             <p style="font-size:13px; color:var(--emerald); font-weight:600;" id="live-inv-board-title">Доска урока</p>
             <div style="display:flex; gap:10px; margin-top:8px;">
                 <button class="btn" style="flex:1; height:38px;" onclick="declineLiveLessonInvite()">Позже</button>
@@ -1242,9 +1435,7 @@
         let selectedRegisterRole = 'teacher';
         let currentSection = 'home';
 
-        // Умная фильтрация папок досок учителя: 'all' | 'general' | studentUid
         let selectedBoardFolder = 'all';
-        // Режим выбора доски в модалке Создать урок: 'student' | 'all' | 'new'
         let lessonBoardScope = 'student';
 
         let userRootRef = null;
@@ -1253,7 +1444,6 @@
         let pairSubscriptions = {};
         let presenceSubscriptions = {};
 
-        // Живое хранилище общих данных пар (Учитель <-> Ученик) через открытый узел boards/pair_...
         let sharedPairsData = {};
         let peerPresenceMap = {};
 
@@ -1261,7 +1451,6 @@
         let pendingLiveInviteData = null;
         let dismissedInviteIds = {};
 
-        // Состояние календаря
         const nowInit = new Date();
         let sidebarCalYear = nowInit.getFullYear();
         let sidebarCalMonth = nowInit.getMonth();
@@ -1271,12 +1460,10 @@
         let modalCalMonth = nowInit.getMonth();
         let modalPickedDateIso = formatIsoDate(nowInit.getFullYear(), nowInit.getMonth(), nowInit.getDate());
 
-        // Задания
         let taskFilter = 'all';
         let activeTaskId = null;
         let selectedGradeVal = 10;
 
-        // Практика (Папки с карточками)
         let activeDeckId = null;
         let practiceMode = 'cards';
         let currentCardIdx = 0;
@@ -1284,38 +1471,93 @@
         let matchSelectedIdx = null;
         let matchTiles = [];
 
-        // Сообщения
         let activeChatPeerUid = null;
 
-        // Векторная графика доски (для входа, карточки учителя и карточки ученика)
-        function getCleanBoardPreviewSvg() {
+        // Безопасное экранирование кавычек и спецсимволов (защита от поломки верстки и onclick)
+        function escHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+        function escAttr(str) {
+            return String(str || '')
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'")
+                .replace(/"/g, '&quot;');
+        }
+
+        function getGreetingByHour() {
+            const h = new Date().getHours();
+            if (h >= 5 && h < 12) return 'Доброе утро';
+            if (h >= 12 && h < 18) return 'Добрый день';
+            if (h >= 18 && h < 23) return 'Добрый вечер';
+            return 'Доброй ночи';
+        }
+
+        // Интерактивная 3D-доска для карточек урока и экрана входа
+        function get3DBoardSceneHtml(badgeText = 'Живая синхронизация холста') {
             return `
-                <svg viewBox="0 0 320 155" style="width:100%; height:100%; max-height:165px;">
-                    <rect x="14" y="14" width="175" height="92" rx="10" fill="var(--bg-surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
-                    <line x1="30" y1="86" x2="172" y2="86" stroke="var(--border-strong)" stroke-width="1.5"/>
-                    <line x1="42" y1="26" x2="42" y2="96" stroke="var(--border-strong)" stroke-width="1.5"/>
-                    <path d="M 32 78 Q 74 22, 112 58 T 170 30" fill="none" stroke="var(--emerald)" stroke-width="3" stroke-linecap="round"/>
-                    <path d="M 42 86 L 78 52 L 132 68 L 166 34" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"/>
-                    <rect x="204" y="18" width="102" height="58" rx="9" fill="var(--emerald-soft)" stroke="var(--emerald-border)" stroke-width="1.5"/>
-                    <rect x="216" y="31" width="54" height="6" rx="3" fill="var(--emerald)"/>
-                    <rect x="216" y="45" width="76" height="5" rx="2.5" fill="var(--text-secondary)" opacity="0.45"/>
-                    <rect x="216" y="56" width="62" height="5" rx="2.5" fill="var(--text-secondary)" opacity="0.3"/>
-                    <rect x="82" y="116" width="224" height="28" rx="8" fill="var(--bg-surface)" stroke="var(--border)" stroke-width="1.5"/>
-                    <rect x="96" y="127" width="88" height="6" rx="3" fill="var(--emerald)" opacity="0.8"/>
-                    <rect x="200" y="127" width="90" height="6" rx="3" fill="var(--border-strong)"/>
-                </svg>
+                <div class="board-3d-canvas">
+                    <svg viewBox="0 0 320 155" style="width:100%; height:100%; max-height:165px;">
+                        <rect x="14" y="14" width="175" height="92" rx="10" fill="var(--bg-surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+                        <line x1="30" y1="86" x2="172" y2="86" stroke="var(--border-strong)" stroke-width="1.5"/>
+                        <line x1="42" y1="26" x2="42" y2="96" stroke="var(--border-strong)" stroke-width="1.5"/>
+                        <path d="M 32 78 Q 74 22, 112 58 T 170 30" fill="none" stroke="var(--emerald)" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M 42 86 L 78 52 L 132 68 L 166 34" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"/>
+                        <rect x="204" y="18" width="102" height="58" rx="9" fill="var(--emerald-soft)" stroke="var(--emerald-border)" stroke-width="1.5"/>
+                        <rect x="216" y="31" width="54" height="6" rx="3" fill="var(--emerald)"/>
+                        <rect x="216" y="45" width="76" height="5" rx="2.5" fill="var(--text-secondary)" opacity="0.45"/>
+                        <rect x="216" y="56" width="62" height="5" rx="2.5" fill="var(--text-secondary)" opacity="0.3"/>
+                        <rect x="82" y="116" width="224" height="28" rx="8" fill="var(--bg-surface)" stroke="var(--border)" stroke-width="1.5"/>
+                        <rect x="96" y="127" width="88" height="6" rx="3" fill="var(--emerald)" opacity="0.8"/>
+                        <rect x="200" y="127" width="90" height="6" rx="3" fill="var(--border-strong)"/>
+                    </svg>
+                    <div class="board-3d-badge font-mono">${escHtml(badgeText)}</div>
+                </div>
             `;
         }
 
-        document.getElementById('auth-preview-graphic').innerHTML = getCleanBoardPreviewSvg();
-        document.getElementById('t-hero-board-graphic').innerHTML = getCleanBoardPreviewSvg();
-        document.getElementById('s-hero-board-graphic').innerHTML = getCleanBoardPreviewSvg();
+        // Мини-превью холста для карточек витрины досок и тетрадей
+        function getMiniCanvasThumbSvg(seed = 0) {
+            const variants = [
+                `<path d="M 15 48 Q 50 12, 88 38 T 155 18" fill="none" stroke="var(--emerald)" stroke-width="2.5" stroke-linecap="round"/>
+                 <rect x="20" y="14" width="44" height="18" rx="4" fill="var(--emerald-soft)" stroke="var(--emerald-border)"/>`,
+                `<line x1="20" y1="50" x2="150" y2="50" stroke="var(--border-strong)" stroke-width="1.5"/>
+                 <polyline points="25,44 60,22 98,34 142,14" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-linecap="round"/>
+                 <circle cx="60" cy="22" r="3.5" fill="var(--emerald)"/>
+                 <circle cx="142" cy="14" r="3.5" fill="var(--emerald)"/>`,
+                `<rect x="18" y="14" width="68" height="38" rx="6" fill="var(--bg-elevated)" stroke="var(--border-strong)"/>
+                 <line x1="26" y1="26" x2="68" y2="26" stroke="var(--emerald)" stroke-width="2.5" stroke-linecap="round"/>
+                 <line x1="26" y1="36" x2="56" y2="36" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round"/>
+                 <rect x="96" y="18" width="52" height="32" rx="6" fill="var(--emerald-soft)" stroke="var(--emerald-border)"/>`
+            ];
+            return `<svg viewBox="0 0 170 64" style="width:100%; height:100%;">${variants[Math.abs(seed) % variants.length]}</svg>`;
+        }
+
+        function handleParallaxBoard(e, sceneEl) {
+            const card = sceneEl.querySelector('.board-3d-canvas');
+            if (!card) return;
+            const rect = sceneEl.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+            card.style.transform = `rotateY(${(x * 10).toFixed(2)}deg) rotateX(${(-y * 10).toFixed(2)}deg)`;
+        }
+
+        function resetParallaxBoard(sceneEl) {
+            const card = sceneEl.querySelector('.board-3d-canvas');
+            if (card) card.style.transform = 'rotateY(0deg) rotateX(0deg)';
+        }
+
+        document.getElementById('auth-preview-graphic').innerHTML = get3DBoardSceneHtml('ESpace Interactive Canvas');
+        document.getElementById('t-hero-board-graphic').innerHTML = get3DBoardSceneHtml('Холст готов к уроку');
+        document.getElementById('s-hero-board-graphic').innerHTML = get3DBoardSceneHtml('Синхронизация с преподавателем');
 
         function formatIsoDate(y, m, d) {
             return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         }
 
-        // Проверка валидности урока (чтобы никогда не выводилось "Дата не указана - undefined")
         function isValidScheduleLesson(s) {
             return Boolean(
                 s && typeof s === 'object' &&
@@ -1332,7 +1574,8 @@
                 const [y, m, d] = isoDate.split('-').map(Number);
                 const dt = new Date(y, m - 1, d);
                 if (isNaN(dt.getTime())) return '';
-                const todayIso = formatIsoDate(nowInit.getFullYear(), nowInit.getMonth(), nowInit.getDate());
+                const now = new Date();
+                const todayIso = formatIsoDate(now.getFullYear(), now.getMonth(), now.getDate());
                 const dayPart = (isoDate === todayIso)
                     ? 'Сегодня'
                     : dt.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'long' });
@@ -1342,7 +1585,6 @@
             }
         }
 
-        // Получение ключа общего канала между учителем и учеником внутри открытого узла boards/
         function getPairKey(peerUid) {
             if (!currentUser || !peerUid) return null;
             const tUid = currentUserData?.role === 'teacher' ? currentUser.uid : peerUid;
@@ -1350,7 +1592,6 @@
             return `pair_${tUid}_${sUid}`;
         }
 
-        // Отслеживание прочитанных сообщений для красной точки уведомлений
         function getLastReadTs(peerUid) {
             if (!currentUser || !peerUid) return 0;
             return Number(localStorage.getItem(`es_read_${currentUser.uid}_${peerUid}`) || 0);
@@ -1389,14 +1630,11 @@
                 .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ru'));
         }
 
-        // Проверка реального онлайн-статуса собеседника
         function isPeerOnline(peerUid) {
             const pr = peerPresenceMap[peerUid];
-            if (!pr || !pr.online) return false;
-            return true;
+            return Boolean(pr && pr.online);
         }
 
-        // Тема оформления
         function applyThemeUI(theme) {
             const isLight = theme === 'light';
             document.body.classList.toggle('light-theme', isLight);
@@ -1494,8 +1732,8 @@
         })();
 
         function renderAvatarHtml(name, avatarUrl) {
-            if (avatarUrl) return `<img src="${avatarUrl}" alt="">`;
-            return (name || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+            if (avatarUrl) return `<img src="${escAttr(avatarUrl)}" alt="">`;
+            return escHtml((name || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase());
         }
 
         // Авторизация
@@ -1731,7 +1969,6 @@
             });
         }
 
-        // Объединение личных и общих данных (Расписание, ДЗ, Папки карточек)
         function getMergedScheduleList() {
             const map = {};
             Object.values(currentUserData?.schedule || {}).forEach(s => {
@@ -1809,7 +2046,7 @@
             const decksMap = getMergedDecksMap();
             const decksArr = Object.values(decksMap);
 
-            document.getElementById('t-greeting-title').innerText = `Добрый вечер, ${prof.name}`;
+            document.getElementById('t-greeting-title').innerText = `${getGreetingByHour()}, ${prof.name}`;
             const reviewCount = hwArr.filter(h => h.status === 'review').length;
             const badgeEl = document.getElementById('nav-hw-badge');
             badgeEl.style.display = reviewCount > 0 ? 'inline-block' : 'none';
@@ -1831,7 +2068,7 @@
                         </div>
                         <div style="min-width:0;">
                             <div class="alert-title">${reviewCount > 0 ? `${reviewCount} работа на проверке` : 'Задания учеников'}</div>
-                            <div class="alert-sub">${reviewHw ? `${reviewHw.studentName} · ${reviewHw.title}` : 'Выдайте домашнее задание'}</div>
+                            <div class="alert-sub">${reviewHw ? `${escHtml(reviewHw.studentName)} · ${escHtml(reviewHw.title)}` : 'Выдайте домашнее задание'}</div>
                         </div>
                     </div>
                     <button class="btn btn-sm" onclick="switchSection('assignments')">${reviewCount > 0 ? 'Проверить' : 'Открыть'}</button>
@@ -1847,7 +2084,7 @@
                                 <span>Сообщения</span>
                                 ${unreadPeers.length > 0 ? '<span class="unread-red-dot"></span>' : ''}
                             </div>
-                            <div class="alert-sub">${unreadPeers.length > 0 ? `Новые от: ${unreadPeers.map(p => p.name).join(', ')}` : `Учеников: ${studentsArr.length}`}</div>
+                            <div class="alert-sub">${unreadPeers.length > 0 ? `Новые от: ${escHtml(unreadPeers.map(p => p.name).join(', '))}` : `Учеников в списке: ${studentsArr.length}`}</div>
                         </div>
                     </div>
                     <button class="btn btn-sm" onclick="switchSection('messages')">Диалоги</button>
@@ -1871,28 +2108,28 @@
             const heroInfo = document.getElementById('t-hero-lesson-info');
             if (nextLesson) {
                 heroInfo.innerHTML = `
-                    <div class="hl-eyebrow">Ближайший урок по расписанию</div>
-                    <div class="hl-title">${nextLesson.topic}</div>
+                    <div class="hl-eyebrow"><span class="presence-dot online"></span> Ближайший урок по расписанию</div>
+                    <div class="hl-title font-display">${escHtml(nextLesson.topic)}</div>
                     <div class="hl-meta">
                         <div class="hl-meta-row">
                             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                            <span>${formatHumanDate(nextLesson.date, nextLesson.time)} · 45 мин</span>
+                            <span class="font-mono">${escHtml(formatHumanDate(nextLesson.date, nextLesson.time))} · 45 мин</span>
                         </div>
                         <div class="hl-meta-row">
                             <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                            <span>${nextLesson.studentName} · ${nextLesson.boardTitle || 'Доска урока'}</span>
+                            <span>${escHtml(nextLesson.studentName)} · ${escHtml(nextLesson.boardTitle || 'Доска урока')}</span>
                         </div>
                     </div>
                     <div class="hl-actions">
-                        <button class="btn btn-emerald" onclick="startScheduledLesson('${nextLesson.id}')">▷ Начать урок</button>
-                        <button class="btn" onclick="openBoardRoom('${nextLesson.boardId}', null, '${nextLesson.boardTitle || nextLesson.topic}')">Открыть доску</button>
-                        <button class="btn" onclick="openScheduleModal('${nextLesson.id}')">Перенести</button>
+                        <button class="btn btn-emerald" onclick="startScheduledLesson('${escAttr(nextLesson.id)}')">▷ Начать урок</button>
+                        <button class="btn" onclick="openBoardRoom('${escAttr(nextLesson.boardId)}', null, '${escAttr(nextLesson.boardTitle || nextLesson.topic)}')">Открыть доску</button>
+                        <button class="btn" onclick="openScheduleModal('${escAttr(nextLesson.id)}')">Перенести</button>
                     </div>
                 `;
             } else {
                 heroInfo.innerHTML = `
                     <div class="hl-eyebrow">Интерактивный класс</div>
-                    <div class="hl-title">Создайте урок или выберите доску для подготовки</div>
+                    <div class="hl-title font-display">Создайте урок или выберите доску для подготовки</div>
                     <div class="hl-meta">
                         <div class="hl-meta-row"><span>Доска, видеосвязь и задания синхронизируются в реальном времени</span></div>
                     </div>
@@ -1903,7 +2140,7 @@
                 `;
             }
 
-            // Расписание
+            // Расписание (Вертикальный таймлайн с живой красной линией времени)
             const filteredSch = selectedCalendarDateIso
                 ? schArr.filter(s => s.date === selectedCalendarDateIso)
                 : schArr;
@@ -1913,41 +2150,68 @@
                 : 'Расписание уроков';
             document.getElementById('t-reset-cal-filter').style.display = selectedCalendarDateIso ? 'inline' : 'none';
 
-            document.getElementById('t-schedule-list').innerHTML = filteredSch.map(s => `
-                <div class="row-item">
-                    <div class="row-left">
-                        <span class="row-time">${s.time}</span>
-                        <div class="avatar">${renderAvatarHtml(s.studentName, '')}</div>
-                        <div>
-                            <div class="row-title">${s.studentName}</div>
-                            <div class="row-sub">${s.topic} · ${formatHumanDate(s.date)}</div>
+            if (filteredSch.length === 0) {
+                document.getElementById('t-schedule-list').innerHTML = '<div class="row-item"><span class="row-sub">Запланированных уроков нет. Нажмите «+ Поставить урок».</span></div>';
+            } else {
+                const now = new Date();
+                const todayIso = formatIsoDate(now.getFullYear(), now.getMonth(), now.getDate());
+                const nowTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                let nowMarkerInserted = false;
+                let timelineHtml = '<div class="timeline-container">';
+
+                filteredSch.forEach(s => {
+                    if (!nowMarkerInserted && s.date === todayIso && s.time > nowTimeStr) {
+                        nowMarkerInserted = true;
+                        timelineHtml += `
+                            <div class="now-marker-row">
+                                <span class="now-marker-dot"></span>
+                                <span class="now-marker-line"></span>
+                                <span class="now-marker-tag font-mono">Сейчас ${nowTimeStr}</span>
+                            </div>
+                        `;
+                    }
+                    timelineHtml += `
+                        <div class="timeline-item">
+                            <div class="timeline-time font-mono">${escHtml(s.time)}</div>
+                            <div class="timeline-node-col"><div class="timeline-dot"></div></div>
+                            <div class="timeline-body">
+                                <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                                    <div class="avatar">${renderAvatarHtml(s.studentName, '')}</div>
+                                    <div style="min-width:0;">
+                                        <div class="row-title">${escHtml(s.studentName)}</div>
+                                        <div class="row-sub">${escHtml(s.topic)} · ${escHtml(formatHumanDate(s.date))}</div>
+                                    </div>
+                                </div>
+                                <span class="status-pill status-emerald">${escHtml(s.boardTitle || 'Доска готова')}</span>
+                            </div>
+                            <div class="timeline-actions">
+                                <button class="btn btn-emerald btn-sm" onclick="startScheduledLesson('${escAttr(s.id)}')">▷ Начать</button>
+                                <button class="btn btn-icon" onclick="openScheduleModal('${escAttr(s.id)}')" title="Изменить дату, время или доску">✎</button>
+                                <button class="btn btn-icon" onclick="deleteScheduleItem('${escAttr(s.id)}', '${escAttr(s.studentUid)}')" title="Удалить">✕</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row-right">
-                        <span class="status-pill status-emerald">${s.boardTitle || 'Доска готова'}</span>
-                        <button class="btn btn-emerald btn-sm" onclick="startScheduledLesson('${s.id}')">▷ Начать</button>
-                        <button class="btn btn-icon" onclick="openScheduleModal('${s.id}')" title="Изменить дату, время или доску">✎</button>
-                        <button class="btn btn-icon" onclick="deleteScheduleItem('${s.id}', '${s.studentUid}')" title="Удалить">✕</button>
-                    </div>
-                </div>
-            `).join('') || '<div class="row-item"><span class="row-sub">Запланированных уроков нет. Нажмите «+ Поставить урок».</span></div>';
+                    `;
+                });
+                timelineHtml += '</div>';
+                document.getElementById('t-schedule-list').innerHTML = timelineHtml;
+            }
 
             // Папки досок по ученикам (Все доски | Общие | Ученики по алфавиту)
             const generalCount = allBoardsArr.filter(b => !b.studentUid).length;
             let folderTabsHtml = `
                 <button class="folder-tab ${selectedBoardFolder === 'all' ? 'active' : ''}" onclick="selectTeacherBoardFolder('all')">
-                    Все доски (${allBoardsArr.length})
+                    Все доски <span class="font-mono">(${allBoardsArr.length})</span>
                 </button>
                 <button class="folder-tab ${selectedBoardFolder === 'general' ? 'active' : ''}" onclick="selectTeacherBoardFolder('general')">
-                    Общие (${generalCount})
+                    Общие <span class="font-mono">(${generalCount})</span>
                 </button>
             `;
             studentsArr.forEach(st => {
                 const stCount = allBoardsArr.filter(b => b.studentUid === st.uid).length;
                 folderTabsHtml += `
-                    <button class="folder-tab ${selectedBoardFolder === st.uid ? 'active' : ''}" onclick="selectTeacherBoardFolder('${st.uid}')">
+                    <button class="folder-tab ${selectedBoardFolder === st.uid ? 'active' : ''}" onclick="selectTeacherBoardFolder('${escAttr(st.uid)}')">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                        ${st.name} (${stCount})
+                        ${escHtml(st.name)} <span class="font-mono">(${stCount})</span>
                     </button>
                 `;
             });
@@ -1959,62 +2223,82 @@
                     ? allBoardsArr.filter(b => !b.studentUid)
                     : allBoardsArr.filter(b => b.studentUid === selectedBoardFolder));
 
-            document.getElementById('t-prep-boards-list').innerHTML = filteredBoards.map(b => {
-                const stOwner = b.studentUid ? (val.students || {})[b.studentUid] : null;
-                const folderLabel = stOwner ? `Папка: ${stOwner.name}` : 'Общая доска';
-                return `
+            if (filteredBoards.length === 0) {
+                document.getElementById('t-prep-boards-list').innerHTML = '<div class="row-item"><span class="row-sub">В этой папке пока нет досок. Нажмите «+ Новая доска».</span></div>';
+            } else {
+                document.getElementById('t-prep-boards-list').innerHTML = `
+                    <div class="board-gallery-grid">
+                        ${filteredBoards.map((b, idx) => {
+                            const stOwner = b.studentUid ? (val.students || {})[b.studentUid] : null;
+                            const folderLabel = stOwner ? `Папка: ${stOwner.name}` : 'Общая папка';
+                            return `
+                                <div class="canvas-card" onclick="openBoardRoom('${escAttr(b.id)}', null, '${escAttr(b.title)}')">
+                                    <div class="canvas-card-thumb">${getMiniCanvasThumbSvg(idx)}</div>
+                                    <div class="canvas-card-body">
+                                        <div style="min-width:0; flex:1;">
+                                            <div class="canvas-card-title">${escHtml(b.title)}</div>
+                                            <div class="canvas-card-sub">${escHtml(folderLabel)}</div>
+                                        </div>
+                                        <button class="btn btn-icon" onclick="event.stopPropagation(); deletePrepBoard('${escAttr(b.id)}')" title="Удалить доску">✕</button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            // Папки карточек (Тактильные колоды)
+            if (decksArr.length === 0) {
+                document.getElementById('t-home-decks-list').innerHTML = `
                     <div class="row-item">
-                        <div class="row-left">
-                            <div class="board-mini-thumb"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg></div>
-                            <div style="min-width:0;">
-                                <div class="row-title" style="overflow:hidden; text-overflow:ellipsis;">${b.title}</div>
-                                <div class="row-sub">${folderLabel}</div>
-                            </div>
-                        </div>
-                        <div class="row-right">
-                            <button class="link-emerald" onclick="openBoardRoom('${b.id}', null, '${b.title}')">Открыть</button>
-                            <button class="btn btn-icon" onclick="deletePrepBoard('${b.id}')" title="Удалить доску">✕</button>
+                        <span class="row-sub">Папок с карточками пока нет</span>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn btn-sm" onclick="seedStarterDecks()">Загрузить примеры папок</button>
+                            <button class="btn btn-emerald btn-sm" onclick="openDeckBuilderModal()">+ Создать папку</button>
                         </div>
                     </div>
                 `;
-            }).join('') || '<div class="row-item"><span class="row-sub">В этой папке пока нет досок. Нажмите «+ Новая доска».</span></div>';
+            } else {
+                document.getElementById('t-home-decks-list').innerHTML = `
+                    <div class="decks-stack-grid">
+                        ${decksArr.map(d => `
+                            <div class="deck-stack-card" onclick="activeDeckId='${escAttr(d.id)}'; switchSection('practice');">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:10px;">
+                                    <span class="status-pill status-emerald">${escHtml(d.subject || 'Курс')}</span>
+                                    <span class="font-mono" style="font-size:11px; color:var(--text-secondary);">${(d.cards || []).length} карт.</span>
+                                </div>
+                                <div class="row-title" style="margin-bottom:4px;">${escHtml(d.title)}</div>
+                                <div class="row-sub">Карточки · Пары · Блиц-тест</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
 
             // Работы учеников
             document.getElementById('t-home-hw-list').innerHTML = hwArr.slice(0, 4).map(h => {
                 const stBadge = h.status === 'review'
                     ? '<span class="status-pill status-amber">На проверке</span>'
-                    : (h.status === 'graded' ? `<span class="status-pill status-emerald">${h.grade}/10</span>` : '<span class="status-pill status-neutral">Выдано</span>');
+                    : (h.status === 'graded' ? `<span class="status-pill status-emerald font-mono">${h.grade}/10</span>` : '<span class="status-pill status-neutral">Выдано</span>');
                 return `
                     <div class="row-item">
                         <div class="row-left">
+                            <div class="board-mini-thumb"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
                             <div>
-                                <div class="row-title">${h.title}</div>
-                                <div class="row-sub">${h.studentName} · ${h.format}</div>
+                                <div class="row-title">${escHtml(h.title)}</div>
+                                <div class="row-sub">${escHtml(h.studentName)} · ${escHtml(h.format)}</div>
                             </div>
                         </div>
                         <div class="row-right">
                             ${stBadge}
-                            <button class="btn ${h.status === 'review' ? 'btn-emerald' : ''} btn-sm" onclick="activeTaskId='${h.id}'; switchSection('assignments');">
+                            <button class="btn ${h.status === 'review' ? 'btn-emerald' : ''} btn-sm" onclick="activeTaskId='${escAttr(h.id)}'; switchSection('assignments');">
                                 ${h.status === 'review' ? 'Проверить' : 'Открыть'}
                             </button>
                         </div>
                     </div>
                 `;
-            }).join('') || `<div class="row-item"><span class="row-sub">Заданий пока нет</span><button class="btn btn-sm" onclick="openCreateHwModal()">+ Выдать</button></div>`;
-
-            // Папки карточек на главной
-            document.getElementById('t-home-decks-list').innerHTML = decksArr.slice(0, 4).map(d => `
-                <div class="row-item">
-                    <div class="row-left">
-                        <div class="board-mini-thumb"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
-                        <div>
-                            <div class="row-title">${d.title}</div>
-                            <div class="row-sub">${(d.cards || []).length} карточек · ${d.subject || 'Общий'}</div>
-                        </div>
-                    </div>
-                    <button class="link-emerald" onclick="activeDeckId='${d.id}'; switchSection('practice');">Открыть</button>
-                </div>
-            `).join('') || '<div class="row-item"><span class="row-sub">Папок пока нет. Создайте первую папку карточек.</span></div>';
+            }).join('') || `<div class="row-item"><span class="row-sub">Домашних заданий пока нет</span><button class="btn btn-sm" onclick="openCreateHwModal()">+ Выдать задание</button></div>`;
 
             // Календарь
             renderInteractiveCalendarGrid(
@@ -2025,27 +2309,27 @@
                 'onSidebarCalDayClick'
             );
 
-            // Мои ученики справа (с красной точкой непрочитанного сообщения и реальным статусом сети!)
+            // Мои ученики справа
             document.getElementById('t-home-students-list').innerHTML = studentsArr.map(st => {
                 const unread = hasUnreadFromPeer(st.uid);
                 const online = isPeerOnline(st.uid);
                 return `
                     <div class="row-item">
-                        <div class="row-left" style="cursor:pointer;" onclick="selectTeacherBoardFolder('${st.uid}')" title="Показать доски ученика">
+                        <div class="row-left" style="cursor:pointer;" onclick="selectTeacherBoardFolder('${escAttr(st.uid)}')" title="Открыть папку досок ученика">
                             <div class="avatar">${renderAvatarHtml(st.name, st.avatar)}</div>
                             <div>
                                 <div class="row-title">
-                                    <span>${st.name}</span>
+                                    <span>${escHtml(st.name)}</span>
                                     ${unread ? '<span class="unread-red-dot" title="Новое сообщение"></span>' : ''}
                                 </div>
                                 <div class="row-sub">
                                     <span class="presence-dot ${online ? 'online' : 'offline'}"></span>
-                                    ${online ? 'В сети' : (st.goal || 'Ученик')}
+                                    ${online ? 'В сети' : escHtml(st.goal || 'Ученик')}
                                 </div>
                             </div>
                         </div>
                         <div class="row-right">
-                            <button class="btn btn-icon" onclick="activeChatPeerUid='${st.uid}'; switchSection('messages');" title="Открыть диалог">
+                            <button class="btn btn-icon" onclick="activeChatPeerUid='${escAttr(st.uid)}'; switchSection('messages');" title="Открыть диалог">
                                 <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                             </button>
                         </div>
@@ -2073,7 +2357,8 @@
             const daysInPrev = new Date(year, month, 0).getDate();
 
             const datesWithLessons = new Set((scheduleList || []).map(s => s.date));
-            const todayIso = formatIsoDate(nowInit.getFullYear(), nowInit.getMonth(), nowInit.getDate());
+            const now = new Date();
+            const todayIso = formatIsoDate(now.getFullYear(), now.getMonth(), now.getDate());
 
             let html = '';
             for (let i = firstWeekday - 1; i >= 0; i--) {
@@ -2167,7 +2452,6 @@
             badgeEl.style.display = todoHwCount > 0 ? 'inline-block' : 'none';
             badgeEl.innerText = todoHwCount;
 
-            // Проверяем, ждёт ли учитель ученика на доске
             let activeTeacherCall = null;
             teachersArr.forEach(t => {
                 const pKey = getPairKey(t.uid);
@@ -2180,34 +2464,34 @@
             const heroInfo = document.getElementById('s-hero-lesson-info');
             if (activeTeacherCall) {
                 heroInfo.innerHTML = `
-                    <div class="hl-eyebrow">● Преподаватель ждёт вас на доске</div>
-                    <div class="hl-title">${activeTeacherCall.lesson.boardTitle || 'Урок начался'}</div>
+                    <div class="hl-eyebrow"><span class="presence-dot online"></span> Преподаватель ждёт вас на доске</div>
+                    <div class="hl-title font-display">${escHtml(activeTeacherCall.lesson.boardTitle || 'Урок начался')}</div>
                     <div class="hl-meta">
-                        <div class="hl-meta-row"><span>Преподаватель: ${activeTeacherCall.teacher.name}</span></div>
+                        <div class="hl-meta-row"><span>Преподаватель: ${escHtml(activeTeacherCall.teacher.name)}</span></div>
                     </div>
                     <div class="hl-actions">
-                        <button class="btn btn-emerald" onclick="openBoardRoom('${activeTeacherCall.lesson.boardId}')">▷ Войти в класс</button>
-                        <button class="btn" onclick="activeChatPeerUid='${activeTeacherCall.teacher.uid}'; switchSection('messages');">Написать преподавателю</button>
+                        <button class="btn btn-emerald" onclick="openBoardRoom('${escAttr(activeTeacherCall.lesson.boardId)}')">▷ Войти в класс</button>
+                        <button class="btn" onclick="activeChatPeerUid='${escAttr(activeTeacherCall.teacher.uid)}'; switchSection('messages');">Написать преподавателю</button>
                     </div>
                 `;
             } else if (schArr[0]) {
                 const nextS = schArr[0];
                 heroInfo.innerHTML = `
-                    <div class="hl-eyebrow">Ближайший урок по расписанию</div>
-                    <div class="hl-title">${nextS.topic}</div>
+                    <div class="hl-eyebrow"><span class="presence-dot online"></span> Ближайший урок по расписанию</div>
+                    <div class="hl-title font-display">${escHtml(nextS.topic)}</div>
                     <div class="hl-meta">
-                        <div class="hl-meta-row"><span>${formatHumanDate(nextS.date, nextS.time)} · 45 мин</span></div>
-                        <div class="hl-meta-row"><span>Преподаватель: ${nextS.teacherName}</span></div>
+                        <div class="hl-meta-row"><span class="font-mono">${escHtml(formatHumanDate(nextS.date, nextS.time))} · 45 мин</span></div>
+                        <div class="hl-meta-row"><span>Преподаватель: ${escHtml(nextS.teacherName)}</span></div>
                     </div>
                     <div class="hl-actions">
-                        <button class="btn btn-emerald" onclick="openBoardRoom('${nextS.boardId || `lesson_${nextS.teacherUid}_${currentUser.uid}`}')">▷ Войти в класс</button>
-                        <button class="btn" onclick="activeChatPeerUid='${nextS.teacherUid}'; switchSection('messages');">Написать преподавателю</button>
+                        <button class="btn btn-emerald" onclick="openBoardRoom('${escAttr(nextS.boardId || `lesson_${nextS.teacherUid}_${currentUser.uid}`)}')">▷ Войти в класс</button>
+                        <button class="btn" onclick="activeChatPeerUid='${escAttr(nextS.teacherUid)}'; switchSection('messages');">Написать преподавателю</button>
                     </div>
                 `;
             } else {
                 heroInfo.innerHTML = `
                     <div class="hl-eyebrow">Расписание занятий</div>
-                    <div class="hl-title">Ближайших уроков нет</div>
+                    <div class="hl-title font-display">Ближайших уроков нет</div>
                     <div class="hl-meta">
                         <div class="hl-meta-row"><span>Когда преподаватель назначит занятие, оно сразу появится здесь</span></div>
                     </div>
@@ -2222,19 +2506,19 @@
             document.getElementById('s-home-hw-list').innerHTML = hwArr.map(h => {
                 const badge = h.status === 'assigned'
                     ? '<span class="status-pill status-amber">Нужно сдать</span>'
-                    : (h.status === 'graded' ? `<span class="status-pill status-emerald">Оценка: ${h.grade}/10</span>` : '<span class="status-pill status-neutral">На проверке</span>');
+                    : (h.status === 'graded' ? `<span class="status-pill status-emerald font-mono">Оценка: ${h.grade}/10</span>` : '<span class="status-pill status-neutral">На проверке</span>');
                 return `
                     <div class="row-item">
                         <div class="row-left">
                             <div class="board-mini-thumb"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
                             <div>
-                                <div class="row-title">${h.title}</div>
-                                <div class="row-sub">${h.format} · ${h.due}</div>
+                                <div class="row-title">${escHtml(h.title)}</div>
+                                <div class="row-sub">${escHtml(h.format)} · ${escHtml(h.due)}</div>
                             </div>
                         </div>
                         <div class="row-right">
                             ${badge}
-                            <button class="btn ${h.status === 'assigned' ? 'btn-emerald' : ''} btn-sm" onclick="activeTaskId='${h.id}'; switchSection('assignments');">
+                            <button class="btn ${h.status === 'assigned' ? 'btn-emerald' : ''} btn-sm" onclick="activeTaskId='${escAttr(h.id)}'; switchSection('assignments');">
                                 ${h.status === 'assigned' ? 'Сдать' : 'Открыть'}
                             </button>
                         </div>
@@ -2242,44 +2526,63 @@
                 `;
             }).join('') || '<div class="row-item"><span class="row-sub">Активных домашних заданий пока нет</span></div>';
 
-            // Папки практики у ученика
-            document.getElementById('s-home-decks-list').innerHTML = decksArr.map(d => `
-                <div class="row-item">
-                    <div class="row-left">
-                        <div class="board-mini-thumb"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
-                        <div>
-                            <div class="row-title">${d.title}</div>
-                            <div class="row-sub">${(d.cards || []).length} карточек · ${d.subject || 'Практика'}</div>
+            // Моя тетрадь (Витрина холстов)
+            if (nbArr.length === 0) {
+                document.getElementById('s-notebook-list').innerHTML = '<div class="row-item"><span class="row-sub">Листов в тетради пока нет. Нажмите «+ Новый лист».</span></div>';
+            } else {
+                document.getElementById('s-notebook-list').innerHTML = `
+                    <div class="board-gallery-grid">
+                        ${nbArr.map((n, idx) => `
+                            <div class="canvas-card" onclick="openBoardRoom('${escAttr(n.id)}', null, '${escAttr(n.title)}')">
+                                <div class="canvas-card-thumb">${getMiniCanvasThumbSvg(idx + 1)}</div>
+                                <div class="canvas-card-body">
+                                    <div style="min-width:0; flex:1;">
+                                        <div class="canvas-card-title">${escHtml(n.title)}</div>
+                                        <div class="canvas-card-sub">Личный конспект</div>
+                                    </div>
+                                    <button class="btn btn-icon" onclick="event.stopPropagation(); deleteStudentNotebookSheet('${escAttr(n.id)}')" title="Удалить лист">✕</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            // Папки практики у ученика (Тактильные колоды)
+            if (decksArr.length === 0) {
+                document.getElementById('s-home-decks-list').innerHTML = `
+                    <div class="row-item">
+                        <span class="row-sub">Папок с карточками пока нет</span>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn btn-sm" onclick="seedStarterDecks()">Загрузить примеры</button>
+                            <button class="btn btn-emerald btn-sm" onclick="openDeckBuilderModal()">+ Создать папку</button>
                         </div>
                     </div>
-                    <button class="btn btn-emerald btn-sm" onclick="activeDeckId='${d.id}'; switchSection('practice');">Тренировать</button>
-                </div>
-            `).join('') || `<div class="row-item"><span class="row-sub">Папок с карточками пока нет</span><button class="btn btn-sm" onclick="openDeckBuilderModal()">+ Создать папку</button></div>`;
-
-            // Моя тетрадь
-            document.getElementById('s-notebook-list').innerHTML = nbArr.map(n => `
-                <div class="row-item">
-                    <div class="row-left">
-                        <div class="board-mini-thumb"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-                        <div>
-                            <div class="row-title">${n.title}</div>
-                            <div class="row-sub">Личный лист тетради</div>
-                        </div>
+                `;
+            } else {
+                document.getElementById('s-home-decks-list').innerHTML = `
+                    <div class="decks-stack-grid">
+                        ${decksArr.map(d => `
+                            <div class="deck-stack-card" onclick="activeDeckId='${escAttr(d.id)}'; switchSection('practice');">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:10px;">
+                                    <span class="status-pill status-emerald">${escHtml(d.subject || 'Практика')}</span>
+                                    <span class="font-mono" style="font-size:11px; color:var(--text-secondary);">${(d.cards || []).length} карт.</span>
+                                </div>
+                                <div class="row-title" style="margin-bottom:4px;">${escHtml(d.title)}</div>
+                                <div class="row-sub">Нажмите для тренировки</div>
+                            </div>
+                        `).join('')}
                     </div>
-                    <div class="row-right">
-                        <button class="link-emerald" onclick="openBoardRoom('${n.id}', null, '${n.title}')">Открыть</button>
-                        <button class="btn btn-icon" onclick="deleteStudentNotebookSheet('${n.id}')">✕</button>
-                    </div>
-                </div>
-            `).join('') || '<div class="row-item"><span class="row-sub">Листов в тетради пока нет. Нажмите «+ Новый лист».</span></div>';
+                `;
+            }
 
-            // Моё расписание (Только валидные уроки, без пустых строк и undefined!)
+            // Моё расписание (Только валидные уроки, без undefined)
             document.getElementById('s-schedule-list').innerHTML = schArr.map(s => `
                 <div class="row-item">
                     <div>
-                        <div class="row-title" style="color:var(--emerald);">${formatHumanDate(s.date, s.time)}</div>
-                        <div style="font-size:12px; font-weight:600; margin-top:2px;">${s.topic}</div>
-                        <div class="row-sub">${s.teacherName || 'Преподаватель'}</div>
+                        <div class="row-title font-mono" style="color:var(--emerald);">${escHtml(formatHumanDate(s.date, s.time))}</div>
+                        <div style="font-size:12px; font-weight:700; margin-top:2px;">${escHtml(s.topic)}</div>
+                        <div class="row-sub">${escHtml(s.teacherName || 'Преподаватель')}</div>
                     </div>
                 </div>
             `).join('') || '<div class="row-item"><span class="row-sub">Запланированных уроков пока нет</span></div>';
@@ -2296,26 +2599,26 @@
                             <div class="avatar">${renderAvatarHtml(t.name, t.avatar)}</div>
                             <div>
                                 <div class="row-title">
-                                    <span>${t.name}</span>
+                                    <span>${escHtml(t.name)}</span>
                                     ${unread ? '<span class="unread-red-dot" title="Новое сообщение"></span>' : ''}
                                 </div>
                                 <div class="row-sub" style="color:${activeBoardId ? 'var(--emerald)' : 'var(--text-secondary)'};">
                                     ${activeBoardId
                                         ? '● Сейчас ждёт вас на доске'
-                                        : `<span class="presence-dot ${online ? 'online' : 'offline'}"></span>${online ? 'В сети' : (t.subject || 'Преподаватель')}`}
+                                        : `<span class="presence-dot ${online ? 'online' : 'offline'}"></span>${online ? 'В сети' : escHtml(t.subject || 'Преподаватель')}`}
                                 </div>
                             </div>
                         </div>
                         <div class="row-right">
-                            ${activeBoardId ? `<button class="btn btn-emerald btn-sm" onclick="openBoardRoom('${activeBoardId}')">В класс</button>` : ''}
-                            <button class="btn btn-sm" onclick="activeChatPeerUid='${t.uid}'; switchSection('messages');">Чат</button>
+                            ${activeBoardId ? `<button class="btn btn-emerald btn-sm" onclick="openBoardRoom('${escAttr(activeBoardId)}')">В класс</button>` : ''}
+                            <button class="btn btn-sm" onclick="activeChatPeerUid='${escAttr(t.uid)}'; switchSection('messages');">Чат</button>
                         </div>
                     </div>
                 `;
             }).join('') || '<div class="row-item"><span class="row-sub">Перейдите по ссылке-приглашению от преподавателя</span></div>';
         }
 
-        // ================= РАЗДЕЛ: ЗАДАНИЯ (РАБОТАЕТ ЧЕРЕЗ ПАРНЫЙ КАНАЛ BOARDS/) =================
+        // ================= РАЗДЕЛ: ЗАДАНИЯ =================
         function filterTasks(f, btn) {
             taskFilter = f;
             btn.parentElement.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
@@ -2335,17 +2638,17 @@
                 showToast('Сначала пригласите ученика в друзья');
                 return;
             }
-            document.getElementById('hw-student-select').innerHTML = studentsArr.map(s => `<option value="${s.uid}">${s.name}</option>`).join('');
+            document.getElementById('hw-student-select').innerHTML = studentsArr.map(s => `<option value="${escAttr(s.uid)}">${escHtml(s.name)}</option>`).join('');
 
             const allBoards = Object.values(currentUserData.prepBoards || {})
                 .filter(b => b && b.id && b.title)
                 .sort((a, b) => a.title.localeCompare(b.title, 'ru'));
             document.getElementById('hw-board-select').innerHTML = `<option value="">Создать новую чистую доску для ДЗ</option>` +
-                allBoards.map(b => `<option value="${b.id}">${b.title}</option>`).join('');
+                allBoards.map(b => `<option value="${escAttr(b.id)}">${escHtml(b.title)}</option>`).join('');
 
             const decksArr = Object.values(getMergedDecksMap());
             document.getElementById('hw-deck-select').innerHTML = decksArr.length > 0
-                ? decksArr.map(d => `<option value="${d.id}">${d.title} (${(d.cards || []).length} карт.)</option>`).join('')
+                ? decksArr.map(d => `<option value="${escAttr(d.id)}">${escHtml(d.title)} (${(d.cards || []).length} карт.)</option>`).join('')
                 : `<option value="">Сначала создайте папку в разделе Практика</option>`;
 
             document.getElementById('hw-title-input').value = '';
@@ -2386,17 +2689,21 @@
             };
 
             const pKey = getPairKey(stUid);
-            if (db && pKey) {
-                db.ref(`boards/${pKey}/homeworks/${hwId}`).set(payload).catch(() => {});
-                if (attachedDeck) {
-                    db.ref(`boards/${pKey}/sharedDecks/${attachedDeck.id}`).set(attachedDeck).catch(() => {});
+            if (pKey) {
+                sharedPairsData[pKey] = sharedPairsData[pKey] || {};
+                sharedPairsData[pKey].homeworks = sharedPairsData[pKey].homeworks || {};
+                sharedPairsData[pKey].homeworks[hwId] = payload;
+                if (db) {
+                    db.ref(`boards/${pKey}/homeworks/${hwId}`).set(payload).catch(() => {});
+                    if (attachedDeck) {
+                        db.ref(`boards/${pKey}/sharedDecks/${attachedDeck.id}`).set(attachedDeck).catch(() => {});
+                    }
                 }
             }
             currentUserData.homeworks = currentUserData.homeworks || {};
             currentUserData.homeworks[hwId] = payload;
             setLocalUserCache(currentUser.uid, currentUserData);
 
-            // Автоматически отправляем уведомление о новом ДЗ в чат с учеником
             activeChatPeerUid = stUid;
             pushChatMessagePayload({
                 text: `Задание: ${title}`,
@@ -2414,7 +2721,6 @@
         }
 
         function renderAssignmentsSection() {
-            // Если пользователь сейчас печатает комментарий или ответ в ДЗ — не сбрасываем фокус
             if (document.activeElement && (document.activeElement.id === 'teacher-hw-comment' || document.activeElement.id === 'student-hw-answer')) {
                 return;
             }
@@ -2428,12 +2734,12 @@
             document.getElementById('tasks-master-list').innerHTML = filtered.map(h => {
                 const badge = h.status === 'review'
                     ? '<span class="status-pill status-amber">На проверке</span>'
-                    : (h.status === 'graded' ? `<span class="status-pill status-emerald">${h.grade}/10</span>` : '<span class="status-pill status-neutral">Выдано</span>');
+                    : (h.status === 'graded' ? `<span class="status-pill status-emerald font-mono">${h.grade}/10</span>` : '<span class="status-pill status-neutral">Выдано</span>');
                 return `
-                    <div class="task-list-item ${currentTask && currentTask.id === h.id ? 'active' : ''}" onclick="activeTaskId='${h.id}'; renderAssignmentsSection();">
+                    <div class="task-list-item ${currentTask && currentTask.id === h.id ? 'active' : ''}" onclick="activeTaskId='${escAttr(h.id)}'; renderAssignmentsSection();">
                         <div style="min-width:0;">
-                            <div class="row-title">${h.title}</div>
-                            <div class="row-sub">${currentUserData.role === 'teacher' ? h.studentName : h.teacherName} · ${h.due}</div>
+                            <div class="row-title">${escHtml(h.title)}</div>
+                            <div class="row-sub">${escHtml(currentUserData.role === 'teacher' ? h.studentName : h.teacherName)} · ${escHtml(h.due)}</div>
                         </div>
                         ${badge}
                     </div>
@@ -2447,55 +2753,55 @@
             }
 
             const actionBtnHtml = currentTask.format === 'Папка карточек' && currentTask.deckId
-                ? `<button class="btn" style="margin-bottom:16px;" onclick="activeDeckId='${currentTask.deckId}'; switchSection('practice');">Открыть папку карточек в Практике</button>`
-                : `<button class="btn" style="margin-bottom:16px;" onclick="openBoardRoom('${currentTask.boardId}', null, '${currentTask.title}')">Открыть интерактивную доску задания</button>`;
+                ? `<button class="btn" style="margin-bottom:16px;" onclick="activeDeckId='${escAttr(currentTask.deckId)}'; switchSection('practice');">Открыть папку карточек в Практике</button>`
+                : `<button class="btn" style="margin-bottom:16px;" onclick="openBoardRoom('${escAttr(currentTask.boardId)}', null, '${escAttr(currentTask.title)}')">Открыть интерактивную доску задания</button>`;
 
             if (currentUserData.role === 'teacher') {
                 detailEl.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:14px;">
                         <div>
-                            <h2 style="font-size:20px; font-weight:800; margin-bottom:4px;">${currentTask.title}</h2>
-                            <div class="row-sub">${currentTask.studentName} · ${currentTask.format} · ${currentTask.due}</div>
+                            <h2 class="font-display" style="font-size:18px; margin-bottom:4px;">${escHtml(currentTask.title)}</h2>
+                            <div class="row-sub">${escHtml(currentTask.studentName)} · ${escHtml(currentTask.format)} · ${escHtml(currentTask.due)}</div>
                         </div>
                         <div style="display:flex; gap:8px; align-items:center;">
                             <span class="status-pill ${currentTask.status === 'review' ? 'status-amber' : (currentTask.status === 'graded' ? 'status-emerald' : 'status-neutral')}">
                                 ${currentTask.status === 'review' ? 'На проверке' : (currentTask.status === 'graded' ? `Оценка: ${currentTask.grade}/10` : 'Ожидает сдачи')}
                             </span>
-                            <button class="btn btn-icon" onclick="deleteHomeworkItem('${currentTask.id}', '${currentTask.studentUid}')" title="Удалить задание">✕</button>
+                            <button class="btn btn-icon" onclick="deleteHomeworkItem('${escAttr(currentTask.id)}', '${escAttr(currentTask.studentUid)}')" title="Удалить задание">✕</button>
                         </div>
                     </div>
 
                     <div class="field-label">Задание</div>
-                    <p style="font-size:13px; line-height:1.5; margin-bottom:16px;">${currentTask.desc}</p>
+                    <p style="font-size:13px; line-height:1.5; margin-bottom:16px;">${escHtml(currentTask.desc)}</p>
 
                     <div class="field-label">Ответ ученика</div>
                     <div style="background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px; padding:12px; font-size:12px; line-height:1.5; margin-bottom:14px;">
-                        ${currentTask.answer ? currentTask.answer.replace(/</g, '&lt;') : '<span style="color:var(--text-muted);">Ученик ещё не отправил текстовый ответ.</span>'}
+                        ${currentTask.answer ? escHtml(currentTask.answer) : '<span style="color:var(--text-muted);">Ученик ещё не отправил текстовый ответ.</span>'}
                     </div>
 
                     ${actionBtnHtml}
 
                     <div class="field-label">Оценка из 10</div>
-                    <div class="grade-scale">
+                    <div class="grade-scale font-mono">
                         ${[1,2,3,4,5,6,7,8,9,10].map(n => `
                             <button class="grade-btn ${(currentTask.grade || selectedGradeVal) == n ? 'active' : ''}" onclick="selectedGradeVal=${n}; renderAssignmentsSection();">${n}</button>
                         `).join('')}
                     </div>
 
                     <div class="field-label">Комментарий преподавателя</div>
-                    <textarea id="teacher-hw-comment" class="form-textarea" style="margin-bottom:14px;" placeholder="Напишите разбор или комментарий к работе...">${currentTask.comment || ''}</textarea>
+                    <textarea id="teacher-hw-comment" class="form-textarea" style="margin-bottom:14px;" placeholder="Напишите разбор или комментарий к работе...">${escHtml(currentTask.comment || '')}</textarea>
 
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                        <button class="btn btn-emerald" onclick="gradeHomework('${currentTask.id}', true)">✓ Принять и поставить оценку</button>
-                        <button class="btn" onclick="gradeHomework('${currentTask.id}', false)">Вернуть на доработку</button>
+                        <button class="btn btn-emerald" onclick="gradeHomework('${escAttr(currentTask.id)}', true)">✓ Принять и поставить оценку</button>
+                        <button class="btn" onclick="gradeHomework('${escAttr(currentTask.id)}', false)">Вернуть на доработку</button>
                     </div>
                 `;
             } else {
                 detailEl.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:14px;">
                         <div>
-                            <h2 style="font-size:20px; font-weight:800; margin-bottom:4px;">${currentTask.title}</h2>
-                            <div class="row-sub">Преподаватель: ${currentTask.teacherName} · ${currentTask.format} · ${currentTask.due}</div>
+                            <h2 class="font-display" style="font-size:18px; margin-bottom:4px;">${escHtml(currentTask.title)}</h2>
+                            <div class="row-sub">Преподаватель: ${escHtml(currentTask.teacherName)} · ${escHtml(currentTask.format)} · ${escHtml(currentTask.due)}</div>
                         </div>
                         <span class="status-pill ${currentTask.status === 'assigned' ? 'status-amber' : 'status-emerald'}">
                             ${currentTask.status === 'assigned' ? 'Нужно сдать' : (currentTask.status === 'graded' ? `Проверено: ${currentTask.grade}/10` : 'На проверке')}
@@ -2503,21 +2809,21 @@
                     </div>
 
                     <div class="field-label">Описание задания</div>
-                    <p style="font-size:13px; line-height:1.5; margin-bottom:16px;">${currentTask.desc}</p>
+                    <p style="font-size:13px; line-height:1.5; margin-bottom:16px;">${escHtml(currentTask.desc)}</p>
 
                     ${actionBtnHtml}
 
                     <div class="field-label">Ваш ответ или комментарий к решению</div>
-                    <textarea id="student-hw-answer" class="form-textarea" style="margin-bottom:14px;" placeholder="Напишите ответ или комментарий...">${currentTask.answer || ''}</textarea>
+                    <textarea id="student-hw-answer" class="form-textarea" style="margin-bottom:14px;" placeholder="Напишите ответ или комментарий...">${escHtml(currentTask.answer || '')}</textarea>
 
                     ${currentTask.comment ? `
                         <div style="padding:12px; background:var(--emerald-soft); border:1px solid var(--emerald-border); border-radius:9px; margin-bottom:14px;">
                             <div style="font-size:11px; font-weight:700; color:var(--emerald); margin-bottom:3px;">Комментарий преподавателя:</div>
-                            <div style="font-size:12px;">${currentTask.comment}</div>
+                            <div style="font-size:12px;">${escHtml(currentTask.comment)}</div>
                         </div>
                     ` : ''}
 
-                    <button class="btn btn-emerald" onclick="submitStudentHomework('${currentTask.id}')">Отправить работу на проверку</button>
+                    <button class="btn btn-emerald" onclick="submitStudentHomework('${escAttr(currentTask.id)}')">Отправить работу на проверку</button>
                 `;
             }
         }
@@ -2528,8 +2834,11 @@
             const ans = document.getElementById('student-hw-answer')?.value?.trim() || 'Задание выполнено';
             const updated = { ...hw, answer: ans, status: 'review' };
             const pKey = getPairKey(hw.teacherUid);
-            if (db && pKey) {
-                db.ref(`boards/${pKey}/homeworks/${hwId}`).set(updated).catch(() => {});
+            if (pKey) {
+                sharedPairsData[pKey] = sharedPairsData[pKey] || {};
+                sharedPairsData[pKey].homeworks = sharedPairsData[pKey].homeworks || {};
+                sharedPairsData[pKey].homeworks[hwId] = updated;
+                if (db) db.ref(`boards/${pKey}/homeworks/${hwId}`).set(updated).catch(() => {});
             }
             if (currentUserData.homeworks && currentUserData.homeworks[hwId]) {
                 currentUserData.homeworks[hwId] = updated;
@@ -2549,8 +2858,11 @@
                 grade: accept ? selectedGradeVal : null
             };
             const pKey = getPairKey(hw.studentUid);
-            if (db && pKey) {
-                db.ref(`boards/${pKey}/homeworks/${hwId}`).set(updated).catch(() => {});
+            if (pKey) {
+                sharedPairsData[pKey] = sharedPairsData[pKey] || {};
+                sharedPairsData[pKey].homeworks = sharedPairsData[pKey].homeworks || {};
+                sharedPairsData[pKey].homeworks[hwId] = updated;
+                if (db) db.ref(`boards/${pKey}/homeworks/${hwId}`).set(updated).catch(() => {});
             }
             if (currentUserData.homeworks) currentUserData.homeworks[hwId] = updated;
             renderAllSections();
@@ -2561,6 +2873,9 @@
             if (currentUserData.homeworks) delete currentUserData.homeworks[hwId];
             setLocalUserCache(currentUser.uid, currentUserData);
             const pKey = getPairKey(studentUid);
+            if (pKey && sharedPairsData[pKey]?.homeworks) {
+                delete sharedPairsData[pKey].homeworks[hwId];
+            }
             if (db) {
                 db.ref(`users/${currentUser.uid}/homeworks/${hwId}`).remove().catch(() => {});
                 if (pKey) db.ref(`boards/${pKey}/homeworks/${hwId}`).remove().catch(() => {});
@@ -2571,6 +2886,37 @@
         }
 
         // ================= РАЗДЕЛ: ПРАКТИКА (КОНСТРУКТОР ПАПОК С КАРТОЧКАМИ) =================
+        function seedStarterDecks() {
+            const starter = {
+                deck_alg: {
+                    id: 'deck_alg', title: 'Алгоритмы и графы', subject: 'Информатика',
+                    cards: [
+                        { q: 'Бинарный поиск', a: 'Поиск элемента в отсортированном массиве за O(log n)' },
+                        { q: 'Очередь (Queue)', a: 'Структура данных FIFO (первым пришёл — первым вышел)' },
+                        { q: 'Стек (Stack)', a: 'Структура данных LIFO (последним пришёл — первым вышел)' },
+                        { q: 'Алгоритм Дейкстры', a: 'Поиск кратчайших путей от одной вершины графа' }
+                    ]
+                },
+                deck_eng: {
+                    id: 'deck_eng', title: 'Academic & Phrasal Vocabulary', subject: 'Английский',
+                    cards: [
+                        { q: 'accomplish', a: 'достигать, успешно выполнять' },
+                        { q: 'figure out', a: 'разобраться, понять, вычислить' },
+                        { q: 'reliable', a: 'надёжный, достоверный' },
+                        { q: 'inevitable', a: 'неизбежный, неотвратимый' }
+                    ]
+                }
+            };
+            currentUserData.flashcardSets = { ...(currentUserData.flashcardSets || {}), ...starter };
+            setLocalUserCache(currentUser.uid, currentUserData);
+            if (db) {
+                db.ref(`users/${currentUser.uid}/flashcardSets`).update(starter).catch(() => {});
+            }
+            activeDeckId = 'deck_alg';
+            renderAllSections();
+            showToast('Примеры папок загружены (их можно редактировать и удалять)');
+        }
+
         function setPracticeMode(mode) {
             practiceMode = mode;
             ['cards', 'match', 'quiz'].forEach(m => {
@@ -2609,8 +2955,8 @@
             const row = document.createElement('div');
             row.className = 'deck-pair-row';
             row.innerHTML = `
-                <input type="text" class="field-input deck-q-in" placeholder="Термин / Вопрос" value="${qVal.replace(/"/g, '&quot;')}">
-                <input type="text" class="field-input deck-a-in" placeholder="Определение / Ответ" value="${aVal.replace(/"/g, '&quot;')}" onkeydown="if(event.key==='Enter'){event.preventDefault(); addDeckBuilderRow('','');}">
+                <input type="text" class="field-input deck-q-in" placeholder="Термин / Вопрос" value="${escHtml(qVal)}">
+                <input type="text" class="field-input deck-a-in" placeholder="Определение / Ответ" value="${escHtml(aVal)}" onkeydown="if(event.key==='Enter'){event.preventDefault(); addDeckBuilderRow('','');}">
                 <button type="button" class="btn btn-icon" onclick="this.parentElement.remove()" title="Удалить пару">✕</button>
             `;
             rowsContainer.appendChild(row);
@@ -2647,7 +2993,6 @@
 
             if (db) {
                 db.ref(`users/${currentUser.uid}/flashcardSets/${id}`).set(deckPayload).catch(() => {});
-                // Если учитель сохраняет папку — синхронизируем её в общие каналы с учениками
                 if (currentUserData.role === 'teacher') {
                     getContactsArray().forEach(st => {
                         const pKey = getPairKey(st.uid);
@@ -2681,6 +3026,9 @@
             if (ev) ev.stopPropagation();
             if (currentUserData.flashcardSets) delete currentUserData.flashcardSets[deckId];
             setLocalUserCache(currentUser.uid, currentUserData);
+            Object.values(sharedPairsData).forEach(pair => {
+                if (pair?.sharedDecks) delete pair.sharedDecks[deckId];
+            });
             if (db) {
                 db.ref(`users/${currentUser.uid}/flashcardSets/${deckId}`).remove().catch(() => {});
                 getContactsArray().forEach(peer => {
@@ -2724,25 +3072,30 @@
             document.getElementById('btn-edit-current-deck').style.display = deck ? 'inline-flex' : 'none';
 
             document.getElementById('practice-decks-list').innerHTML = Object.values(decks).map(d => `
-                <div class="deck-item ${d.id === activeDeckId ? 'active' : ''}" onclick="activeDeckId='${d.id}'; currentCardIdx=0; cardFlipped=false; matchTiles=[]; renderPracticeSection();">
+                <div class="deck-item ${d.id === activeDeckId ? 'active' : ''}" onclick="activeDeckId='${escAttr(d.id)}'; currentCardIdx=0; cardFlipped=false; matchTiles=[]; renderPracticeSection();">
                     <div style="min-width:0;">
-                        <div class="row-title">${d.title}</div>
-                        <div class="row-sub">${(d.cards || []).length} карточек · ${d.subject || 'Курс'}</div>
+                        <div class="row-title">${escHtml(d.title)}</div>
+                        <div class="row-sub">${(d.cards || []).length} карточек · ${escHtml(d.subject || 'Курс')}</div>
                     </div>
                     <div style="display:flex; gap:4px;">
-                        <button class="btn btn-icon" onclick="event.stopPropagation(); openDeckBuilderModal('${d.id}')" title="Редактировать папку">✎</button>
-                        <button class="btn btn-icon" onclick="deleteDeckById('${d.id}', event)" title="Удалить папку">✕</button>
+                        <button class="btn btn-icon" onclick="event.stopPropagation(); openDeckBuilderModal('${escAttr(d.id)}')" title="Редактировать папку">✎</button>
+                        <button class="btn btn-icon" onclick="deleteDeckById('${escAttr(d.id)}', event)" title="Удалить папку">✕</button>
                     </div>
                 </div>
-            `).join('') || '<div class="row-item"><span class="row-sub">Папок пока нет. Нажмите «+ Создать папку».</span></div>';
+            `).join('') || `
+                <div class="row-item">
+                    <span class="row-sub">Папок пока нет</span>
+                    <button class="btn btn-sm" onclick="seedStarterDecks()">Примеры</button>
+                </div>
+            `;
 
             document.getElementById('practice-terms-list').innerHTML = cards.map((c, idx) => `
                 <div class="row-item">
                     <div style="min-width:0; flex:1;">
-                        <div class="row-title">${c.q}</div>
-                        <div class="row-sub">${c.a}</div>
+                        <div class="row-title">${escHtml(c.q)}</div>
+                        <div class="row-sub">${escHtml(c.a)}</div>
                     </div>
-                    <button class="btn btn-icon" onclick="deleteSingleCardFromDeck('${deck.id}', ${idx})" title="Удалить карточку">✕</button>
+                    <button class="btn btn-icon" onclick="deleteSingleCardFromDeck('${escAttr(deck.id)}', ${idx})" title="Удалить карточку">✕</button>
                 </div>
             `).join('') || '<div class="row-item"><span class="row-sub">В папке пока нет карточек</span></div>';
 
@@ -2753,9 +3106,12 @@
                 counterLbl.innerText = '0 карточек';
                 stage.innerHTML = `
                     <div class="flashcard-stage" onclick="openDeckBuilderModal(activeDeckId)">
-                        <div class="fc-term" style="font-size:18px;">Создайте или выберите папку с карточками</div>
+                        <div class="fc-term font-display" style="font-size:17px;">Создайте или выберите папку с карточками</div>
                         <div class="fc-sub">Внутри каждой папки доступны Карточки, Пары на время и Блиц-тест</div>
-                        <button class="btn btn-emerald">+ Открыть конструктор папки</button>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn btn-emerald">+ Открыть конструктор папки</button>
+                            <button class="btn" onclick="event.stopPropagation(); seedStarterDecks();">Загрузить стартовые примеры</button>
+                        </div>
                     </div>
                 `;
                 return;
@@ -2767,8 +3123,8 @@
                 stage.innerHTML = `
                     <div class="flashcard-stage" onclick="cardFlipped=!cardFlipped; renderPracticeSection();">
                         <span class="status-pill status-emerald">${cardFlipped ? 'Определение / Ответ' : 'Термин / Вопрос'}</span>
-                        <div class="fc-term">${cardFlipped ? card.a : card.q}</div>
-                        <div class="fc-sub">${deck.title}</div>
+                        <div class="fc-term font-display">${escHtml(cardFlipped ? card.a : card.q)}</div>
+                        <div class="fc-sub">${escHtml(deck.title)}</div>
                         <div class="fc-hint">↻ Нажмите на карточку, чтобы перевернуть</div>
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
@@ -2789,13 +3145,13 @@
                 const allDone = matchTiles.every(t => t.matched);
                 stage.innerHTML = allDone
                     ? `<div class="flashcard-stage">
-                            <div class="fc-term" style="color:var(--emerald);">Отлично! Все пары в папке собраны</div>
+                            <div class="fc-term font-display" style="color:var(--emerald); font-size:19px;">Отлично! Все пары в папке собраны</div>
                             <button class="btn btn-emerald" style="margin-top:12px;" onclick="matchTiles=[]; renderPracticeSection();">Сыграть ещё раз</button>
                        </div>`
                     : `<div class="match-grid">
                         ${matchTiles.map((t, idx) => `
                             <div class="match-tile ${t.matched ? 'matched' : ''} ${matchSelectedIdx === idx ? 'selected' : ''}" onclick="handleMatchTileClick(${idx})">
-                                ${t.text}
+                                ${escHtml(t.text)}
                             </div>
                         `).join('')}
                        </div>`;
@@ -2808,11 +3164,11 @@
                 stage.innerHTML = `
                     <div class="flashcard-stage" style="min-height:160px; cursor:default;">
                         <span class="status-pill status-neutral">Выберите верный ответ</span>
-                        <div class="fc-term">${card.q}</div>
+                        <div class="fc-term font-display" style="font-size:20px;">${escHtml(card.q)}</div>
                     </div>
                     <div style="display:flex; flex-direction:column; gap:8px;">
                         ${options.map(opt => `
-                            <button class="btn" style="height:38px; justify-content:flex-start;" onclick="checkQuizOption('${opt.replace(/'/g, "\\'")}', '${card.a.replace(/'/g, "\\'")}', ${cards.length})">${opt}</button>
+                            <button class="btn" style="height:38px; justify-content:flex-start;" onclick="checkQuizOption('${escAttr(opt)}', '${escAttr(card.a)}', ${cards.length})">${escHtml(opt)}</button>
                         `).join('')}
                     </div>
                 `;
@@ -2844,7 +3200,7 @@
             }
         }
 
-        // ================= РАЗДЕЛ: СООБЩЕНИЯ (РАБОТАЕТ ЧЕРЕЗ ПАРНЫЙ КАНАЛ BOARDS/) =================
+        // ================= РАЗДЕЛ: СООБЩЕНИЯ =================
         function renderMessagesSection() {
             const isTeacher = currentUserData.role === 'teacher';
             const peers = getContactsArray();
@@ -2859,12 +3215,12 @@
                 const unread = hasUnreadFromPeer(p.uid);
                 const online = isPeerOnline(p.uid);
                 return `
-                    <div class="deck-item ${activePeer && activePeer.uid === p.uid ? 'active' : ''}" onclick="activeChatPeerUid='${p.uid}'; markPeerChatAsRead('${p.uid}'); renderMessagesSection();">
+                    <div class="deck-item ${activePeer && activePeer.uid === p.uid ? 'active' : ''}" onclick="activeChatPeerUid='${escAttr(p.uid)}'; markPeerChatAsRead('${escAttr(p.uid)}'); renderMessagesSection();">
                         <div style="display:flex; align-items:center; gap:10px; min-width:0;">
                             <div class="avatar">${renderAvatarHtml(p.name, p.avatar)}</div>
                             <div style="min-width:0;">
                                 <div class="row-title">
-                                    <span>${p.name}</span>
+                                    <span>${escHtml(p.name)}</span>
                                     ${unread ? '<span class="unread-red-dot"></span>' : ''}
                                 </div>
                                 <div class="row-sub">
@@ -2903,32 +3259,32 @@
                 const isMine = m.senderUid === currentUser.uid;
                 if (m.attachType) {
                     const actionCall = m.attachType === 'board'
-                        ? `openBoardRoom('${m.attachRef}')`
+                        ? `openBoardRoom('${escAttr(m.attachRef)}')`
                         : (m.attachType === 'hw'
-                            ? `activeTaskId='${m.attachRef || ''}'; switchSection('assignments');`
-                            : `activeDeckId='${m.attachRef || ''}'; switchSection('practice');`);
+                            ? `activeTaskId='${escAttr(m.attachRef || '')}'; switchSection('assignments');`
+                            : `activeDeckId='${escAttr(m.attachRef || '')}'; switchSection('practice');`);
                     return `
                         <div class="msg-attachment-card" style="align-self:${isMine ? 'flex-end' : 'flex-start'};">
                             <div>
-                                <div class="row-title">${m.text}</div>
-                                <div class="row-sub">${m.attachSub || 'Вложение'}</div>
+                                <div class="row-title">${escHtml(m.text)}</div>
+                                <div class="row-sub">${escHtml(m.attachSub || 'Вложение')}</div>
                             </div>
                             <button class="btn btn-emerald btn-sm" onclick="${actionCall}">Открыть</button>
                         </div>
                     `;
                 }
-                return `<div class="msg-bubble ${isMine ? 'mine' : ''}">${(m.text || '').replace(/</g, '&lt;')}</div>`;
+                return `<div class="msg-bubble ${isMine ? 'mine' : ''}">${escHtml(m.text || '')}</div>`;
             }).join('') || '<div class="row-sub" style="margin:auto;">Напишите первое сообщение или отправьте карточку доски.</div>';
             streamEl.scrollTop = streamEl.scrollHeight;
 
             ctxSidebar.innerHTML = `
                 <div class="card" style="padding:18px;">
                     <div class="avatar" style="width:44px; height:44px; margin-bottom:10px;">${renderAvatarHtml(activePeer.name, activePeer.avatar)}</div>
-                    <div style="font-size:15px; font-weight:800; margin-bottom:3px;">${activePeer.name}</div>
-                    <div class="row-sub" style="margin-bottom:12px;">${activePeer.goal || activePeer.subject || 'Контакт'}</div>
+                    <div class="font-display" style="font-size:14px; font-weight:700; margin-bottom:3px;">${escHtml(activePeer.name)}</div>
+                    <div class="row-sub" style="margin-bottom:12px;">${escHtml(activePeer.goal || activePeer.subject || 'Контакт')}</div>
                     ${isTeacher ? `
                         <div style="display:flex; flex-direction:column; gap:8px;">
-                            <button class="btn btn-emerald btn-sm" style="width:100%;" onclick="openStartLessonModal('${activePeer.uid}')">Начать урок</button>
+                            <button class="btn btn-emerald btn-sm" style="width:100%;" onclick="openStartLessonModal('${escAttr(activePeer.uid)}')">Начать урок</button>
                             <button class="btn btn-sm" style="width:100%;" onclick="openScheduleModal()">Поставить в расписание</button>
                         </div>
                     ` : ''}
@@ -2978,10 +3334,16 @@
             if (!activeChatPeerUid || !currentUser) return;
             const msgId = 'm_' + Date.now();
             const pKey = getPairKey(activeChatPeerUid);
-            if (db && pKey) {
-                db.ref(`boards/${pKey}/chats/${msgId}`).set(msgObj).catch(() => {});
+            if (pKey) {
+                sharedPairsData[pKey] = sharedPairsData[pKey] || {};
+                sharedPairsData[pKey].chats = sharedPairsData[pKey].chats || {};
+                sharedPairsData[pKey].chats[msgId] = msgObj;
+                if (db) {
+                    db.ref(`boards/${pKey}/chats/${msgId}`).set(msgObj).catch(() => {});
+                }
             }
             markPeerChatAsRead(activeChatPeerUid);
+            renderMessagesSection();
         }
 
         // ================= РАЗДЕЛ: ПРОФИЛЬ =================
@@ -3008,7 +3370,7 @@
             document.getElementById('prof-preview-bio').innerText = bio;
 
             const tagsArr = spec.split(',').map(s => s.trim()).filter(Boolean);
-            document.getElementById('prof-preview-tags').innerHTML = tagsArr.map(t => `<span class="subject-tag">${t}</span>`).join('');
+            document.getElementById('prof-preview-tags').innerHTML = tagsArr.map(t => `<span class="subject-tag">${escHtml(t)}</span>`).join('');
 
             if (isTeacher && currentUser) {
                 const params = new URLSearchParams({ invite: currentUser.uid, tName: name, tSubj: spec });
@@ -3079,12 +3441,12 @@
             saveCurrentProfile();
         }
 
-        // ================= МОДАЛЬНЫЕ ПАНЕЛИ ДОСОК И ТЕТРАДЕЙ (ВМЕСТО PROMPT) =================
+        // ================= МОДАЛЬНЫЕ ПАНЕЛИ ДОСОК И ТЕТРАДЕЙ =================
         function openCreateBoardModal() {
             const studentsArr = getContactsArray();
             const sel = document.getElementById('new-board-student-select');
             sel.innerHTML = `<option value="">Общие доски (без привязки к ученику)</option>` +
-                studentsArr.map(s => `<option value="${s.uid}">Папка ученика: ${s.name}</option>`).join('');
+                studentsArr.map(s => `<option value="${escAttr(s.uid)}">Папка ученика: ${escHtml(s.name)}</option>`).join('');
 
             if (selectedBoardFolder !== 'all' && selectedBoardFolder !== 'general') {
                 sel.value = selectedBoardFolder;
@@ -3179,12 +3541,12 @@
             let html = `<option value="">+ Создать новую доску для урока автоматически</option>`;
             if (studentBoards.length > 0) {
                 html += `<optgroup label="Доски выбранного ученика (по алфавиту)">` +
-                    studentBoards.map(b => `<option value="${b.id}">${b.title}</option>`).join('') +
+                    studentBoards.map(b => `<option value="${escAttr(b.id)}">${escHtml(b.title)}</option>`).join('') +
                     `</optgroup>`;
             }
             if (otherBoards.length > 0) {
                 html += `<optgroup label="Все остальные доски">` +
-                    otherBoards.map(b => `<option value="${b.id}">${b.title}</option>`).join('') +
+                    otherBoards.map(b => `<option value="${escAttr(b.id)}">${escHtml(b.title)}</option>`).join('') +
                     `</optgroup>`;
             }
             boardSelect.innerHTML = html;
@@ -3198,7 +3560,7 @@
                 return;
             }
             const stSelect = document.getElementById('sch-student-select');
-            stSelect.innerHTML = studentsArr.map(s => `<option value="${s.uid}">${s.name}</option>`).join('');
+            stSelect.innerHTML = studentsArr.map(s => `<option value="${escAttr(s.uid)}">${escHtml(s.name)}</option>`).join('');
 
             const existingLesson = editId ? getMergedScheduleList().find(s => s.id === editId) : null;
             if (existingLesson) {
@@ -3268,6 +3630,11 @@
             setLocalUserCache(currentUser.uid, currentUserData);
 
             const pKey = getPairKey(stUid);
+            if (pKey) {
+                sharedPairsData[pKey] = sharedPairsData[pKey] || {};
+                sharedPairsData[pKey].schedule = sharedPairsData[pKey].schedule || {};
+                sharedPairsData[pKey].schedule[id] = payload;
+            }
             if (db) {
                 db.ref(`users/${currentUser.uid}/schedule/${id}`).set(payload).catch(() => {});
                 if (pKey) db.ref(`boards/${pKey}/schedule/${id}`).set(payload).catch(() => {});
@@ -3281,6 +3648,9 @@
             if (currentUserData.schedule) delete currentUserData.schedule[id];
             setLocalUserCache(currentUser.uid, currentUserData);
             const pKey = getPairKey(stUid);
+            if (pKey && sharedPairsData[pKey]?.schedule) {
+                delete sharedPairsData[pKey].schedule[id];
+            }
             if (db) {
                 db.ref(`users/${currentUser.uid}/schedule/${id}`).remove().catch(() => {});
                 if (pKey) db.ref(`boards/${pKey}/schedule/${id}`).remove().catch(() => {});
@@ -3288,7 +3658,6 @@
             renderAllSections();
         }
 
-        // Модалка "Создать урок" с фильтрацией по ученику
         function setLessonBoardScope(scope) {
             lessonBoardScope = scope;
             document.getElementById('board-scope-student').classList.toggle('active', scope === 'student');
@@ -3314,7 +3683,7 @@
                 : getSortedBoardsForStudent(null, true);
 
             if (list.length > 0) {
-                boardSelect.innerHTML = list.map(b => `<option value="${b.id}">${b.title}</option>`).join('');
+                boardSelect.innerHTML = list.map(b => `<option value="${escAttr(b.id)}">${escHtml(b.title)}</option>`).join('');
             } else {
                 boardSelect.innerHTML = `<option value="">${scope === 'student' ? 'У этого ученика пока нет своих досок (создайте новую или выберите «Все доски»)' : 'Досок пока нет'}</option>`;
             }
@@ -3339,7 +3708,7 @@
             if (studentsArr.length > 0) {
                 hasBox.style.display = 'block';
                 noBox.style.display = 'none';
-                stSelect.innerHTML = studentsArr.map(s => `<option value="${s.uid}">${s.name}</option>`).join('');
+                stSelect.innerHTML = studentsArr.map(s => `<option value="${escAttr(s.uid)}">${escHtml(s.name)}</option>`).join('');
                 if (preselectStudentUid) stSelect.value = preselectStudentUid;
                 else if (selectedBoardFolder !== 'all' && selectedBoardFolder !== 'general') stSelect.value = selectedBoardFolder;
             } else {
@@ -3544,9 +3913,9 @@
 
         function handleGlobalSearch(q) {
             const term = q.trim().toLowerCase();
-            document.querySelectorAll('.row-item').forEach(row => {
-                const txt = row.innerText.toLowerCase();
-                row.style.display = (!term || txt.includes(term)) ? 'flex' : 'none';
+            document.querySelectorAll('.row-item, .canvas-card, .deck-stack-card, .timeline-item').forEach(el => {
+                const txt = el.innerText.toLowerCase();
+                el.style.display = (!term || txt.includes(term)) ? '' : 'none';
             });
         }
 
