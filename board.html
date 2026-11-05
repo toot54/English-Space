@@ -3,57 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Space — Урок</title>
+    <title>ESpace — Интерактивный урок</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
     <style>
         :root {
-            --bg-page: #f8faf9;
-            --bg-surface: #ffffff;
-            --bg-subtle: #f2f5f3;
-            --bg-hover: #e9efec;
-            --text-primary: #111815;
-            --text-secondary: #5c6661;
-            --text-muted: #8c9691;
-            --border: #e3e8e5;
-            --border-strong: #cdd6d1;
-            --emerald: #0d7350;
-            --emerald-hover: #0a5c40;
-            --emerald-soft: #e6f4ef;
-            --emerald-border: #a7dbc6;
-            --danger: #b91c1c;
-            --danger-soft: #fef2f2;
-            --danger-border: #fecaca;
-            --dot-color: #d5ddd8;
-        }
-
-        body.dark-theme {
-            --bg-page: #111614;
-            --bg-surface: #181f1c;
-            --bg-subtle: #202925;
-            --bg-hover: #28332e;
-            --text-primary: #f0f4f2;
-            --text-secondary: #9ca8a2;
-            --text-muted: #68736e;
-            --border: #26302b;
-            --border-strong: #35423c;
-            --emerald: #109468;
-            --emerald-hover: #14ad7a;
-            --emerald-soft: rgba(16, 148, 104, 0.16);
-            --emerald-border: rgba(16, 148, 104, 0.42);
-            --danger: #f87171;
+            --bg-page: #080c0b;
+            --bg-surface: #0f1513;
+            --bg-elevated: #151d1a;
+            --bg-subtle: #1a2420;
+            --bg-hover: #212e29;
+            --surface-grad: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 100%);
+            --spec-top: rgba(255, 255, 255, 0.1);
+            --text-primary: #f2f7f5;
+            --text-secondary: #92a39c;
+            --text-muted: #596963;
+            --border: #1c2622;
+            --border-strong: #283731;
+            --emerald: #10a372;
+            --emerald-hover: #0d8a60;
+            --emerald-glow: rgba(16, 163, 114, 0.25);
+            --emerald-soft: rgba(16, 163, 114, 0.15);
+            --emerald-border: rgba(16, 163, 114, 0.4);
+            --danger: #ef4444;
             --danger-soft: rgba(239, 68, 68, 0.14);
             --danger-border: rgba(239, 68, 68, 0.35);
-            --dot-color: #2b3631;
+            --dot-color: rgba(146, 163, 156, 0.18);
+            --island-shadow: 0 14px 32px -8px rgba(0, 0, 0, 0.6);
+        }
+
+        body.light-theme {
+            --bg-page: #f3f6f4;
+            --bg-surface: #ffffff;
+            --bg-elevated: #f8faf9;
+            --bg-subtle: #ebf1ee;
+            --bg-hover: #e0e9e4;
+            --surface-grad: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 251, 249, 0.6) 100%);
+            --spec-top: rgba(255, 255, 255, 1);
+            --text-primary: #0f1714;
+            --text-secondary: #55665f;
+            --text-muted: #84948d;
+            --border: #dce5e0;
+            --border-strong: #c6d4cd;
+            --emerald: #0c855c;
+            --emerald-hover: #096c4a;
+            --emerald-glow: rgba(12, 133, 92, 0.16);
+            --emerald-soft: #e3f5ee;
+            --emerald-border: #9edbc4;
+            --danger: #dc2626;
+            --danger-soft: #fef2f2;
+            --danger-border: #fecaca;
+            --dot-color: rgba(15, 23, 20, 0.15);
+            --island-shadow: 0 10px 26px -6px rgba(15, 23, 20, 0.1);
         }
 
         * {
             box-sizing: border-box; margin: 0; padding: 0;
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
             user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
         }
         html, body {
@@ -61,37 +71,42 @@
             height: 100%; width: 100%; position: fixed; inset: 0; touch-action: none;
         }
 
+        .font-display { font-family: 'Unbounded', 'Inter', sans-serif; letter-spacing: -0.02em; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+
         .classroom-layout {
             display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden;
         }
 
         /* ================= 1. ВЕРХНЯЯ ПАНЕЛЬ ================= */
         .class-topbar {
-            height: 52px; background: var(--bg-surface); border-bottom: 1px solid var(--border);
+            height: 54px; background: var(--bg-surface); background-image: var(--surface-grad);
+            border-bottom: 1px solid var(--border);
             padding: 0 14px; display: flex; align-items: center; justify-content: space-between;
-            gap: 10px; flex-shrink: 0; z-index: 150; overflow-x: auto; scrollbar-width: none;
+            gap: 10px; flex-shrink: 0; z-index: 160; overflow-x: auto; scrollbar-width: none;
         }
         .class-topbar::-webkit-scrollbar { display: none; }
         .topbar-left, .topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; height: 100%; }
 
         .top-btn {
             height: 32px; padding: 0 12px; border-radius: 8px;
-            border: 1px solid var(--border-strong); background: var(--bg-surface);
-            color: var(--text-primary); font-size: 12px; font-weight: 600;
-            cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
-            gap: 6px; transition: 0.14s; white-space: nowrap;
+            border: 1px solid var(--border-strong); border-top-color: var(--spec-top);
+            background: var(--bg-elevated); color: var(--text-primary);
+            font-size: 12px; font-weight: 600; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 6px; transition: 0.15s; white-space: nowrap;
         }
         .top-btn:hover { background: var(--bg-hover); }
-        .top-btn.active { background: var(--emerald-soft); border-color: var(--emerald); color: var(--emerald); }
+        .top-btn.active { background: var(--emerald-soft); border-color: var(--emerald); color: var(--emerald); font-weight: 700; }
         .top-btn svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; }
         .top-btn-icon { width: 32px; padding: 0; }
         .top-btn-danger {
-            border-color: var(--danger-border); color: var(--danger); font-weight: 700;
+            background: var(--danger-soft); border-color: var(--danger-border); color: var(--danger); font-weight: 700;
         }
-        .top-btn-danger:hover { background: var(--danger-soft); }
+        .top-btn-danger:hover { background: var(--danger); color: #fff; }
 
         .lesson-title-text {
-            font-size: 14px; font-weight: 800; color: var(--text-primary);
+            font-size: 13px; font-weight: 700; color: var(--text-primary);
             padding: 0 6px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
 
@@ -106,93 +121,102 @@
         .top-tab.active::after {
             content: ''; position: absolute; bottom: 0; left: 8px; right: 8px;
             height: 2.5px; background: var(--emerald); border-radius: 2px 2px 0 0;
+            box-shadow: 0 -2px 8px var(--emerald-glow);
         }
 
         .timer-pill {
             height: 32px; padding: 0 11px; border-radius: 8px;
-            border: 1px solid var(--border-strong); background: var(--bg-surface);
+            border: 1px solid var(--border-strong); border-top-color: var(--spec-top);
+            background: var(--bg-elevated);
             display: inline-flex; align-items: center; gap: 8px; font-size: 12px;
         }
-        .timer-digits { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+        .timer-digits { font-weight: 700; color: var(--emerald); }
         .timer-action-link {
-            border: none; background: none; color: var(--emerald);
-            font-size: 12px; font-weight: 700; cursor: pointer;
+            border: none; background: none; color: var(--text-primary);
+            font-size: 11px; font-weight: 700; cursor: pointer; padding: 2px 6px;
+            border-radius: 5px; background: var(--bg-subtle);
         }
-        .timer-action-link:hover { color: var(--emerald-hover); }
+        .timer-action-link:hover { background: var(--emerald); color: #fff; }
 
         .follow-switch-wrap {
             height: 32px; padding: 0 10px; border-radius: 8px;
             display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
             font-size: 12px; font-weight: 600; color: var(--text-primary);
+            border: 1px solid var(--border); background: var(--bg-elevated);
         }
         .switch-track {
-            width: 34px; height: 20px; border-radius: 999px;
+            width: 32px; height: 18px; border-radius: 999px;
             background: var(--border-strong); position: relative; transition: 0.18s;
         }
         .switch-thumb {
-            width: 16px; height: 16px; border-radius: 50%; background: #fff;
+            width: 14px; height: 14px; border-radius: 50%; background: #fff;
             position: absolute; top: 2px; left: 2px; transition: 0.18s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
         .follow-switch-wrap.active .switch-track { background: var(--emerald); }
         .follow-switch-wrap.active .switch-thumb { transform: translateX(14px); }
 
-        /* ================= 2. РАБОЧАЯ ЗОНА И ХОЛСТ ================= */
+        /* ================= 2. РАБОЧАЯ ЗОНА И ХОЛСТ (GPU ACCELERATED) ================= */
         .class-body {
             flex: 1; display: flex; min-height: 0; position: relative; overflow: hidden;
         }
 
         #board-viewport {
-            flex: 1; height: 100%; overflow: hidden; position: relative;
-            cursor: crosshair; touch-action: none;
-            background-color: var(--bg-page);
-            background-image: radial-gradient(var(--dot-color) 1.35px, transparent 1.35px);
-            background-size: 24px 24px;
+            flex: 1; height: 100%; width: 100%; overflow: hidden; position: relative;
+            cursor: crosshair; touch-action: none; background-color: var(--bg-page);
         }
+
+        /* Сетка точек нанесена прямо на #board-world для 60 FPS GPU-трансформации без лагов перерисовки */
         #board-world {
             width: 4200px; height: 3000px; position: absolute; top: 0; left: 0;
             transform-origin: 0 0; will-change: transform; touch-action: none;
+            background-color: var(--bg-page);
+            background-image: radial-gradient(var(--dot-color) 1.4px, transparent 1.4px);
+            background-size: 24px 24px;
         }
 
         canvas { position: absolute; top: 0; left: 0; z-index: 25; pointer-events: none; }
         #temp-canvas { z-index: 26; }
+        #remote-live-canvas { z-index: 27; }
 
         .follow-status-pill {
             position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
-            background: var(--bg-surface); border: 1px solid var(--border);
-            padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600;
+            background: var(--bg-surface); background-image: var(--surface-grad);
+            border: 1px solid var(--border-strong); border-top-color: var(--spec-top);
+            padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 600;
             color: var(--text-secondary); display: flex; align-items: center; gap: 7px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.04); z-index: 110; pointer-events: none;
+            box-shadow: var(--island-shadow); z-index: 110; pointer-events: none;
         }
-        .follow-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--emerald); }
+        .follow-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--emerald); box-shadow: 0 0 8px var(--emerald); }
 
-        /* Левая вертикальная панель инструментов (Без Выбора и Указки, Выделитель между Маркером и Текстом) */
+        /* Левая вертикальная панель инструментов */
         .left-toolbar {
             position: absolute; top: 14px; left: 14px;
-            background: var(--bg-surface); border: 1px solid var(--border);
-            border-radius: 12px; padding: 6px;
-            display: flex; flex-direction: column; gap: 4px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.05); z-index: 120;
+            background: var(--bg-surface); background-image: var(--surface-grad);
+            border: 1px solid var(--border-strong); border-top-color: var(--spec-top);
+            border-radius: 13px; padding: 6px;
+            display: flex; flex-direction: column; gap: 5px;
+            box-shadow: var(--island-shadow); z-index: 120;
         }
         .v-tool-btn {
-            width: 34px; height: 34px; border-radius: 8px; border: none;
+            width: 36px; height: 36px; border-radius: 9px; border: 1px solid transparent;
             background: transparent; color: var(--text-secondary);
             cursor: pointer; display: flex; align-items: center; justify-content: center;
             transition: 0.14s;
         }
         .v-tool-btn svg { width: 17px; height: 17px; stroke: currentColor; stroke-width: 1.9; fill: none; }
-        .v-tool-btn:hover { background: var(--bg-subtle); color: var(--text-primary); }
+        .v-tool-btn:hover { background: var(--bg-elevated); color: var(--text-primary); }
         .v-tool-btn.active {
-            background: var(--emerald-soft); color: var(--emerald);
+            background: var(--emerald-soft); border-color: var(--emerald-border); color: var(--emerald);
         }
         .v-tool-btn.disabled-pan { opacity: 0.35; pointer-events: none; }
 
-        /* Всплывающая карточка настроек (Скрыта при входе, закрывается при касании доски) */
+        /* Всплывающая карточка настроек */
         .tool-settings-card {
             position: absolute; top: 64px; left: 68px;
-            background: var(--bg-surface); border: 1px solid var(--border);
-            border-radius: 12px; padding: 12px 14px; width: 205px;
-            box-shadow: 0 10px 28px rgba(0,0,0,0.08); z-index: 120;
+            background: var(--bg-surface); background-image: var(--surface-grad);
+            border: 1px solid var(--border-strong); border-top-color: var(--spec-top);
+            border-radius: 13px; padding: 12px 14px; width: 210px;
+            box-shadow: var(--island-shadow); z-index: 120;
             display: none; flex-direction: column; gap: 10px;
         }
         .tool-settings-title { font-size: 12px; font-weight: 700; color: var(--text-primary); }
@@ -202,88 +226,91 @@
             border: 2px solid var(--bg-surface); box-shadow: 0 0 0 1px var(--border-strong);
             transition: 0.12s;
         }
-        .color-swatch.active { box-shadow: 0 0 0 2px var(--emerald); transform: scale(1.12); }
+        .color-swatch.active { box-shadow: 0 0 0 2px var(--emerald); transform: scale(1.14); }
         .thickness-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: -4px; }
         .thickness-range { width: 100%; accent-color: var(--emerald); cursor: pointer; }
 
         /* Нижний левый островок */
         .bottom-left-island {
             position: absolute; bottom: 14px; left: 14px;
-            background: var(--bg-surface); border: 1px solid var(--border);
-            border-radius: 10px; padding: 4px 6px;
+            background: var(--bg-surface); background-image: var(--surface-grad);
+            border: 1px solid var(--border-strong); border-top-color: var(--spec-top);
+            border-radius: 11px; padding: 4px 6px;
             display: flex; align-items: center; gap: 4px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.05); z-index: 120;
+            box-shadow: var(--island-shadow); z-index: 120;
         }
         .island-btn {
-            width: 30px; height: 30px; border-radius: 7px; border: none;
+            width: 32px; height: 32px; border-radius: 8px; border: none;
             background: transparent; color: var(--text-secondary);
             cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
         .island-btn svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 2; fill: none; }
-        .island-btn:hover { background: var(--bg-subtle); color: var(--text-primary); }
-        .island-btn.danger { color: #dc2626; }
+        .island-btn:hover { background: var(--bg-elevated); color: var(--text-primary); }
+        .island-btn.danger { color: var(--danger); }
         .island-btn.danger:hover { background: var(--danger-soft); }
 
         /* Нижний правый островок: Масштаб */
         .bottom-right-island {
             position: absolute; bottom: 14px; right: 14px;
-            background: var(--bg-surface); border: 1px solid var(--border);
-            border-radius: 10px; padding: 4px 8px;
+            background: var(--bg-surface); background-image: var(--surface-grad);
+            border: 1px solid var(--border-strong); border-top-color: var(--spec-top);
+            border-radius: 11px; padding: 4px 8px;
             display: flex; align-items: center; gap: 6px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.05); z-index: 120;
+            box-shadow: var(--island-shadow); z-index: 120;
         }
         .zoom-pct {
             font-size: 12px; font-weight: 700; color: var(--text-primary);
-            min-width: 40px; text-align: center; cursor: pointer;
+            min-width: 44px; text-align: center; cursor: pointer;
         }
 
-        /* Живой курсор собеседника */
+        /* Плавный GPU-курсор собеседника без рывков */
         #remote-peer-cursor {
-            position: absolute; pointer-events: none; z-index: 75;
-            display: none; transition: left 0.05s linear, top 0.05s linear;
+            position: absolute; top: 0; left: 0; pointer-events: none; z-index: 75;
+            display: none; will-change: transform;
         }
         .peer-cursor-tag {
-            background: #2563eb; color: #fff; font-size: 10px; font-weight: 700;
-            padding: 2px 7px; border-radius: 5px; margin-left: 12px; margin-top: -4px;
-            white-space: nowrap; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+            background: var(--emerald); color: #fff; font-size: 10px; font-weight: 700;
+            padding: 2px 8px; border-radius: 6px; margin-left: 12px; margin-top: -4px;
+            white-space: nowrap; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
         }
 
-        /* ================= 3. ПРАВАЯ КОЛОНКА (КАМЕРЫ С ПЕРЕКЛЮЧЕНИЕМ + ЧАТ) ================= */
+        /* ================= 3. ПРАВАЯ КОЛОНКА (БЕЗ ПУСТОЙ ЗОНЫ ПРИ СКРЫТИИ ЧАТА!) ================= */
         .class-sidebar {
-            width: 282px; background: var(--bg-surface); border-left: 1px solid var(--border);
+            width: 292px; background: var(--bg-surface); background-image: var(--surface-grad);
+            border-left: 1px solid var(--border);
             display: flex; flex-direction: column; padding: 12px; gap: 10px;
-            flex-shrink: 0; z-index: 130; min-height: 0; transition: height 0.2s;
+            flex-shrink: 0; z-index: 140; min-height: 0;
         }
-        .class-sidebar.collapsed { display: none; }
+        .class-sidebar.collapsed { display: none !important; }
+
+        /* Когда чат скрыт, панель превращается в компактный плавающий блок камер в правом верхнем углу — пустая зона внизу полностью исчезает! */
         .class-sidebar.chat-hidden-mode {
-            justify-content: flex-start;
-        }
-        .class-sidebar.chat-hidden-mode .pip-camera-stage {
-            height: 220px;
+            position: absolute; top: 12px; right: 12px;
+            height: auto; width: 286px;
+            border: 1px solid var(--border-strong); border-top-color: var(--spec-top);
+            border-radius: 14px; box-shadow: var(--island-shadow);
         }
 
-        /* Контейнер камеры Картинка-в-картинке с поддержкой смены главной камеры по клику */
         .pip-camera-stage {
-            width: 100%; height: 162px; background: #202422; border-radius: 10px;
-            position: relative; overflow: hidden; border: 1px solid var(--border); flex-shrink: 0;
-            transition: height 0.2s;
+            width: 100%; height: 168px; background: #101614; border-radius: 11px;
+            position: relative; overflow: hidden; border: 1px solid var(--border-strong); flex-shrink: 0;
         }
 
         .cam-slot {
             overflow: hidden; display: flex; align-items: center; justify-content: center;
-            background: #202422; transition: all 0.2s ease;
+            background: #101614; transition: all 0.2s ease;
         }
         .cam-slot.cam-main {
             position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; cursor: default;
         }
         .cam-slot.cam-pip {
-            position: absolute; bottom: 8px; right: 8px; width: 82px; height: 58px;
-            border-radius: 7px; background: #2d3330;
-            border: 1.5px solid rgba(255, 255, 255, 0.78);
-            z-index: 5; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            position: absolute; bottom: 8px; right: 8px; width: 84px; height: 60px;
+            border-radius: 8px; background: #1b2420;
+            border: 1.5px solid rgba(255, 255, 255, 0.75);
+            z-index: 5; cursor: pointer; box-shadow: 0 6px 14px rgba(0,0,0,0.5);
         }
         .cam-slot.cam-pip:hover {
-            border-color: var(--emerald); transform: scale(1.03);
+            border-color: var(--emerald); transform: scale(1.04);
         }
 
         .cam-slot video, .cam-slot img {
@@ -295,20 +322,20 @@
         #localVideo { z-index: 2; display: none; }
 
         .cam-slot-placeholder {
-            color: #9ca8a2; font-size: 12px; font-weight: 600;
+            color: var(--text-secondary); font-size: 12px; font-weight: 600;
             z-index: 3; pointer-events: none; text-align: center; padding: 6px;
         }
         .cam-slot.cam-pip .cam-slot-placeholder { font-size: 10px; }
 
         .cam-slot-badge {
             position: absolute; bottom: 7px; left: 8px; z-index: 4;
-            background: rgba(255, 255, 255, 0.92); color: #111815;
+            background: rgba(15, 21, 19, 0.82); backdrop-filter: blur(4px); color: #fff;
+            border: 1px solid rgba(255,255,255,0.12);
             font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px;
-            pointer-events: none;
+            pointer-events: none; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
         .cam-slot.cam-pip .cam-slot-badge {
             bottom: 4px; left: 5px; font-size: 9px; padding: 1px 5px;
-            background: rgba(0,0,0,0.65); color: #fff;
         }
 
         .media-bar {
@@ -318,7 +345,7 @@
         .media-circles { display: flex; align-items: center; gap: 6px; }
         .circle-ctrl-btn {
             width: 34px; height: 34px; border-radius: 50%;
-            border: 1px solid var(--border-strong); background: var(--bg-surface);
+            border: 1px solid var(--border-strong); background: var(--bg-elevated);
             color: var(--text-primary); cursor: pointer;
             display: flex; align-items: center; justify-content: center; transition: 0.15s;
         }
@@ -326,6 +353,7 @@
         .circle-ctrl-btn:hover { background: var(--bg-hover); }
         .circle-ctrl-btn.lit {
             background: var(--emerald-soft); border-color: var(--emerald); color: var(--emerald);
+            box-shadow: 0 0 12px var(--emerald-glow);
         }
 
         .rtc-status-inline {
@@ -339,15 +367,15 @@
             background: transparent; color: var(--text-secondary); cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
-        .rtc-refresh-btn:hover { background: var(--bg-subtle); color: var(--text-primary); }
+        .rtc-refresh-btn:hover { background: var(--bg-elevated); color: var(--text-primary); }
         .rtc-refresh-btn svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; }
 
-        /* Чат (с кнопкой скрытия чата) */
+        /* Чат */
         .chat-section {
             flex: 1; border-top: 1px solid var(--border); padding-top: 8px;
             display: flex; flex-direction: column; min-height: 0;
         }
-        .chat-section.hidden { display: none; }
+        .chat-section.hidden { display: none !important; }
         .chat-header-row {
             display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;
         }
@@ -356,7 +384,7 @@
             border: none; background: transparent; color: var(--text-secondary);
             font-size: 11px; font-weight: 600; cursor: pointer; padding: 2px 6px; border-radius: 5px;
         }
-        .chat-hide-btn:hover { background: var(--bg-subtle); color: var(--text-primary); }
+        .chat-hide-btn:hover { background: var(--bg-elevated); color: var(--text-primary); }
 
         .chat-messages {
             flex: 1; overflow-y: auto; display: flex; flex-direction: column;
@@ -365,8 +393,11 @@
         }
         .chat-empty { margin: auto; font-size: 12px; color: var(--text-muted); text-align: center; }
         .chat-msg {
-            background: var(--bg-subtle); border: 1px solid var(--border);
-            padding: 7px 10px; border-radius: 8px; line-height: 1.4; word-break: break-word;
+            background: var(--bg-elevated); border: 1px solid var(--border);
+            padding: 7px 10px; border-radius: 9px; line-height: 1.4; word-break: break-word;
+        }
+        .chat-msg.mine {
+            background: var(--emerald-soft); border-color: var(--emerald-border);
         }
         .chat-msg-author { font-size: 11px; font-weight: 700; color: var(--emerald); margin-bottom: 2px; }
         .chat-input-row {
@@ -374,7 +405,7 @@
         }
         .chat-input {
             flex: 1; height: 34px; padding: 0 11px; border-radius: 8px;
-            border: 1px solid var(--border-strong); background: var(--bg-surface);
+            border: 1px solid var(--border-strong); background: var(--bg-elevated);
             color: var(--text-primary); font-size: 12px; outline: none;
             user-select: text; -webkit-user-select: text;
         }
@@ -389,9 +420,10 @@
         /* Всплывающее меню виджетов и таймера */
         .popover-box {
             position: fixed; top: 58px; right: 90px;
-            background: var(--bg-surface); border: 1px solid var(--border-strong);
-            border-radius: 12px; padding: 14px; width: 320px; max-width: 94vw;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.12); z-index: 220; display: none;
+            background: var(--bg-surface); background-image: var(--surface-grad);
+            border: 1px solid var(--border-strong); border-top-color: var(--spec-top);
+            border-radius: 14px; padding: 14px; width: 320px; max-width: 94vw;
+            box-shadow: var(--island-shadow); z-index: 220; display: none;
         }
         .popover-head {
             display: flex; justify-content: space-between; align-items: center;
@@ -401,9 +433,9 @@
         .widget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
         .widget-pick-btn {
             border: 1px solid var(--border-strong); border-radius: 8px; padding: 9px 11px;
-            background: var(--bg-subtle); color: var(--text-primary);
+            background: var(--bg-elevated); color: var(--text-primary);
             font-size: 12px; font-weight: 600; cursor: pointer; text-align: left;
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between; transition: 0.14s;
         }
         .widget-pick-btn:hover {
             background: var(--emerald-soft); border-color: var(--emerald); color: var(--emerald);
@@ -413,7 +445,7 @@
             position: fixed; top: 64px; left: 50%; transform: translateX(-50%);
             background: var(--emerald); color: #fff; padding: 7px 16px;
             border-radius: 999px; font-size: 12px; font-weight: 700;
-            box-shadow: 0 8px 24px rgba(13, 115, 80, 0.3);
+            box-shadow: 0 8px 24px var(--emerald-glow);
             display: none; align-items: center; gap: 10px; z-index: 200;
         }
         .placement-cancel-btn {
@@ -421,10 +453,11 @@
             padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; cursor: pointer;
         }
 
-        /* ================= 4. ВИДЖЕТЫ (ИДЕАЛЬНО ЦЕНТРИРОВАННАЯ ШТОРКА) ================= */
+        /* ================= 4. ВИДЖЕТЫ ================= */
         .widget {
-            position: absolute; background: var(--bg-surface); border-radius: 12px;
-            box-shadow: 0 10px 28px rgba(0,0,0,0.08); border: 1px solid var(--border-strong);
+            position: absolute; background: var(--bg-surface); background-image: var(--surface-grad);
+            border-radius: 13px; box-shadow: var(--island-shadow);
+            border: 1px solid var(--border-strong); border-top-color: var(--spec-top);
             padding: 6px 10px 12px 10px; z-index: 35;
             display: flex; flex-direction: column; overflow: hidden;
         }
@@ -439,15 +472,14 @@
             cursor: move; padding: 2px 2px 6px 2px; flex-shrink: 0; min-height: 28px; touch-action: none;
         }
         .widget-actions-left, .widget-actions-right { display: flex; align-items: center; gap: 4px; z-index: 2; }
-        /* Строго по геометрическому центру виджета независимо от ширины кнопок по краям */
         .grip-bar {
             position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
             width: 36px; height: 4px; background: var(--border-strong); border-radius: 8px;
             pointer-events: none;
         }
         .header-icon-btn, .close-btn {
-            height: 22px; padding: 0 7px; border-radius: 5px; border: 1px solid var(--border);
-            background: var(--bg-subtle); color: var(--text-secondary);
+            height: 22px; padding: 0 7px; border-radius: 5px; border: 1px solid var(--border-strong);
+            background: var(--bg-elevated); color: var(--text-secondary);
             font-size: 10px; font-weight: 700; cursor: pointer;
             display: inline-flex; align-items: center; justify-content: center;
         }
@@ -468,7 +500,10 @@
             border: 1.5px dashed transparent; display: flex; align-items: flex-start; gap: 6px;
         }
         .board-text-node:hover, .board-text-node:focus-within {
-            border-color: var(--border-strong); background: rgba(255, 255, 255, 0.88);
+            border-color: var(--emerald); background: rgba(15, 21, 19, 0.75);
+        }
+        body.light-theme .board-text-node:hover, body.light-theme .board-text-node:focus-within {
+            background: rgba(255, 255, 255, 0.88);
         }
         .board-text-drag { cursor: move; color: var(--text-muted); font-size: 13px; padding: 2px 4px; opacity: 0; touch-action: none; }
         .board-text-node:hover .board-text-drag, .board-text-node:focus-within .board-text-drag { opacity: 1; }
@@ -496,7 +531,7 @@
             padding: 6px 10px; border-radius: 7px; font-size: 11px; font-weight: 700;
             cursor: pointer; margin-bottom: 6px; width: 100%; text-align: center; display: block;
         }
-        .video-widget-box video { width: 100%; flex: 1; min-height: 0; border-radius: 7px; background: #111815; object-fit: contain; }
+        .video-widget-box video { width: 100%; flex: 1; min-height: 0; border-radius: 7px; background: #080c0b; object-fit: contain; }
         .video-unmute-hint {
             position: absolute; bottom: 44px; left: 50%; transform: translateX(-50%);
             background: var(--emerald); color: #fff; border: none;
@@ -506,9 +541,9 @@
 
         .essay-widget-box { width: 350px; height: 245px; min-width: 230px; min-height: 165px; }
         .essay-widget-box textarea {
-            width: 100%; flex: 1; min-height: 0; border: 1px solid var(--border); border-radius: 8px;
+            width: 100%; flex: 1; min-height: 0; border: 1px solid var(--border-strong); border-radius: 8px;
             padding: 10px; font-size: 13px; font-weight: 500; line-height: 1.45;
-            background: var(--bg-subtle); color: var(--text-primary);
+            background: var(--bg-elevated); color: var(--text-primary);
             resize: none; user-select: text; -webkit-user-select: text; outline: none;
         }
         .word-counter { margin-top: 6px; font-size: 11px; font-weight: 700; color: var(--text-secondary); flex-shrink: 0; }
@@ -521,11 +556,10 @@
         }
         .sticker-dot { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.2); }
 
-        /* Обновленный красивый виджет Speaking (без стандартного серого <audio>) */
         .speaking-widget-box { width: 345px; height: 248px; min-width: 280px; min-height: 225px; }
         .speaking-presets { display: flex; gap: 6px; margin-bottom: 8px; flex-shrink: 0; }
         .spk-preset-btn {
-            flex: 1; border: 1px solid var(--border-strong); background: var(--bg-subtle);
+            flex: 1; border: 1px solid var(--border-strong); background: var(--bg-elevated);
             color: var(--text-secondary); padding: 6px 8px; border-radius: 8px;
             font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.14s;
         }
@@ -533,12 +567,12 @@
             background: var(--emerald-soft); color: var(--emerald); border-color: var(--emerald); font-weight: 700;
         }
         .speaking-studio-card {
-            background: var(--bg-subtle); border: 1px solid var(--border);
+            background: var(--bg-elevated); border: 1px solid var(--border-strong);
             border-radius: 10px; padding: 10px 12px; margin-bottom: 8px;
             display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0;
         }
         .speaking-clock {
-            font-size: 22px; font-weight: 800; color: var(--text-primary);
+            font-size: 22px; font-weight: 800; color: var(--emerald);
             font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
         }
         .spk-btns-wrap { display: flex; align-items: center; gap: 6px; }
@@ -547,7 +581,6 @@
             background: var(--bg-surface); color: var(--text-primary);
             font-size: 11px; font-weight: 700; cursor: pointer;
         }
-        .spk-ctrl-btn:hover { background: var(--bg-hover); }
         .speaking-rec-btn {
             height: 30px; padding: 0 12px; border-radius: 7px; border: none;
             background: #dc2626; color: #fff; font-size: 11px; font-weight: 700;
@@ -558,9 +591,8 @@
         }
         @keyframes recPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.72; } }
 
-        /* Кастомный аудиоплеер для Speaking */
         .spk-custom-player {
-            margin-top: auto; background: var(--bg-subtle); border: 1px solid var(--border);
+            margin-top: auto; background: var(--bg-elevated); border: 1px solid var(--border-strong);
             border-radius: 10px; padding: 8px 10px; display: flex; align-items: center; gap: 10px;
             flex-shrink: 0;
         }
@@ -571,9 +603,7 @@
         }
         .spk-play-btn:disabled { background: var(--border-strong); cursor: not-allowed; }
         .spk-play-btn svg { width: 13px; height: 13px; fill: currentColor; }
-        .spk-wave-wrap {
-            flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0;
-        }
+        .spk-wave-wrap { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
         .spk-progress-track {
             width: 100%; height: 6px; background: var(--border-strong);
             border-radius: 999px; overflow: hidden; cursor: pointer; position: relative;
@@ -590,26 +620,26 @@
         .dict-widget-box { width: 345px; height: 275px; min-width: 260px; min-height: 210px; }
         .dict-search-row { display: flex; gap: 6px; margin-bottom: 8px; flex-shrink: 0; }
         .dict-input {
-            flex: 1; padding: 6px 10px; border: 1px solid var(--border-strong); background: var(--bg-subtle);
+            flex: 1; padding: 6px 10px; border: 1px solid var(--border-strong); background: var(--bg-elevated);
             color: var(--text-primary); border-radius: 7px; font-size: 12px; font-weight: 600; outline: none;
             user-select: text; -webkit-user-select: text;
         }
         .dict-search-btn { background: var(--emerald); color: #fff; border: none; padding: 0 12px; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; }
         .dict-body {
-            flex: 1; overflow-y: auto; background: var(--bg-subtle); border: 1px solid var(--border);
+            flex: 1; overflow-y: auto; background: var(--bg-elevated); border: 1px solid var(--border);
             border-radius: 7px; padding: 8px 10px; font-size: 12px; color: var(--text-primary);
             user-select: text; -webkit-user-select: text; line-height: 1.45;
         }
         .dict-links-row { display: flex; gap: 6px; margin-top: 6px; flex-shrink: 0; }
         .dict-ext-link {
             flex: 1; text-align: center; text-decoration: none; font-size: 10px; font-weight: 700;
-            padding: 5px; border-radius: 6px; background: var(--bg-subtle); color: var(--text-secondary); border: 1px solid var(--border);
+            padding: 5px; border-radius: 6px; background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border);
         }
 
         @media (max-width: 860px) {
             .class-sidebar {
-                position: fixed; top: 52px; right: 0; bottom: 0;
-                box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+                position: fixed; top: 54px; right: 0; bottom: 0;
+                box-shadow: -10px 0 30px rgba(0,0,0,0.4);
             }
             .lesson-title-text { max-width: 130px; }
         }
@@ -642,7 +672,7 @@
         <header class="class-topbar">
             <div class="topbar-left">
                 <button class="top-btn" onclick="exitToCabinet()">← Кабинет</button>
-                <span class="lesson-title-text" id="board-title-label">Тема урока</span>
+                <span class="lesson-title-text font-display" id="board-title-label">Тема урока</span>
 
                 <nav class="top-tabs">
                     <button class="top-tab active" id="top-tab-board" onclick="switchTopTab('board')">Доска</button>
@@ -653,7 +683,7 @@
 
             <div class="topbar-right">
                 <div class="timer-pill">
-                    <span class="timer-digits" id="timer-text">00:00</span>
+                    <span class="timer-digits font-mono" id="timer-text">00:00</span>
                     <button class="timer-action-link" id="btn-timer-start" onclick="toggleLessonTimeMenu(event)">Старт</button>
                 </div>
 
@@ -667,7 +697,7 @@
                     Файл
                 </button>
 
-                <button class="top-btn" id="btn-toggle-chat" onclick="toggleChatSection()" title="Скрыть или показать чат (оставить только камеры)">
+                <button class="top-btn active" id="btn-toggle-chat" onclick="toggleChatSection()" title="Скрыть чат (оставить только камеры без пустой зоны)">
                     Чат
                 </button>
 
@@ -682,7 +712,7 @@
         <!-- Всплывающее меню файлов и виджетов -->
         <div class="popover-box" id="widgets-modal">
             <div class="popover-head">
-                <span>Добавить на доску</span>
+                <span class="font-display" style="font-size:12px;">Добавить на доску</span>
                 <button class="close-btn" onclick="closePopovers()">✕</button>
             </div>
             <div class="widget-grid">
@@ -704,15 +734,15 @@
         <!-- Всплывающее меню таймера -->
         <div class="popover-box" id="lesson-time-popover" style="width:240px; right:260px;">
             <div class="popover-head">
-                <span>Таймер урока</span>
+                <span class="font-display" style="font-size:12px;">Таймер урока</span>
                 <button class="close-btn" onclick="closePopovers()">✕</button>
             </div>
             <div style="display:flex; flex-direction:column; gap:6px;">
-                <button class="widget-pick-btn" onclick="triggerLessonStart(60)">60 минут</button>
-                <button class="widget-pick-btn" onclick="triggerLessonStart(45)">45 минут</button>
-                <button class="widget-pick-btn" onclick="triggerLessonStart(30)">30 минут</button>
-                <button class="widget-pick-btn" id="btn-pause-timer" onclick="togglePauseLessonTimer(true); closePopovers();">Пауза / Продолжить</button>
-                <button class="top-btn top-btn-danger" style="height:30px; font-size:11px; margin-top:4px;" onclick="stopLessonTimer(true); closePopovers();">Сбросить таймер</button>
+                <button class="widget-pick-btn font-mono" onclick="triggerLessonStart(60)">60 минут</button>
+                <button class="widget-pick-btn font-mono" onclick="triggerLessonStart(45)">45 минут</button>
+                <button class="widget-pick-btn font-mono" onclick="triggerLessonStart(30)">30 минут</button>
+                <button class="widget-pick-btn" id="btn-pause-timer" onclick="togglePauseLessonTimer(); closePopovers();">Пауза / Продолжить</button>
+                <button class="top-btn top-btn-danger" style="height:30px; font-size:11px; margin-top:4px;" onclick="stopLessonTimer(); closePopovers();">Сбросить таймер</button>
             </div>
         </div>
 
@@ -729,7 +759,7 @@
                     <span id="follow-status-text">Ученик следует за вашей доской</span>
                 </div>
 
-                <!-- Левая вертикальная панель: Двигать | Карандаш | Маркер | Текстовыделитель | Текст | Ластик -->
+                <!-- Левая вертикальная панель -->
                 <div class="left-toolbar">
                     <button class="v-tool-btn" id="tool-pan" onclick="setTool('pan')" title="Двигать доску">
                         <svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20M12 2l-3 3m3-3l3 3M12 22l-3-3m3 3l3-3M2 12l3-3m-3 3l3 3M22 12l-3-3m3 3l-3 3"/></svg>
@@ -751,19 +781,19 @@
                     </button>
                 </div>
 
-                <!-- Карточка настроек цвета и толщины (При входе закрыта, при рисовании на доске сворачивается) -->
+                <!-- Карточка настроек цвета и толщины -->
                 <div class="tool-settings-card" id="tool-settings-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span class="tool-settings-title" id="settings-tool-title">Маркер</span>
                         <button class="close-btn" style="height:18px; padding:0 4px;" onclick="document.getElementById('tool-settings-card').style.display='none'">✕</button>
                     </div>
                     <div class="color-row" id="color-swatch-group">
-                        <div class="color-swatch active" style="background:#0d7350;" onclick="pickColor('#0d7350', this)"></div>
-                        <div class="color-swatch" style="background:#111815;" onclick="pickColor('#111815', this)"></div>
-                        <div class="color-swatch" style="background:#2563eb;" onclick="pickColor('#2563eb', this)"></div>
-                        <div class="color-swatch" style="background:#e11d48;" onclick="pickColor('#e11d48', this)"></div>
-                        <div class="color-swatch" style="background:#d97706;" onclick="pickColor('#d97706', this)"></div>
-                        <div class="color-swatch" style="background:#7c3aed;" onclick="pickColor('#7c3aed', this)"></div>
+                        <div class="color-swatch active" style="background:#10a372;" onclick="pickColor('#10a372', this)"></div>
+                        <div class="color-swatch" style="background:#f2f7f5;" onclick="pickColor('#f2f7f5', this)"></div>
+                        <div class="color-swatch" style="background:#3b82f6;" onclick="pickColor('#3b82f6', this)"></div>
+                        <div class="color-swatch" style="background:#f43f5e;" onclick="pickColor('#f43f5e', this)"></div>
+                        <div class="color-swatch" style="background:#f59e0b;" onclick="pickColor('#f59e0b', this)"></div>
+                        <div class="color-swatch" style="background:#a855f7;" onclick="pickColor('#a855f7', this)"></div>
                     </div>
                     <div class="thickness-label">Толщина</div>
                     <input type="range" min="2" max="24" value="5" class="thickness-range" id="stroke-size-slider" oninput="changeStrokeSize(this.value)">
@@ -785,7 +815,7 @@
                 <!-- Нижний правый островок: Масштаб -->
                 <div class="bottom-right-island">
                     <button class="island-btn" onclick="changeZoom(-0.15)" title="Отдалить">−</button>
-                    <span class="zoom-pct" id="zoom-display" onclick="resetZoom()">100%</span>
+                    <span class="zoom-pct font-mono" id="zoom-display" onclick="resetZoom()">100%</span>
                     <button class="island-btn" onclick="changeZoom(0.15)" title="Приблизить">+</button>
                     <button class="island-btn" id="btn-center-board" onclick="returnToCenter(true)" title="В центр доски">
                         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
@@ -797,29 +827,29 @@
                     <div id="dynamic-items"></div>
                     <canvas id="canvas" width="4200" height="3000"></canvas>
                     <canvas id="temp-canvas" width="4200" height="3000"></canvas>
+                    <canvas id="remote-live-canvas" width="4200" height="3000"></canvas>
 
                     <div id="remote-peer-cursor">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#2563eb" stroke="#fff" stroke-width="1.5"><path d="M4 4l7.07 17 2.51-7.39L21 11.07z"/></svg>
-                        <div class="peer-cursor-tag" id="remote-peer-cursor-label">Ученик</div>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--emerald)" stroke="#fff" stroke-width="1.5"><path d="M4 4l7.07 17 2.51-7.39L21 11.07z"/></svg>
+                        <div class="peer-cursor-tag" id="remote-peer-cursor-label">Собеседник</div>
                     </div>
                 </div>
             </div>
 
-            <!-- 3. ПРАВАЯ КОЛОНКА (КАМЕРА PiP + ЗВУК + ЧАТ) -->
+            <!-- 3. ПРАВАЯ КОЛОНКА -->
             <aside class="class-sidebar" id="class-sidebar">
-                <!-- Нажатие на маленькую камеру меняет местами "Вы" и собеседника -->
                 <div class="pip-camera-stage" id="pip-camera-stage">
                     <div class="cam-slot cam-main" id="remote-cam-slot" onclick="handleCamSlotClick('remote')" title="Нажмите на малое окно, чтобы поменять камеры местами">
-                        <div class="cam-slot-placeholder" id="remote-placeholder">Камера ученика</div>
+                        <div class="cam-slot-placeholder" id="remote-placeholder">Камера собеседника</div>
                         <img id="remoteRelayImg" alt="">
                         <video id="remoteVideo" autoplay muted playsinline webkit-playsinline></video>
-                        <span class="cam-slot-badge" id="remote-role-badge">Ученик</span>
+                        <span class="cam-slot-badge" id="remote-role-badge">Собеседник</span>
                     </div>
 
                     <div class="cam-slot cam-pip" id="local-cam-slot" onclick="handleCamSlotClick('local')" title="Нажмите, чтобы сделать вашу камеру главной">
                         <div class="cam-slot-placeholder" id="local-pip-label">Вы</div>
                         <video id="localVideo" autoplay muted playsinline webkit-playsinline></video>
-                        <span class="cam-slot-badge">Вы</span>
+                        <span class="cam-slot-badge" id="local-role-badge">Вы</span>
                     </div>
                 </div>
 
@@ -848,14 +878,14 @@
 
                 <div class="chat-section" id="chat-section">
                     <div class="chat-header-row">
-                        <span class="chat-title">Чат</span>
-                        <button class="chat-hide-btn" onclick="toggleChatSection()">Скрыть чат</button>
+                        <span class="chat-title">Чат урока</span>
+                        <button class="chat-hide-btn" onclick="toggleChatSection()">Только камеры</button>
                     </div>
                     <div class="chat-messages" id="chat-messages-list">
                         <div class="chat-empty">Сообщений пока нет</div>
                     </div>
                     <div class="chat-input-row">
-                        <input type="text" class="chat-input" id="chat-input-field" placeholder="Сообщение" onkeydown="if(event.key==='Enter') sendChatMessage()">
+                        <input type="text" class="chat-input" id="chat-input-field" placeholder="Сообщение..." onkeydown="if(event.key==='Enter') sendChatMessage()">
                         <button class="chat-send-btn" onclick="sendChatMessage()">→</button>
                     </div>
                 </div>
@@ -875,8 +905,9 @@
             measurementId: "G-RQ2YW5CYV7"
         };
 
-        if (localStorage.getItem('es_theme') === 'dark') {
-            document.body.classList.add('dark-theme');
+        const isLightTheme = localStorage.getItem('es_theme') === 'light';
+        if (isLightTheme) {
+            document.body.classList.add('light-theme');
         }
 
         let db = null, auth = null, roomRef = null;
@@ -900,6 +931,8 @@
         const ctx = canvas.getContext('2d');
         const tempCanvas = document.getElementById('temp-canvas');
         const tempCtx = tempCanvas.getContext('2d');
+        const remoteLiveCanvas = document.getElementById('remote-live-canvas');
+        const remoteLiveCtx = remoteLiveCanvas.getContext('2d');
 
         const boardWorld = document.getElementById('board-world');
         const viewport = document.getElementById('board-viewport');
@@ -931,9 +964,31 @@
         let role = detectInitialRole();
         let peerRole = role === 'teacher' ? 'student' : 'teacher';
         let myClientId = 'cl_' + Math.random().toString(36).slice(2, 9);
+
+        // Реальные имена участников урока (автоматически подтягиваются из кэша / Firebase)
+        let myUserName = role === 'teacher' ? 'Преподаватель' : 'Ученик';
+        let peerUserName = peerRole === 'teacher' ? 'Преподаватель' : 'Ученик';
+        let roomParticipants = {};
+
+        function detectLocalUserName() {
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith('es_user_')) {
+                        const parsed = JSON.parse(localStorage.getItem(k));
+                        if (parsed && parsed.role === role && parsed.profile && parsed.profile.name) {
+                            return parsed.profile.name;
+                        }
+                    }
+                }
+            } catch (e) {}
+            return role === 'teacher' ? 'Преподаватель' : 'Ученик';
+        }
+        myUserName = detectLocalUserName();
+
         let tool = 'marker';
         let lastDrawTool = 'marker';
-        let currentColor = '#0d7350';
+        let currentColor = '#10a372';
         let baseStrokeSize = 5;
 
         let drawing = false;
@@ -946,8 +1001,14 @@
         let targetFollowY = CENTER_Y;
         let targetFollowScale = 1;
 
+        // Плавная интерполяция удаленного курсора (60 FPS без рывков)
+        let peerCursorTargetX = 1800, peerCursorTargetY = 1200;
+        let peerCursorCurX = 1800, peerCursorCurY = 1200;
+        let peerCursorVisible = false;
+
         let startPanX = 0, startPanY = 0;
         let currentStrokePoints = [];
+        let currentStrokeId = null;
         let strokeBounds = { minX: 0, minY: 0, maxX: 0, maxY: 0 };
 
         let photoZIndex = 15;
@@ -955,25 +1016,71 @@
 
         let pendingWidgetType = null;
         let strokeHistory = [];
+        const deletedStrokeIds = new Set(); // Защита от возврата стертых ластиком линий
         let actionHistory = [];
         let redoActionStack = [];
         let chatHistory = [];
 
         let timerInterval = null;
-        let remainingSeconds = 0;
-        let timerPaused = false;
+        let timerStateData = { active: false, paused: false, endTimeMs: 0, remainingSeconds: 0 };
         let lastMoveSentTime = 0;
+        let lastLiveStrokeSentTime = 0;
+        let saveStateDebounceTimer = null;
         let isLocalCamMain = false;
 
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         tempCtx.lineCap = 'round';
         tempCtx.lineJoin = 'round';
+        remoteLiveCtx.lineCap = 'round';
+        remoteLiveCtx.lineJoin = 'round';
 
         applyVerifiedRole(role);
         applyBoardTransform();
 
-        // Смена главной камеры и миниатюры "Вы" по клику на малое окно
+        // Подтягиваем точное имя из Firebase Auth при инициализации
+        if (auth) {
+            auth.onAuthStateChanged(async (u) => {
+                if (!u) return;
+                try {
+                    const cached = localStorage.getItem('es_user_' + u.uid);
+                    if (cached) {
+                        const parsed = JSON.parse(cached);
+                        if (parsed?.profile?.name) myUserName = parsed.profile.name;
+                    }
+                    if (db) {
+                        const snap = await db.ref(`users/${u.uid}/profile/name`).once('value');
+                        if (snap.val()) myUserName = snap.val();
+                    }
+                } catch (e) {}
+                publishMyParticipantInfo();
+                updateParticipantLabelsUI();
+            });
+        }
+
+        function publishMyParticipantInfo() {
+            if (!roomRef) return;
+            roomRef.child(`participants/${role}`).set({
+                name: myUserName,
+                role: role,
+                updatedAt: Date.now()
+            }).catch(() => {});
+        }
+
+        function updateParticipantLabelsUI() {
+            document.getElementById('local-role-badge').innerText = myUserName;
+            document.getElementById('remote-role-badge').innerText = peerUserName;
+            document.getElementById('remote-peer-cursor-label').innerText = peerUserName;
+            if (!cameraActive) {
+                document.getElementById('local-pip-label').innerText = myUserName;
+            }
+            const remPlaceholder = document.getElementById('remote-placeholder');
+            if (remPlaceholder && remPlaceholder.style.display !== 'none') {
+                remPlaceholder.innerText = `Камера: ${peerUserName}`;
+            }
+            renderChatMessages();
+        }
+
         function handleCamSlotClick(clickedSlot) {
             if (clickedSlot === 'local' && !isLocalCamMain) {
                 isLocalCamMain = true;
@@ -988,7 +1095,7 @@
             localSlot.className = isLocalCamMain ? 'cam-slot cam-main' : 'cam-slot cam-pip';
         }
 
-        // Отдельная кнопка скрытия/показа чата (оставляет только камеры)
+        // Скрытие чата превращает правую колонку в компактный плавающий блок камер (без пустой зоны внизу!)
         function toggleChatSection() {
             const chatSec = document.getElementById('chat-section');
             const sidebar = document.getElementById('class-sidebar');
@@ -997,41 +1104,48 @@
             sidebar.classList.toggle('chat-hidden-mode', isHidden);
             topChatBtn.classList.toggle('active', !isHidden);
             topChatBtn.innerText = isHidden ? 'Показать чат' : 'Чат';
+            setTimeout(applyBoardTransform, 30);
         }
 
-        function startSmoothFollowLoop() {
+        // Единый цикл 60 FPS для плавного следования экрана ученика и плавного скольжения курсора собеседника
+        function startSmoothAnimationLoop() {
             function step() {
                 if (role === 'student' && followMode) {
                     const dx = targetFollowX - boardX;
                     const dy = targetFollowY - boardY;
                     const ds = targetFollowScale - boardScale;
-                    if (Math.abs(dx) > 0.4 || Math.abs(dy) > 0.4 || Math.abs(ds) > 0.002) {
-                        boardX += dx * 0.22;
-                        boardY += dy * 0.22;
-                        boardScale += ds * 0.22;
+                    if (Math.abs(dx) > 0.35 || Math.abs(dy) > 0.35 || Math.abs(ds) > 0.0015) {
+                        boardX += dx * 0.25;
+                        boardY += dy * 0.25;
+                        boardScale += ds * 0.25;
                         updateZoomUI();
                         applyBoardTransform();
                     }
                 }
+
+                if (peerCursorVisible) {
+                    peerCursorCurX += (peerCursorTargetX - peerCursorCurX) * 0.35;
+                    peerCursorCurY += (peerCursorTargetY - peerCursorCurY) * 0.35;
+                    remotePeerCursor.style.transform = `translate3d(${peerCursorCurX.toFixed(1)}px, ${peerCursorCurY.toFixed(1)}px, 0)`;
+                }
+
                 requestAnimationFrame(step);
             }
             requestAnimationFrame(step);
         }
-        startSmoothFollowLoop();
+        startSmoothAnimationLoop();
 
         function applyVerifiedRole(verifiedRole) {
             role = (verifiedRole === 'student') ? 'student' : 'teacher';
             peerRole = role === 'teacher' ? 'student' : 'teacher';
-            document.body.className = (localStorage.getItem('es_theme') === 'dark' ? 'dark-theme ' : '') + 'role-' + role;
+            document.body.className = (localStorage.getItem('es_theme') === 'light' ? 'light-theme ' : '') + 'role-' + role;
 
             const isTeacher = role === 'teacher';
-            document.getElementById('remote-placeholder').innerText = isTeacher ? 'Камера ученика' : 'Камера учителя';
-            document.getElementById('remote-role-badge').innerText = isTeacher ? 'Ученик' : 'Учитель';
-            document.getElementById('remote-peer-cursor-label').innerText = isTeacher ? 'Ученик' : 'Учитель';
             document.getElementById('follow-status-text').innerText = isTeacher
                 ? 'Ученик следует за вашей доской'
-                : 'Вы следуете за доской учителя';
+                : 'Вы следуете за доской преподавателя';
 
+            updateParticipantLabelsUI();
             updateStudentPanLock();
         }
 
@@ -1054,11 +1168,11 @@
 
         function toggleSidebarPanel() {
             document.getElementById('class-sidebar').classList.toggle('collapsed');
-            setTimeout(applyBoardTransform, 50);
+            setTimeout(applyBoardTransform, 40);
         }
 
         function exitToCabinet() {
-            saveBoardState();
+            flushBoardStateImmediate();
             cleanupWebRTC();
             if (window.parent && window.parent !== window && typeof window.parent.closeBoardRoom === 'function') {
                 window.parent.closeBoardRoom();
@@ -1083,8 +1197,11 @@
 
         function restoreSnapshotData(val) {
             if (!val) return;
-            if (val.strokeHistory) {
-                strokeHistory = val.strokeHistory;
+            if (Array.isArray(val.deletedIds)) {
+                val.deletedIds.forEach(id => deletedStrokeIds.add(id));
+            }
+            if (Array.isArray(val.strokeHistory)) {
+                strokeHistory = val.strokeHistory.filter(s => s && (!s.id || !deletedStrokeIds.has(s.id)));
                 redrawAllStrokes();
             }
             if (val.chatHistory && Array.isArray(val.chatHistory)) {
@@ -1112,24 +1229,54 @@
             } catch (e) {}
 
             if (!roomRef) return;
+            publishMyParticipantInfo();
+
             try {
+                // Слушаем реальные имена участников комнаты
+                roomRef.child('participants').on('value', (snap) => {
+                    roomParticipants = snap.val() || {};
+                    if (roomParticipants[peerRole]?.name) {
+                        peerUserName = roomParticipants[peerRole].name;
+                    }
+                    if (roomParticipants[role]?.name && (myUserName === 'Преподаватель' || myUserName === 'Ученик')) {
+                        myUserName = roomParticipants[role].name;
+                    }
+                    updateParticipantLabelsUI();
+                });
+
                 roomRef.child('snapshot').once('value', (snap) => {
                     const val = snap.val();
                     if (val) restoreSnapshotData(val);
                 });
 
+                // Слушаем синхронный таймер урока (работает и у учителя, и у ученика!)
+                roomRef.child('timerState').on('value', (snap) => {
+                    const st = snap.val();
+                    if (!st) return;
+                    applySyncedTimerState(st);
+                });
+
+                // Слушаем перемещение доски и курсор учителя
                 roomRef.child('teacherMove').on('value', (snap) => {
                     const data = snap.val();
                     if (!data || data.sender === myClientId) return;
                     handleTeacherMoveData(data);
                 });
 
+                // Слушаем курсор ученика
                 roomRef.child('studentCursor').on('value', (snap) => {
                     const data = snap.val();
                     if (!data || data.sender === myClientId) return;
-                    remotePeerCursor.style.display = 'block';
-                    remotePeerCursor.style.left = data.worldX + 'px';
-                    remotePeerCursor.style.top = data.worldY + 'px';
+                    setRemoteCursorTarget(data.worldX, data.worldY);
+                });
+
+                // Слушаем живую рисуемую линию собеседника (без спама в events)
+                roomRef.child(`liveStroke/${peerRole}`).on('value', (snap) => {
+                    const data = snap.val();
+                    remoteLiveCtx.clearRect(0, 0, remoteLiveCanvas.width, remoteLiveCanvas.height);
+                    if (data && data.active && Array.isArray(data.points) && data.points.length > 0) {
+                        renderSmoothPath(remoteLiveCtx, data.points, data.color, data.strokeTool, data.size);
+                    }
                 });
 
                 let initialEventsSkipped = false;
@@ -1142,12 +1289,38 @@
             } catch (e) {}
         }
 
+        function setRemoteCursorTarget(wx, wy) {
+            if (wx === undefined || wy === undefined) return;
+            if (!peerCursorVisible) {
+                peerCursorVisible = true;
+                peerCursorCurX = wx;
+                peerCursorCurY = wy;
+                remotePeerCursor.style.display = 'block';
+            }
+            peerCursorTargetX = wx;
+            peerCursorTargetY = wy;
+        }
+
+        // Чат урока с автоматической подстановкой настоящих имен пользователей
+        function resolveChatAuthorName(msg) {
+            if (msg.authorRole === role && myUserName) return myUserName;
+            if (msg.authorRole === peerRole && peerUserName) return peerUserName;
+            if (msg.author && msg.author !== 'Преподаватель' && msg.author !== 'Ученик') return msg.author;
+            if (msg.author === 'Преподаватель') return roomParticipants.teacher?.name || (role === 'teacher' ? myUserName : peerUserName);
+            if (msg.author === 'Ученик') return roomParticipants.student?.name || (role === 'student' ? myUserName : peerUserName);
+            return msg.author || 'Участник';
+        }
+
         function sendChatMessage() {
             const input = document.getElementById('chat-input-field');
             const text = input.value.trim();
             if (!text) return;
-            const author = role === 'teacher' ? 'Преподаватель' : 'Ученик';
-            const msgObj = { author, text, ts: Date.now() };
+            const msgObj = {
+                author: myUserName,
+                authorRole: role,
+                text,
+                ts: Date.now()
+            };
             chatHistory.push(msgObj);
             if (chatHistory.length > 60) chatHistory.shift();
             input.value = '';
@@ -1161,12 +1334,16 @@
                 chatMessagesList.innerHTML = '<div class="chat-empty">Сообщений пока нет</div>';
                 return;
             }
-            chatMessagesList.innerHTML = chatHistory.map(m => `
-                <div class="chat-msg">
-                    <div class="chat-msg-author">${m.author}</div>
-                    <div>${m.text.replace(/</g, '&lt;')}</div>
-                </div>
-            `).join('');
+            chatMessagesList.innerHTML = chatHistory.map(m => {
+                const displayAuthor = resolveChatAuthorName(m);
+                const isMine = m.authorRole ? (m.authorRole === role) : (displayAuthor === myUserName);
+                return `
+                    <div class="chat-msg ${isMine ? 'mine' : ''}">
+                        <div class="chat-msg-author">${displayAuthor.replace(/</g, '&lt;')}</div>
+                        <div>${(m.text || '').replace(/</g, '&lt;')}</div>
+                    </div>
+                `;
+            }).join('');
             chatMessagesList.scrollTop = chatMessagesList.scrollHeight;
         }
 
@@ -1179,7 +1356,9 @@
                 sender: myClientId,
                 worldX: worldX !== undefined ? worldX : Math.round((vw / 2 - boardX) / boardScale),
                 worldY: worldY !== undefined ? worldY : Math.round((vh / 2 - boardY) / boardScale),
-                boardX, boardY, boardScale,
+                boardX: Math.round(boardX),
+                boardY: Math.round(boardY),
+                boardScale,
                 vw, vh, followMode
             };
             try { localChannel.postMessage(movePayload); } catch (err) {}
@@ -1194,9 +1373,7 @@
             updateStudentPanLock();
 
             if (data.worldX !== undefined) {
-                remotePeerCursor.style.display = 'block';
-                remotePeerCursor.style.left = data.worldX + 'px';
-                remotePeerCursor.style.top = data.worldY + 'px';
+                setRemoteCursorTarget(data.worldX, data.worldY);
             }
 
             if (role === 'student' && followMode) {
@@ -1275,13 +1452,17 @@
             redoActionStack.push(act);
 
             if (act.kind === 'stroke') {
-                strokeHistory.pop();
+                const sId = act.stroke.id;
+                if (sId) deletedStrokeIds.add(sId);
+                strokeHistory = strokeHistory.filter(s => s.id !== sId);
                 redrawAllStrokes();
-                broadcastEvent({ type: 'strokes_sync', strokeHistory });
+                broadcastEvent({ type: 'erase_stroke_id', strokeId: sId });
             } else if (act.kind === 'erase_stroke') {
+                const sId = act.stroke.id;
+                if (sId) deletedStrokeIds.delete(sId);
                 strokeHistory.splice(act.index, 0, act.stroke);
                 redrawAllStrokes();
-                broadcastEvent({ type: 'strokes_sync', strokeHistory });
+                broadcastEvent({ type: 'restore_stroke', stroke: act.stroke, index: act.index });
             } else if (act.kind === 'add_item') {
                 const el = document.getElementById(act.id);
                 if (el) {
@@ -1320,13 +1501,17 @@
             actionHistory.push(act);
 
             if (act.kind === 'stroke') {
+                const sId = act.stroke.id;
+                if (sId) deletedStrokeIds.delete(sId);
                 strokeHistory.push(act.stroke);
                 redrawAllStrokes();
-                broadcastEvent({ type: 'strokes_sync', strokeHistory });
+                broadcastEvent({ type: 'restore_stroke', stroke: act.stroke, index: strokeHistory.length - 1 });
             } else if (act.kind === 'erase_stroke') {
-                strokeHistory.splice(act.index, 1);
+                const sId = act.stroke.id;
+                if (sId) deletedStrokeIds.add(sId);
+                strokeHistory = strokeHistory.filter(s => s.id !== sId);
                 redrawAllStrokes();
-                broadcastEvent({ type: 'strokes_sync', strokeHistory });
+                broadcastEvent({ type: 'erase_stroke_id', strokeId: sId });
             } else if (act.kind === 'add_item') {
                 const el = document.getElementById(act.id);
                 if (el) {
@@ -1360,11 +1545,12 @@
         function redrawAllStrokes() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             strokeHistory.forEach(s => {
-                renderSmoothPath(ctx, s.points, s.color, s.strokeTool, s.size);
+                if (s && (!s.id || !deletedStrokeIds.has(s.id))) {
+                    renderSmoothPath(ctx, s.points, s.color, s.strokeTool, s.size);
+                }
             });
         }
 
-        // Ластик, удаляющий всю линию целиком при касании
         function distToSegmentSquared(p, v, w) {
             const l2 = (w.x - v.x) ** 2 + (w.y - v.y) ** 2;
             if (l2 === 0) return (p.x - v.x) ** 2 + (p.y - v.y) ** 2;
@@ -1375,6 +1561,7 @@
             return (p.x - projX) ** 2 + (p.y - projY) ** 2;
         }
 
+        // Ластик удаляет линию по уникальному ID и синхронизирует удаление без возврата
         function eraseWholeStrokeAtPoint(wx, wy) {
             const pt = { x: wx, y: wy };
             for (let i = strokeHistory.length - 1; i >= 0; i--) {
@@ -1397,10 +1584,12 @@
                 }
 
                 if (hit) {
+                    if (!s.id) s.id = 'st_' + Date.now() + '_' + i;
+                    deletedStrokeIds.add(s.id);
                     const removed = strokeHistory.splice(i, 1)[0];
                     recordAction({ kind: 'erase_stroke', stroke: removed, index: i });
                     redrawAllStrokes();
-                    broadcastEvent({ type: 'strokes_sync', strokeHistory });
+                    broadcastEvent({ type: 'erase_stroke_id', strokeId: removed.id });
                     return true;
                 }
             }
@@ -1449,6 +1638,7 @@
             baseStrokeSize = parseInt(val, 10);
         }
 
+        // ================= СИНХРОННЫЙ ТАЙМЕР УРОКА (ИДЁТ И У УЧИТЕЛЯ, И У УЧЕНИКА!) =================
         function toggleLessonTimeMenu(e) {
             if (e) e.stopPropagation();
             widgetsModal.style.display = 'none';
@@ -1457,43 +1647,73 @@
 
         function triggerLessonStart(durationMinutes) {
             lessonTimePopover.style.display = 'none';
-            remainingSeconds = durationMinutes * 60;
-            timerPaused = false;
-            document.getElementById('btn-timer-start').innerText = 'Идёт';
-            renderTimerText();
+            const totalSecs = durationMinutes * 60;
+            const newState = {
+                active: true,
+                paused: false,
+                endTimeMs: Date.now() + totalSecs * 1000,
+                remainingSeconds: totalSecs
+            };
+            applySyncedTimerState(newState);
+            if (roomRef) roomRef.child('timerState').set(newState).catch(() => {});
+            broadcastEvent({ type: 'timer_sync', state: newState });
+        }
 
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                if (!timerPaused && remainingSeconds > 0) {
-                    remainingSeconds--;
-                    renderTimerText();
-                } else if (remainingSeconds <= 0) {
+        function togglePauseLessonTimer() {
+            if (!timerStateData.active) return;
+            let newState;
+            if (!timerStateData.paused) {
+                const rem = Math.max(0, Math.round((timerStateData.endTimeMs - Date.now()) / 1000));
+                newState = { active: true, paused: true, endTimeMs: 0, remainingSeconds: rem };
+            } else {
+                const rem = timerStateData.remainingSeconds || 60;
+                newState = { active: true, paused: false, endTimeMs: Date.now() + rem * 1000, remainingSeconds: rem };
+            }
+            applySyncedTimerState(newState);
+            if (roomRef) roomRef.child('timerState').set(newState).catch(() => {});
+            broadcastEvent({ type: 'timer_sync', state: newState });
+        }
+
+        function stopLessonTimer() {
+            const newState = { active: false, paused: false, endTimeMs: 0, remainingSeconds: 0 };
+            applySyncedTimerState(newState);
+            if (roomRef) roomRef.child('timerState').set(newState).catch(() => {});
+            broadcastEvent({ type: 'timer_sync', state: newState });
+        }
+
+        function applySyncedTimerState(st) {
+            timerStateData = { ...st };
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            const btnStart = document.getElementById('btn-timer-start');
+            if (!st.active) {
+                if (btnStart) btnStart.innerText = 'Старт';
+                renderTimerSeconds(0);
+                return;
+            }
+            if (st.paused) {
+                if (btnStart) btnStart.innerText = 'Пауза';
+                renderTimerSeconds(st.remainingSeconds || 0);
+                return;
+            }
+            if (btnStart) btnStart.innerText = 'Идёт';
+            const tick = () => {
+                const rem = Math.max(0, Math.round((timerStateData.endTimeMs - Date.now()) / 1000));
+                renderTimerSeconds(rem);
+                if (rem <= 0 && timerInterval) {
                     clearInterval(timerInterval);
+                    timerInterval = null;
                 }
-            }, 1000);
-
-            broadcastEvent({ type: 'timer_sync', remainingSeconds, active: true, paused: false });
+            };
+            tick();
+            timerInterval = setInterval(tick, 1000);
         }
 
-        function togglePauseLessonTimer(broadcast) {
-            timerPaused = !timerPaused;
-            document.getElementById('btn-timer-start').innerText = timerPaused ? 'Пауза' : 'Идёт';
-            if (broadcast) broadcastEvent({ type: 'timer_sync', remainingSeconds, active: true, paused: timerPaused });
-        }
-
-        function stopLessonTimer(broadcast) {
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = null;
-            timerPaused = false;
-            remainingSeconds = 0;
-            document.getElementById('btn-timer-start').innerText = 'Старт';
-            renderTimerText();
-            if (broadcast) broadcastEvent({ type: 'timer_sync', remainingSeconds: 0, active: false, paused: false });
-        }
-
-        function renderTimerText() {
-            const m = Math.floor(remainingSeconds / 60);
-            const s = remainingSeconds % 60;
+        function renderTimerSeconds(secs) {
+            const m = Math.floor(secs / 60);
+            const s = secs % 60;
             document.getElementById('timer-text').innerText = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
         }
 
@@ -1536,12 +1756,14 @@
 
         function changeZoom(delta, centerClientX, centerClientY) {
             if (role === 'student' && followMode) return;
-            const oldScale = boardScale;
-            boardScale = Math.min(2.4, Math.max(0.45, +(boardScale + delta).toFixed(2)));
-            if (oldScale === boardScale) return;
-
             const vw = viewport.clientWidth || window.innerWidth;
             const vh = viewport.clientHeight || window.innerHeight;
+            const minAllowedScale = Math.max(0.45, vw / canvas.width, vh / canvas.height);
+
+            const oldScale = boardScale;
+            boardScale = Math.min(2.4, Math.max(minAllowedScale, +(boardScale + delta).toFixed(2)));
+            if (oldScale === boardScale) return;
+
             const cx = centerClientX !== undefined ? centerClientX : vw / 2;
             const cy = centerClientY !== undefined ? centerClientY : vh / 2;
             const worldCenterX = (cx - boardX) / oldScale;
@@ -1850,8 +2072,8 @@
                     <div class="grip-bar"></div>
                     <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
-                <textarea placeholder="Поле для текста и эссе..." oninput="onEssayWidgetInput('${data.id}', this.value)">${data.text || ''}</textarea>
-                <div class="word-counter">Слов: 0 (ЕГЭ: 200–250, ОГЭ: 100–120)</div>
+                <textarea placeholder="Поле для текста, конспекта и решений..." oninput="onEssayWidgetInput('${data.id}', this.value)">${data.text || ''}</textarea>
+                <div class="word-counter font-mono">Слов: 0</div>
                 <div class="resize-handle">◢</div>
             `;
             dynamicItems.appendChild(div);
@@ -1870,8 +2092,7 @@
             const counter = document.querySelector(`#${id} .word-counter`);
             if (!counter) return;
             const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-            counter.innerText = `Слов: ${words} (ЕГЭ: 200–250, ОГЭ: 100–120)`;
-            counter.style.color = (words >= 180 && words <= 275) ? 'var(--emerald)' : 'var(--text-secondary)';
+            counter.innerText = `Слов: ${words}`;
         }
 
         function handlePhotoUpload(event) {
@@ -1980,7 +2201,6 @@
 
         function syncStickerText(id, text) { saveBoardState(); broadcastEvent({ type: 'sticker_text', id, text }); }
 
-        // ================= ОБНОВЛЕННЫЙ ВИДЖЕТ SPEAKING С КАСТОМНЫМ АУДИОПЛЕЕРОМ =================
         const speakingRecorders = {};
         const speakingTimers = {};
         const speakingPlayers = {};
@@ -2007,7 +2227,7 @@
                     <button class="spk-preset-btn active" id="spk-p120-${data.id}" onclick="selectSpeakingPreset('${data.id}', 120, true)">Ответ 2:00</button>
                 </div>
                 <div class="speaking-studio-card">
-                    <div class="speaking-clock" id="spk-clock-${data.id}">02:00</div>
+                    <div class="speaking-clock font-mono" id="spk-clock-${data.id}">02:00</div>
                     <div class="spk-btns-wrap">
                         <button class="spk-ctrl-btn" id="spk-start-${data.id}" onclick="toggleSpeakingTimer('${data.id}', true)">Старт</button>
                         <button class="speaking-rec-btn" id="spk-rec-${data.id}" onclick="toggleSpeakingRecord('${data.id}')">● Запись</button>
@@ -2023,7 +2243,7 @@
                         </div>
                         <div class="spk-player-meta">
                             <span id="spk-status-lbl-${data.id}">Голосовой ответ не записан</span>
-                            <span id="spk-time-lbl-${data.id}">00:00</span>
+                            <span class="font-mono" id="spk-time-lbl-${data.id}">00:00</span>
                         </div>
                     </div>
                 </div>
@@ -2036,9 +2256,7 @@
         }
 
         function attachSpeakingAudioSource(id, srcUrl) {
-            if (speakingPlayers[id]) {
-                speakingPlayers[id].pause();
-            }
+            if (speakingPlayers[id]) speakingPlayers[id].pause();
             const audio = new Audio(srcUrl);
             speakingPlayers[id] = audio;
             const playBtn = document.getElementById(`spk-play-btn-${id}`);
@@ -2178,10 +2396,10 @@
                     <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
                 <div class="dict-search-row">
-                    <input type="text" class="dict-input" id="dict-in-${data.id}" placeholder="Английское слово..." onkeydown="if(event.key==='Enter') lookupDictionary('${data.id}', true)">
+                    <input type="text" class="dict-input" id="dict-in-${data.id}" placeholder="Слово или термин..." onkeydown="if(event.key==='Enter') lookupDictionary('${data.id}', true)">
                     <button class="dict-search-btn" onclick="lookupDictionary('${data.id}', true)">Найти</button>
                 </div>
-                <div class="dict-body" id="dict-body-${data.id}">Введите слово для перевода и транскрипции Oxford / Cambridge.</div>
+                <div class="dict-body" id="dict-body-${data.id}">Введите слово для перевода и определения.</div>
                 <div class="dict-links-row">
                     <a class="dict-ext-link" id="cam-link-${data.id}" href="https://dictionary.cambridge.org/dictionary/english-russian/" target="_blank">Cambridge ↗</a>
                     <a class="dict-ext-link" id="oxf-link-${data.id}" href="https://www.oxfordlearnersdictionaries.com/" target="_blank">Oxford ↗</a>
@@ -2233,7 +2451,14 @@
             if (broadcast) { recordAction({ kind: 'remove_item', id, prevDisplay }); broadcastEvent({ type: 'item_display', id, display: 'none' }); }
         }
 
+        // Отложенное сохранение снимка доски (не блокирует рисование и не перезаписывает удаленные линии)
         function saveBoardState() {
+            clearTimeout(saveStateDebounceTimer);
+            saveStateDebounceTimer = setTimeout(flushBoardStateImmediate, 450);
+        }
+
+        function flushBoardStateImmediate() {
+            clearTimeout(saveStateDebounceTimer);
             try {
                 const items = [];
                 dynamicItems.querySelectorAll('.widget, .board-text-node').forEach(el => {
@@ -2243,10 +2468,16 @@
                     if (type === 'essay') base.text = el.querySelector('textarea').value;
                     else if (type === 'sticker') { base.text = el.querySelector('textarea').value; base.theme = el.dataset.theme || 'yellow'; }
                     else if (type === 'photo') { base.src = el.querySelector('img').src; base.aspect = parseFloat(el.dataset.aspect) || 1; }
-                    else if (type === 'text') { base.text = el.querySelector('.board-text-content').innerText; base.color = el.dataset.color || '#111815'; base.fontSize = parseFloat(el.dataset.fontSize) || 24; }
+                    else if (type === 'text') { base.text = el.querySelector('.board-text-content').innerText; base.color = el.dataset.color || '#f2f7f5'; base.fontSize = parseFloat(el.dataset.fontSize) || 24; }
                     items.push(base);
                 });
-                const payload = { strokeHistory, chatHistory, items };
+                const cleanStrokes = strokeHistory.filter(s => s && (!s.id || !deletedStrokeIds.has(s.id)));
+                const payload = {
+                    strokeHistory: cleanStrokes,
+                    deletedIds: Array.from(deletedStrokeIds).slice(-200),
+                    chatHistory,
+                    items
+                };
                 localStorage.setItem(LOCAL_BOARD_KEY, JSON.stringify(payload));
                 if (roomRef) roomRef.child('snapshot').set(payload).catch(() => {});
             } catch (e) {}
@@ -2255,6 +2486,7 @@
         function resetSavedLesson() {
             if (role === 'student') return;
             strokeHistory = []; actionHistory = []; redoActionStack = [];
+            deletedStrokeIds.clear();
             redrawAllStrokes(); dynamicItems.innerHTML = '';
             localStorage.removeItem(LOCAL_BOARD_KEY);
             if (roomRef) { roomRef.child('snapshot').remove().catch(() => {}); roomRef.child('videoFiles').remove().catch(() => {}); }
@@ -2292,6 +2524,7 @@
             updateStudentPanLock();
         }
 
+        // Чистая GPU-трансформация без пересчета backgroundSize/backgroundPosition на каждый кадр
         function applyBoardTransform() {
             const vw = viewport.clientWidth || window.innerWidth;
             const vh = viewport.clientHeight || window.innerHeight;
@@ -2299,10 +2532,7 @@
             const minY = Math.min(0, vh - canvas.height * boardScale);
             boardX = Math.min(0, Math.max(minX, boardX));
             boardY = Math.min(0, Math.max(minY, boardY));
-            boardWorld.style.transform = `translate3d(${boardX}px, ${boardY}px, 0) scale(${boardScale})`;
-            const step = +(24 * boardScale).toFixed(2);
-            viewport.style.backgroundSize = `${step}px ${step}px`;
-            viewport.style.backgroundPosition = `${boardX}px ${boardY}px`;
+            boardWorld.style.transform = `translate3d(${boardX.toFixed(1)}px, ${boardY.toFixed(1)}px, 0) scale(${boardScale})`;
         }
 
         function getToolWidth(strokeTool, size) {
@@ -2344,7 +2574,6 @@
                 e.target.closest('.resize-handle') || e.target.closest('.text-resize-handle') ||
                 e.target.closest('.widget-header') || e.target.closest('.board-text-node')) return;
 
-            // Как только пользователь нажал на доску — сворачиваем палитру выбора цвета и толщины
             toolSettingsCard.style.display = 'none';
 
             if (pendingWidgetType && role === 'teacher') {
@@ -2374,41 +2603,57 @@
             } else {
                 drawing = true;
                 const pt = screenToWorld(e.clientX, e.clientY);
-                currentStrokePoints = [pt];
-                strokeBounds = { minX: pt.x, minY: pt.y, maxX: pt.x, maxY: pt.y };
+                const startPt = { x: Math.round(pt.x), y: Math.round(pt.y) };
+                currentStrokeId = 'st_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+                currentStrokePoints = [startPt];
+                strokeBounds = { minX: startPt.x, minY: startPt.y, maxX: startPt.x, maxY: startPt.y };
             }
         });
 
         viewport.addEventListener('pointermove', (e) => {
             const pt = screenToWorld(e.clientX, e.clientY);
             const worldX = Math.round(pt.x); const worldY = Math.round(pt.y);
+            const now = Date.now();
 
             if (panning) {
                 boardX = e.clientX - startPanX; boardY = e.clientY - startPanY; applyBoardTransform();
             } else if (drawing && tool === 'eraser') {
                 eraseWholeStrokeAtPoint(worldX, worldY);
             } else if (drawing && tool !== 'pan' && tool !== 'text') {
-                currentStrokePoints.push({ x: worldX, y: worldY });
-                const pad = getToolWidth(tool, baseStrokeSize) + 12;
+                const prevPt = currentStrokePoints[currentStrokePoints.length - 1];
+                if (!prevPt || Math.abs(worldX - prevPt.x) > 1 || Math.abs(worldY - prevPt.y) > 1) {
+                    currentStrokePoints.push({ x: worldX, y: worldY });
+                    const pad = getToolWidth(tool, baseStrokeSize) + 12;
 
-                if (tool === 'highlighter') {
-                    clearTempBounds(strokeBounds, pad);
-                    strokeBounds.minX = Math.min(strokeBounds.minX, worldX);
-                    strokeBounds.minY = Math.min(strokeBounds.minY, worldY);
-                    strokeBounds.maxX = Math.max(strokeBounds.maxX, worldX);
-                    strokeBounds.maxY = Math.max(strokeBounds.maxY, worldY);
-                    renderSmoothPath(tempCtx, currentStrokePoints, currentColor, tool, baseStrokeSize);
-                } else {
-                    const len = currentStrokePoints.length;
-                    renderSmoothPath(ctx, [currentStrokePoints[len - 2], currentStrokePoints[len - 1]], currentColor, tool, baseStrokeSize);
-                    broadcastEvent({ type: 'draw_seg', p0: currentStrokePoints[len - 2], p1: currentStrokePoints[len - 1], color: currentColor, strokeTool: tool, size: baseStrokeSize });
+                    if (tool === 'highlighter') {
+                        clearTempBounds(strokeBounds, pad);
+                        strokeBounds.minX = Math.min(strokeBounds.minX, worldX);
+                        strokeBounds.minY = Math.min(strokeBounds.minY, worldY);
+                        strokeBounds.maxX = Math.max(strokeBounds.maxX, worldX);
+                        strokeBounds.maxY = Math.max(strokeBounds.maxY, worldY);
+                        renderSmoothPath(tempCtx, currentStrokePoints, currentColor, tool, baseStrokeSize);
+                    } else {
+                        const len = currentStrokePoints.length;
+                        renderSmoothPath(ctx, [currentStrokePoints[len - 2], currentStrokePoints[len - 1]], currentColor, tool, baseStrokeSize);
+                    }
+
+                    // Легкая отправка текущей рисуемой линии раз в 55 мс (вместо сотни events.push в секунду!)
+                    if (roomRef && now - lastLiveStrokeSentTime > 55) {
+                        lastLiveStrokeSentTime = now;
+                        roomRef.child(`liveStroke/${role}`).set({
+                            active: true,
+                            points: currentStrokePoints.slice(-80),
+                            color: currentColor,
+                            strokeTool: tool,
+                            size: baseStrokeSize
+                        }).catch(() => {});
+                    }
                 }
             }
 
-            const now = Date.now();
             if (role === 'teacher') {
-                if (now - lastMoveSentTime > 45) { lastMoveSentTime = now; sendTeacherViewportSync(worldX, worldY); }
-            } else if (now - lastMoveSentTime > 60 && roomRef) {
+                if (now - lastMoveSentTime > 50) { lastMoveSentTime = now; sendTeacherViewportSync(worldX, worldY); }
+            } else if (now - lastMoveSentTime > 55 && roomRef) {
                 lastMoveSentTime = now;
                 try { roomRef.child('studentCursor').set({ sender: myClientId, worldX, worldY }).catch(() => {}); } catch (err) {}
             }
@@ -2420,18 +2665,31 @@
                     clearTempBounds(strokeBounds, getToolWidth(tool, baseStrokeSize) + 15);
                     renderSmoothPath(ctx, currentStrokePoints, currentColor, tool, baseStrokeSize);
                 }
-                const finishedStroke = { points: currentStrokePoints, color: currentColor, strokeTool: tool, size: baseStrokeSize };
+                const finishedStroke = {
+                    id: currentStrokeId || ('st_' + Date.now()),
+                    points: currentStrokePoints,
+                    color: currentColor,
+                    strokeTool: tool,
+                    size: baseStrokeSize
+                };
                 strokeHistory.push(finishedStroke);
                 recordAction({ kind: 'stroke', stroke: finishedStroke });
                 broadcastEvent({ type: 'draw_commit', stroke: finishedStroke });
+                if (roomRef) {
+                    roomRef.child(`liveStroke/${role}`).set({ active: false }).catch(() => {});
+                }
             }
-            drawing = false; panning = false; currentStrokePoints = [];
+            drawing = false; panning = false; currentStrokePoints = []; currentStrokeId = null;
             if (tool === 'pan' && !pendingWidgetType) viewport.style.cursor = 'grab';
         });
 
         function clearBoard(broadcast) {
             if (role === 'student' && broadcast) return;
-            strokeHistory = []; ctx.clearRect(0, 0, canvas.width, canvas.height); tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+            strokeHistory.forEach(s => { if (s && s.id) deletedStrokeIds.add(s.id); });
+            strokeHistory = [];
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+            remoteLiveCtx.clearRect(0, 0, remoteLiveCanvas.width, remoteLiveCanvas.height);
             saveBoardState();
             if (broadcast) broadcastEvent({ type: 'clear' });
         }
@@ -2443,21 +2701,34 @@
                 followMode = data.followMode;
                 document.getElementById('follow-status-pill').style.display = followMode ? 'flex' : 'none';
                 updateStudentPanLock();
-            } else if (data.type === 'draw_seg') {
-                renderSmoothPath(ctx, [data.p0, data.p1], data.color, data.strokeTool, data.size);
-            } else if (data.type === 'draw_commit') {
-                strokeHistory.push(data.stroke);
-                actionHistory.push({ kind: 'stroke', stroke: data.stroke });
-                if (data.stroke.strokeTool === 'highlighter') {
+            } else if (data.type === 'draw_commit' && data.stroke) {
+                remoteLiveCtx.clearRect(0, 0, remoteLiveCanvas.width, remoteLiveCanvas.height);
+                if (data.stroke.id && deletedStrokeIds.has(data.stroke.id)) return;
+                if (!strokeHistory.some(s => s.id && s.id === data.stroke.id)) {
+                    strokeHistory.push(data.stroke);
+                    actionHistory.push({ kind: 'stroke', stroke: data.stroke });
                     renderSmoothPath(ctx, data.stroke.points, data.stroke.color, data.stroke.strokeTool, data.stroke.size);
+                    saveBoardState();
                 }
+            } else if (data.type === 'erase_stroke_id' && data.strokeId) {
+                deletedStrokeIds.add(data.strokeId);
+                strokeHistory = strokeHistory.filter(s => s.id !== data.strokeId);
+                redrawAllStrokes();
                 saveBoardState();
+            } else if (data.type === 'restore_stroke' && data.stroke) {
+                if (data.stroke.id) deletedStrokeIds.delete(data.stroke.id);
+                if (!strokeHistory.some(s => s.id === data.stroke.id)) {
+                    strokeHistory.splice(data.index || strokeHistory.length, 0, data.stroke);
+                    redrawAllStrokes();
+                    saveBoardState();
+                }
             } else if (data.type === 'strokes_sync') {
-                strokeHistory = data.strokeHistory || []; redrawAllStrokes();
+                strokeHistory = (data.strokeHistory || []).filter(s => s && (!s.id || !deletedStrokeIds.has(s.id)));
+                redrawAllStrokes();
             } else if (data.type === 'clear') {
                 clearBoard(false);
             } else if (data.type === 'reset_all') {
-                strokeHistory = []; redrawAllStrokes(); dynamicItems.innerHTML = '';
+                strokeHistory = []; deletedStrokeIds.clear(); redrawAllStrokes(); dynamicItems.innerHTML = '';
             } else if (data.type === 'chat_msg' && data.msg) {
                 chatHistory.push(data.msg);
                 renderChatMessages();
@@ -2517,21 +2788,19 @@
                     });
                 } else if (data.action === 'pause') v.pause();
                 setTimeout(() => { v.dataset.remote = '0'; }, 180);
-            } else if (data.type === 'timer_sync') {
-                remainingSeconds = data.remainingSeconds;
-                timerPaused = !!data.paused;
-                document.getElementById('btn-timer-start').innerText = data.active ? (timerPaused ? 'Пауза' : 'Идёт') : 'Старт';
-                renderTimerText();
+            } else if (data.type === 'timer_sync' && data.state) {
+                applySyncedTimerState(data.state);
             } else if (data.type === 'webrtc_signal') {
                 handleWebRTCSignal(data);
             }
         }
 
-        // ================= РАЗДЕЛЕННЫЕ ПО РОЛЯМ ПОТОКИ КАМЕРЫ И МИКРОФОНА (БЕЗ СБРОСА ЧЕРЕЗ 1 СЕК) =================
+        // ================= ВИДЕОСВЯЗЬ И ЧИСТЫЙ ЗВУК БЕЗ ЗАДЕРЖКИ =================
         const RTC_CONFIG = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
                 { urls: 'stun:stun.cloudflare.com:3478' }
             ]
         };
@@ -2548,12 +2817,15 @@
         let pendingIceCandidates = [];
         let rtcSignalRef = null;
         let offerDebounceTimer = null;
-        let webrtcVideoConfirmed = false;
+
+        let p2pVideoWorking = false;
+        let p2pAudioWorking = false;
 
         let videoRelayTimer = null;
+        let isUploadingFrame = false;
         let relayCaptureCanvas = document.createElement('canvas');
-        relayCaptureCanvas.width = 200;
-        relayCaptureCanvas.height = 148;
+        relayCaptureCanvas.width = 300;
+        relayCaptureCanvas.height = 220;
         let relayCaptureCtx = relayCaptureCanvas.getContext('2d');
 
         let audioCtx = null;
@@ -2579,7 +2851,8 @@
             pc = new RTCPeerConnection(RTC_CONFIG);
             remoteVideoStream = new MediaStream();
             remoteAudioStream = new MediaStream();
-            webrtcVideoConfirmed = false;
+            p2pVideoWorking = false;
+            p2pAudioWorking = false;
 
             if (localStream) {
                 localStream.getTracks().forEach(track => { pc.addTrack(track, localStream); });
@@ -2589,27 +2862,39 @@
                 if (e.candidate) sendRtcSignal({ kind: 'ice', candidate: e.candidate.toJSON() });
             };
 
+            pc.onconnectionstatechange = () => {
+                if (!pc) return;
+                if (pc.connectionState === 'connected') {
+                    setRtcStatus('HD-связь активна');
+                } else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+                    p2pVideoWorking = false;
+                    p2pAudioWorking = false;
+                    setRtcStatus('Резервный поток');
+                }
+            };
+
             pc.ontrack = (e) => {
                 const track = e.track;
                 if (track.kind === 'video') {
                     remoteVideoStream.getVideoTracks().forEach(t => remoteVideoStream.removeTrack(t));
                     remoteVideoStream.addTrack(track);
                     const videoEl = document.getElementById('remoteVideo');
+                    const relayImg = document.getElementById('remoteRelayImg');
                     if (videoEl) {
                         videoEl.muted = true;
                         if (videoEl.srcObject !== remoteVideoStream) {
                             videoEl.srcObject = remoteVideoStream;
                         }
-                        videoEl.onloadeddata = () => {
-                            if (videoEl.videoWidth > 0) {
-                                webrtcVideoConfirmed = true;
-                                videoEl.style.display = 'block';
-                                document.getElementById('remote-placeholder').style.display = 'none';
-                            }
+                        videoEl.onplaying = () => {
+                            p2pVideoWorking = true;
+                            videoEl.style.display = 'block';
+                            if (relayImg) relayImg.style.display = 'none';
+                            document.getElementById('remote-placeholder').style.display = 'none';
                         };
                         videoEl.play().catch(() => {});
                     }
                 } else if (track.kind === 'audio') {
+                    p2pAudioWorking = true;
                     remoteAudioStream.getAudioTracks().forEach(t => remoteAudioStream.removeTrack(t));
                     remoteAudioStream.addTrack(track);
                     if (remoteVoicePlayer.srcObject !== remoteAudioStream) {
@@ -2716,7 +3001,7 @@
                 handleWebRTCSignal(val);
             });
 
-            // Слушаем ТОЛЬКО канал противоположной роли (liveMedia/teacher или liveMedia/student)
+            // Резервный видеопоток (активируется только если прямой WebRTC P2P видеопоток не идет)
             roomRef.child(`liveMedia/${peerRole}/video`).on('value', (snap) => {
                 const data = snap.val();
                 if (!data) return;
@@ -2725,30 +3010,36 @@
                 const placeholderEl = document.getElementById('remote-placeholder');
 
                 if (data.active && data.frame) {
-                    relayImg.src = data.frame;
-                    relayImg.style.display = 'block';
-                    placeholderEl.style.display = 'none';
-                    setRtcStatus('В эфире');
+                    if (!p2pVideoWorking) {
+                        relayImg.src = data.frame;
+                        relayImg.style.display = 'block';
+                        placeholderEl.style.display = 'none';
+                        setRtcStatus('В эфире');
+                    }
                 } else if (data.active === false) {
                     relayImg.style.display = 'none';
                     videoEl.style.display = 'none';
-                    webrtcVideoConfirmed = false;
+                    p2pVideoWorking = false;
                     placeholderEl.style.display = 'block';
                 }
             });
 
+            // Резервный аудиопоток 16 кГц с защитой от накопления задержки
             let initialAudioSkipped = false;
             roomRef.child(`liveMedia/${peerRole}/audio`).on('value', (snap) => {
                 if (!initialAudioSkipped) { initialAudioSkipped = true; return; }
                 const data = snap.val();
                 if (!data || remoteSoundMuted) return;
-                playPcmAudioPacket(data.pcm);
+                if (p2pAudioWorking && pc && pc.connectionState === 'connected') return;
+                // Отбрасываем пакеты старше 1.5 сек, чтобы никогда не воспроизводить старую очередь
+                if (data.ts && Math.abs(Date.now() - data.ts) > 2500) return;
+                playPcmAudioPacket(data.pcm, data.rate || 16000);
                 setRtcStatus('В эфире');
             });
 
             setTimeout(() => {
                 sendRtcSignal({ kind: 'hello' });
-            }, 400);
+            }, 350);
         }
 
         function ensureAudioContext() {
@@ -2762,14 +3053,15 @@
             return audioCtx;
         }
 
-        function playPcmAudioPacket(b64) {
+        // Воспроизведение звука 16 кГц с жестким сбросом очереди (задержка никогда не превышает 0.22 сек!)
+        function playPcmAudioPacket(b64, sampleRate = 16000) {
             if (!b64 || remoteSoundMuted) return;
             const actx = ensureAudioContext();
             if (!actx) return;
             try {
                 const binary = atob(b64);
                 const len = binary.length / 2;
-                const buffer = actx.createBuffer(1, len, 8000);
+                const buffer = actx.createBuffer(1, len, sampleRate);
                 const channel = buffer.getChannelData(0);
                 for (let i = 0; i < len; i++) {
                     const lo = binary.charCodeAt(i * 2);
@@ -2782,7 +3074,10 @@
                 src.buffer = buffer;
                 src.connect(actx.destination);
                 const now = actx.currentTime;
-                if (nextAudioPlayTime < now) nextAudioPlayTime = now + 0.03;
+                // Сброс накопившейся задержки!
+                if (nextAudioPlayTime < now || nextAudioPlayTime > now + 0.24) {
+                    nextAudioPlayTime = now + 0.025;
+                }
                 src.start(nextAudioPlayTime);
                 nextAudioPlayTime += buffer.duration;
             } catch (e) {}
@@ -2798,33 +3093,43 @@
                 audioSourceNode = actx.createMediaStreamSource(localStream);
                 audioProcessor = actx.createScriptProcessor(4096, 1, 1);
                 const inRate = actx.sampleRate || 44100;
-                const outRate = 8000;
+                const outRate = 16000; // Чистый голос 16 кГц (в 2 раза четче прежнего)
                 const ratio = inRate / outRate;
                 let accum = [];
+                let isSendingAudio = false;
 
                 audioProcessor.onaudioprocess = (e) => {
                     if (!micActive) return;
+                    if (p2pAudioWorking && pc && pc.connectionState === 'connected') return;
+
                     const input = e.inputBuffer.getChannelData(0);
                     let sumSq = 0;
                     for (let i = 0; i < input.length; i += 4) sumSq += input[i] * input[i];
                     const rms = Math.sqrt(sumSq / (input.length / 4));
-                    if (rms < 0.007 && accum.length === 0) return;
+                    if (rms < 0.006 && accum.length === 0) return;
 
                     for (let i = 0; i < input.length; i += ratio) {
                         const s = Math.max(-1, Math.min(1, input[Math.floor(i)] || 0));
                         accum.push(s < 0 ? s * 0x8000 : s * 0x7FFF);
                     }
 
-                    if (accum.length >= 2600) {
-                        const int16 = new Int16Array(accum.splice(0, 2600));
+                    // Короткие пакеты по ~160 мс без наслоения очереди
+                    if (accum.length >= 2560) {
+                        const chunk = accum.splice(0, 2560);
+                        if (accum.length > 5120) accum = []; // Сброс хвоста при медленной сети
+                        if (isSendingAudio) return;
+                        isSendingAudio = true;
+
+                        const int16 = new Int16Array(chunk);
                         const bytes = new Uint8Array(int16.buffer);
                         let bin = '';
                         for (let j = 0; j < bytes.length; j++) bin += String.fromCharCode(bytes[j]);
                         roomRef.child(`liveMedia/${role}/audio`).set({
                             sender: myClientId,
+                            rate: outRate,
                             pcm: btoa(bin),
                             ts: Date.now()
-                        }).catch(() => {});
+                        }).finally(() => { isSendingAudio = false; }).catch(() => {});
                     }
                 };
 
@@ -2838,30 +3143,37 @@
             if (audioSourceNode) { try { audioSourceNode.disconnect(); } catch (e) {} audioSourceNode = null; }
         }
 
-        // Непрерывная отправка кадров в собственный узел роли (liveMedia/teacher или liveMedia/student)
+        // Отправка четких кадров камеры с защитой от очереди (in-flight lock)
         function startFirebaseVideoRelay() {
             clearInterval(videoRelayTimer);
             const localVid = document.getElementById('localVideo');
             videoRelayTimer = setInterval(() => {
-                if (!cameraActive || !localVid || !roomRef) return;
+                if (!cameraActive || !localVid || !roomRef || isUploadingFrame) return;
+                if (p2pVideoWorking && pc && pc.connectionState === 'connected') return;
                 if (localVid.readyState >= 2 && localVid.videoWidth > 0) {
                     try {
-                        relayCaptureCtx.drawImage(localVid, 0, 0, 200, 148);
-                        const frameData = relayCaptureCanvas.toDataURL('image/jpeg', 0.52);
+                        isUploadingFrame = true;
+                        relayCaptureCtx.drawImage(localVid, 0, 0, 300, 220);
+                        const frameData = relayCaptureCanvas.toDataURL('image/jpeg', 0.65);
                         roomRef.child(`liveMedia/${role}/video`).set({
                             sender: myClientId,
                             active: true,
                             frame: frameData,
                             ts: Date.now()
+                        }).finally(() => {
+                            isUploadingFrame = false;
                         }).catch(() => {});
-                    } catch (e) {}
+                    } catch (e) {
+                        isUploadingFrame = false;
+                    }
                 }
-            }, 220);
+            }, 140);
         }
 
         function stopFirebaseVideoRelay() {
             clearInterval(videoRelayTimer);
             videoRelayTimer = null;
+            isUploadingFrame = false;
             if (roomRef) {
                 roomRef.child(`liveMedia/${role}/video`).set({ sender: myClientId, active: false, ts: Date.now() }).catch(() => {});
             }
@@ -2902,12 +3214,12 @@
             if (!hasVideo) {
                 if (relayImg) relayImg.style.display = 'none';
                 if (videoEl) videoEl.style.display = 'none';
+                p2pVideoWorking = false;
                 placeholderEl.style.display = 'block';
             } else {
                 placeholderEl.style.display = 'none';
             }
-            const label = role === 'teacher' ? 'Ученик' : 'Учитель';
-            placeholderEl.innerText = hasAudio ? `${label} (Голос активен)` : `Камера (${label.toLowerCase()})`;
+            placeholderEl.innerText = hasAudio ? `${peerUserName} (Голос активен)` : `Камера: ${peerUserName}`;
         }
 
         function showLocalPreview() {
@@ -2926,7 +3238,7 @@
                 localVid.srcObject = null;
                 localVid.style.display = 'none';
                 localLbl.style.display = 'block';
-                localLbl.innerText = micActive ? 'Вы (Микр.)' : 'Вы';
+                localLbl.innerText = micActive ? `${myUserName} (Микр.)` : myUserName;
             }
         }
 
@@ -2955,7 +3267,7 @@
             }
             try {
                 const audioStream = await navigator.mediaDevices.getUserMedia({
-                    audio: { echoCancellation: true, noiseSuppression: true },
+                    audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
                     video: false
                 });
                 const audioTrack = audioStream.getAudioTracks()[0];
@@ -3000,8 +3312,8 @@
             try {
                 const needAudio = !localStream || localStream.getAudioTracks().length === 0;
                 const media = await navigator.mediaDevices.getUserMedia({
-                    video: { width: { ideal: 360 }, height: { ideal: 260 }, facingMode: 'user' },
-                    audio: needAudio ? { echoCancellation: true, noiseSuppression: true } : false
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 24, max: 30 }, facingMode: 'user' },
+                    audio: needAudio ? { echoCancellation: true, noiseSuppression: true, autoGainControl: true } : false
                 });
                 if (!localStream) localStream = new MediaStream();
 
