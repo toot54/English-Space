@@ -1,0 +1,5 @@
+.backup/
+.publish/
+.tools/
+node_modules/
+*.log

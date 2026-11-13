@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESpace — Образовательная платформа</title>
+    <title>Орбита — пространство репетитора</title>
+    <meta name="description" content="Орбита — расписание, ученики, интерактивная доска, задания и общение в одном пространстве репетитора.">
+    <meta name="theme-color" content="#286548">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="assets/access.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -583,10 +587,33 @@
             box-shadow: 0 10px 28px rgba(0,0,0,0.22); display: none;
         }
     </style>
+    <link rel="stylesheet" href="assets/orbita.css">
+    <link rel="stylesheet" href="assets/mobile.css">
 </head>
 <body>
+<section id="landing" aria-label="Орбита — пространство репетитора">
+  <div class="landing-container">
+    <header class="landing-nav">
+      <a class="brand-logo" href="#" aria-label="Орбита, главная"><span class="brand-sq" aria-hidden="true"></span>орбита</a>
+      <nav aria-label="О платформе"><a href="#possibilities">Возможности</a><a href="#first-step">Как начать</a><button class="link-jade" onclick="openOrbitaAuth(false)">Войти</button><button class="btn btn-jade" onclick="openOrbitaAuth(true)">Создать аккаунт ↗</button></nav>
+    </header>
+    <div class="landing-hero">
+      <div><div class="eyebrow">Пространство репетитора</div><h1>Всё для уроков.<br><em>Место для роста.</em></h1><p>Меньше вкладок и суеты. Больше внимания ученикам. Расписание, доска и материалы — в одной Орбите.</p><div class="landing-actions"><button class="btn btn-jade" onclick="openOrbitaAuth(true)">Начать работу <span aria-hidden="true">↗</span></button><button class="btn" onclick="startOrbitaDemo()">Посмотреть кабинет <span aria-hidden="true">→</span></button></div><p class="landing-footnote">Для вашего предмета. В вашем ритме.</p></div>
+      <div class="product-scene" aria-label="Пример кабинета с демонстрационными данными">
+        <div class="preview-window"><div class="preview-top"><span>орбита / мой день</span><span class="preview-dots">● ● ●</span></div><div class="preview-body"><div class="preview-heading">Хороший день для открытий</div><div class="preview-caption">Так может выглядеть ваш учебный день</div><div class="preview-lesson"><small>БЛИЖАЙШИЙ УРОК · 15:00</small><h3>Квадратные уравнения</h3><p>Аня Волкова · Математика</p><span class="btn btn-jade">Открыть класс ↗</span><span class="preview-formula">x² + bx + c</span></div><div class="preview-row"><time>16:30</time><div><b>Михаил Соколов</b><small>Химия · Строение атома</small></div><i>Запланирован</i></div><div class="preview-row"><time>18:00</time><div><b>София Белова</b><small>Английский · Разговорная практика</small></div><i>Запланирован</i></div></div></div>
+        <div class="scene-label"><span>✓</span>Уроки и планы — на своих местах</div>
+      </div>
+    </div>
+    <div class="subjects"><small>РАЗНЫЕ ПРЕДМЕТЫ.<br>ОДНО ПРОСТРАНСТВО.</small><span>Математика</span><span>Иностранные языки</span><span>Химия</span><span>Физика</span><span>Ваш предмет ↗</span></div>
+    <section class="landing-section" id="possibilities"><div class="section-intro"><h2>Преподавать — ваше.<br>Организовать — наше.</h2><p>От первой встречи до следующего результата. Всё, что нужно между «здравствуйте» и «до следующего урока».</p></div><div class="feature-grid"><article class="feature"><span class="feature-num">01 / ПЛАНИРУЙТЕ</span><h3>День без накладок</h3><p>Занятия, ученики и остаток оплаченных уроков под рукой. Посмотрите расписание и откройте нужную доску.</p></article><article class="feature"><span class="feature-num">02 / ОБЪЯСНЯЙТЕ</span><h3>Мыслите на доске</h3><p>Рисуйте, пишите и разбирайте задачи вместе. Сохраняйте подготовленные материалы для следующих занятий.</p></article><article class="feature"><span class="feature-num">03 / ЗАКРЕПЛЯЙТЕ</span><h3>Продолжение урока</h3><p>Выдавайте задания, собирайте карточки для повторения и оставайтесь на связи в чате с учеником.</p></article></div></section>
+    <section class="landing-bottom" id="first-step"><div><div class="eyebrow" style="margin-bottom:16px">Начните со знакомства</div><h2>Ваш следующий урок — в Орбите</h2><p>Изучите пример кабинета. Затем создайте аккаунт и пригласите ученика.</p></div><button class="btn btn-jade" onclick="startOrbitaDemo()">Открыть демо-кабинет →</button></section>
+    <footer class="landing-footer"><span class="brand-logo"><span class="brand-sq" aria-hidden="true"></span>орбита</span><span>Для тех, кто помогает понять.</span><a href="#" onclick="openOrbitaAuth(false);return false">Войти в свой кабинет ↗</a></footer>
+  </div>
+</section>
 
-    <div id="loading-screen"><div class="spinner"></div></div>
+<div class="demo-banner"><span>Демо-кабинет · примерные данные · просмотр без сохранения</span><button onclick="exitOrbitaDemo()">Выйти из демо ↗</button></div>
+
+    <div id="loading-screen" style="display:none;"><div class="spinner"></div></div>
 
     <input type="file" id="avatar-file-input" accept="image/*" style="display:none;" onchange="handleAvatarFilePicked(event)">
     <input type="file" id="chat-file-input" accept="image/*,video/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip" style="display:none;" onchange="handleChatFilePicked(event)">
@@ -595,9 +622,9 @@
     <section id="auth-screen">
         <div class="auth-split">
             <div class="auth-left">
-                <div class="auth-form-wrap">
-                    <div class="brand-logo"><span class="brand-sq"></span> ESpace</div>
-                    <h1 style="font-size:26px; font-weight:800; margin:22px 0 16px;" id="auth-main-heading">Войти</h1>
+                <div class="auth-form-wrap"><button class="auth-back" onclick="showOrbitaLanding()">← На главную</button>
+                    <div class="brand-logo"><span class="brand-sq"></span> Орбита</div>
+                    <h1 style="font-size:26px; font-weight:800; margin:22px 0 16px;" id="auth-main-heading">С возвращением</h1><p class="auth-note">Ваши ученики и занятия уже здесь.</p>
 
                     <div id="auth-step-credentials">
                         <div id="register-role-box" style="display:none; margin-bottom:12px;">
@@ -614,22 +641,22 @@
 
                         <div id="auth-name-wrap" style="display:none; margin-bottom:12px;">
                             <label class="field-label">Имя и фамилия</label>
-                            <input type="text" id="auth-name-input" class="field-input" placeholder="Ваше имя">
+                            <input type="text" id="auth-name-input" autocomplete="name" class="field-input" placeholder="Ваше имя">
                         </div>
 
                         <div style="margin-bottom:12px;">
                             <label class="field-label">Почта</label>
-                            <input type="email" id="auth-email-input" class="field-input" placeholder="name@example.com">
+                            <input type="email" id="auth-email-input" autocomplete="email" class="field-input" placeholder="name@example.com">
                         </div>
 
                         <div style="margin-bottom:16px;">
                             <label class="field-label">Пароль</label>
-                            <input type="password" id="auth-pass-input" class="field-input" placeholder="Минимум 6 символов" onkeydown="if(event.key==='Enter') handleEmailAuth()">
+                            <input type="password" id="auth-pass-input" autocomplete="current-password" class="field-input" placeholder="Минимум 6 символов" onkeydown="if(event.key==='Enter') handleEmailAuth()">
                         </div>
 
                         <button class="btn btn-jade" style="width:100%; height:40px;" id="auth-main-btn" onclick="handleEmailAuth()">Войти</button>
 
-                        <div style="text-align:center; margin-top:16px; font-size:13px; color:var(--text-secondary);" id="auth-toggle-box">
+                        <button type="button" class="link-jade" style="margin-top:16px;font-size:12px" onclick="resetOrbitaPassword()">Не помню пароль</button><div style="text-align:center; margin-top:16px; font-size:13px; color:var(--text-secondary);" id="auth-toggle-box">
                             Нет аккаунта? <button class="link-jade" onclick="toggleAuthMode(true)">Зарегистрироваться</button>
                         </div>
                     </div>
@@ -644,7 +671,7 @@
             </div>
 
             <div class="auth-showcase">
-                <h2 style="font-size:30px; font-weight:800; line-height:1.22; max-width:480px; margin-bottom:22px;">Доска, видеосвязь, тетради и учёт абонементов в одном окне</h2>
+                <h2 style="font-size:30px; font-weight:800; line-height:1.22; max-width:480px; margin-bottom:22px;">Меньше суеты.<br>Больше хороших уроков.</h2>
                 <div class="card" style="padding:18px; max-width:520px;">
                     <div class="board-mini-scene" id="auth-preview-graphic"></div>
                 </div>
@@ -659,7 +686,7 @@
                 <div class="sidebar-brand-row">
                     <div class="brand-logo" onclick="onBrandLogoClick()">
                         <span class="brand-sq"></span>
-                        <span class="brand-text">ESpace</span>
+                        <span class="brand-text">орбита</span>
                     </div>
                     <button class="btn btn-icon" onclick="toggleThemeQuick()" title="Тема оформления">◐</button>
                 </div>
@@ -675,7 +702,7 @@
                     <button class="nav-item" id="nav-btn-cabinet" data-sec="cabinet" onclick="switchSection('cabinet')">
                         <span class="nav-item-left">
                             <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
-                            <span class="nav-label">Кабинет</span>
+                            <span class="nav-label">Ученики</span>
                         </span>
                     </button>
                     <button class="nav-item" id="nav-btn-boards" data-sec="boards" onclick="switchSection('boards')">
@@ -757,7 +784,7 @@
             </div>
         </aside>
 
-        <main class="main-area">
+        <main class="main-area"><header class="workspace-topbar"><button class="mobile-menu-toggle btn btn-icon" aria-label="Открыть меню" aria-expanded="false" onclick="toggleMobileMenu()">☰</button><div><span>Моё пространство</span><span><strong id="workspace-section-name">Мой день</strong></span></div><div class="workspace-status" id="workspace-date"></div></header>
 
             <!-- ================= ЭКРАН 1: РАСПИСАНИЕ ================= -->
             <section class="sec-page active" id="sec-schedule">
@@ -767,14 +794,14 @@
                 </div>
 
                 <div class="page-head">
-                    <h1 class="page-h1" id="sched-greeting-h1">Добрый вечер</h1>
+                    <div><h1 class="page-h1" id="sched-greeting-h1">Хорошего дня</h1><p class="page-subtitle" id="schedule-subtitle"></p></div>
                     <div style="display:flex; gap:8px;" id="teacher-sched-top-btns">
-                        <button class="btn" onclick="openScheduleModal()">+ Поставить урок</button>
+                        <button class="btn" onclick="openScheduleModal()">+ Добавить урок</button>
                         <button class="btn btn-jade" onclick="openEnterClassModal()">▷ Войти в класс</button>
                     </div>
                 </div>
 
-                <div class="schedule-grid">
+                <div class="summary-strip" id="schedule-summary" aria-label="Сводка дня"></div><div class="schedule-grid">
                     <div class="stack-col">
                         <!-- Следующий урок -->
                         <div class="hero-next-card">
@@ -788,7 +815,7 @@
                                 <span class="card-title" id="upcoming-card-title">Предстоящие уроки</span>
                                 <div style="display:flex; gap:10px; align-items:center;">
                                     <button class="link-jade" id="btn-reset-cal-date" style="display:none;" onclick="resetCalendarFilter()">Показать все</button>
-                                    <button class="link-jade" id="btn-add-lesson-inline" onclick="openScheduleModal()">+ Поставить урок</button>
+                                    <button class="link-jade" id="btn-add-lesson-inline" onclick="openScheduleModal()">+ Добавить урок</button>
                                 </div>
                             </div>
                             <div id="upcoming-lessons-list"></div>
@@ -827,7 +854,7 @@
             <!-- ================= ЭКРАН 2: КАБИНЕТ РЕПЕТИТОРА (ФИНАНСЫ, ДОСЬЕ, ИСТОРИЯ ОПЛАТ) ================= -->
             <section class="sec-page" id="sec-cabinet">
                 <div class="page-head">
-                    <h1 class="page-h1">Кабинет</h1>
+                    <h1 class="page-h1">Ученики</h1>
                     <button class="btn btn-jade" onclick="openInviteModal()">+ Пригласить ученика</button>
                 </div>
 
@@ -1061,7 +1088,7 @@
             <section class="sec-page" id="sec-admin">
                 <div class="page-head">
                     <h1 class="page-h1" id="admin-page-heading">Пульт управления платформой</h1>
-                    <button class="btn btn-sm" onclick="toggleOwnerAdminView()">← Вернуться в кабинет</button>
+                    <button class="btn btn-sm" onclick="logoutAccount()">Выйти</button>
                 </div>
 
                 <!-- Вкладка Админа 1: Аналитика, графики и касса -->
@@ -1071,8 +1098,8 @@
                     <div class="admin-charts-grid">
                         <div class="card" style="padding:18px;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                                <span class="card-title">Динамика выручки платформы (MRR)</span>
-                                <span class="badge badge-jade font-mono" id="adm-goal-badge">Цель: 40 000 ₽</span>
+                                <span class="card-title">Стоимость активных подписок</span>
+                                <span class="badge badge-jade font-mono" id="adm-goal-badge">Сейчас</span>
                             </div>
                             <div class="bar-chart-box" id="adm-mrr-chart"></div>
                         </div>
@@ -1128,7 +1155,7 @@
                             </div>
                             <div class="chat-stream-patterned" id="adm-support-stream"></div>
                             <div style="padding:10px 14px; border-top:1px solid var(--border); display:flex; gap:8px; background:var(--bg-card);">
-                                <input type="text" id="adm-support-input" class="field-input" placeholder="Ответ от Поддержки ESpace..." onkeydown="if(event.key==='Enter') sendAdminSupportReply()">
+                                <input type="text" id="adm-support-input" class="field-input" placeholder="Ответ от Поддержки Орбита..." onkeydown="if(event.key==='Enter') sendAdminSupportReply()">
                                 <button class="btn btn-jade" onclick="sendAdminSupportReply()">Ответить</button>
                             </div>
                         </div>
@@ -1239,7 +1266,7 @@
     <div class="modal-backdrop" id="tariffs-modal">
         <div class="modal-box" style="width:680px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="font-size:18px; font-weight:800;">Тарифы ESpace</h3>
+                <h3 style="font-size:18px; font-weight:800;">Тарифы Орбита</h3>
                 <button class="btn btn-icon" onclick="closeModals()">✕</button>
             </div>
             <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;" id="tariffs-cards-container"></div>
@@ -1371,11 +1398,11 @@
         </div>
     </div>
 
-    <!-- Поставить урок в расписание -->
+    <!-- Добавить урок в расписание -->
     <div class="modal-backdrop" id="schedule-modal">
         <div class="modal-box" style="width:460px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="font-size:17px; font-weight:800;" id="sch-modal-title">Поставить урок</h3>
+                <h3 style="font-size:17px; font-weight:800;" id="sch-modal-title">Добавить урок</h3>
                 <button class="btn btn-icon" onclick="closeModals()">✕</button>
             </div>
             <input type="hidden" id="edit-sch-id">
@@ -1529,8 +1556,12 @@
             measurementId: "G-RQ2YW5CYV7"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        let demoMode = false;
+        let isPlatformAdmin = false;
+        const firebaseAvailable = typeof firebase !== "undefined";
+        if (firebaseAvailable) firebase.initializeApp(firebaseConfig);
+        const unavailable = () => Promise.reject(new Error("Сервис входа недоступен. Проверьте подключение и обновите страницу."));
+        const auth = firebaseAvailable ? firebase.auth() : {onAuthStateChanged: cb => setTimeout(() => cb(null), 0), signInWithEmailAndPassword: unavailable, createUserWithEmailAndPassword: unavailable, signInWithPopup: unavailable, sendPasswordResetEmail: unavailable, signOut: unavailable};
         let db = null;
         try { db = firebase.database(); } catch (e) {}
 
@@ -1547,10 +1578,10 @@
         // Настройки платформы и тарифы (синхронизируются через boards/platform_config)
         let platformConfig = {
             prices: { basic: 490, pro: 890, ultra: 1490 },
-            sbp: '+7 (999) 000-00-00 · Т-Банк / Сбер (Наран)',
+            sbp: '',
             announcement: ''
         };
-        let selectedTariffForPurchase = 'pro';
+        let selectedTariffForPurchase = null;
 
         let selectedBoardFolder = 'all';
         let enterClassBoardScope = 'student';
@@ -1622,10 +1653,10 @@
                 .replace(/"/g, '&quot;');
         }
         function escAttr(str) {
-            return String(str || '')
+            return escHtml(String(str || '')
                 .replace(/\\/g, '\\\\')
                 .replace(/'/g, "\\'")
-                .replace(/"/g, '&quot;');
+                .replace(/\r/g, '\\r').replace(/\n/g, '\\n'));
         }
 
         function formatIsoDate(y, m, d) {
@@ -1741,7 +1772,8 @@
 
         function toggleAuthMode(toReg) {
             isRegisterMode = toReg;
-            document.getElementById('auth-main-heading').innerText = toReg ? 'Регистрация' : 'Войти';
+            document.getElementById('auth-pass-input').autocomplete = toReg ? 'new-password' : 'current-password';
+            document.getElementById('auth-main-heading').innerText = toReg ? 'Начните свою Орбиту' : 'С возвращением';
             document.getElementById('register-role-box').style.display = toReg ? 'block' : 'none';
             document.getElementById('auth-name-wrap').style.display = toReg ? 'block' : 'none';
             document.getElementById('auth-main-btn').innerText = toReg ? 'Создать аккаунт' : 'Войти';
@@ -1758,7 +1790,7 @@
 
         async function handleEmailAuth() {
             const email = document.getElementById('auth-email-input').value.trim();
-            const pass = document.getElementById('auth-pass-input').value.trim();
+            const pass = document.getElementById('auth-pass-input').value;
             const name = document.getElementById('auth-name-input').value.trim();
             if (!email || !pass) { showToast('Введите почту и пароль'); return; }
             try {
@@ -1795,20 +1827,34 @@
         })();
 
         auth.onAuthStateChanged(async (user) => {
+            if (demoMode) return;
             document.getElementById('loading-screen').style.display = 'none';
             if (!user) {
-                currentUser = null; currentUserData = null;
-                document.getElementById('auth-screen').style.display = 'block';
+                currentUser = null; currentUserData = null; isPlatformAdmin = false;
+                document.getElementById('auth-screen').style.display = document.getElementById('landing').hidden ? 'block' : 'none';
                 document.getElementById('app-shell').style.display = 'none';
                 return;
             }
             currentUser = user;
+            document.getElementById('landing').hidden = true;
+            try { const token = await user.getIdTokenResult(); isPlatformAdmin = OrbitaAccess.isAdmin(user,token.claims); } catch (_) { isPlatformAdmin = false; }
+            if (user.uid === OrbitaAccess.ADMIN_UID && !isPlatformAdmin) {
+                document.getElementById('app-shell').style.display = 'none';
+                document.getElementById('auth-screen').style.display = 'block';
+                showToast('Не удалось подтвердить доступ администратора. Обновите страницу или войдите снова.',6000);
+                return;
+            }
             let cached = getLocalUserCache(user.uid);
             if (db) {
                 try {
                     const snap = await db.ref('users/' + user.uid).once('value');
                     if (snap.val()) cached = snap.val();
                 } catch (e) {}
+            }
+            if (isPlatformAdmin) {
+                currentUserData = {...(cached||{}),uid:user.uid,email:user.email,role:'admin',profile:{name:'Администратор'}};
+                launchAppShell();
+                return;
             }
             const savedRole = cached?.role || localStorage.getItem('es_role_' + user.uid) || (user.photoURL === 'student' ? 'student' : (user.photoURL === 'teacher' ? 'teacher' : null));
             if (!savedRole) {
@@ -1821,7 +1867,7 @@
             currentUserData = cached || {
                 uid: user.uid, email: user.email || '', role: savedRole,
                 plan: 'start',
-                profile: { name: defaultName, subject: 'Математика, Английский язык', bio: '' }
+                profile: { name: defaultName, subject: '', bio: '' }
             };
             currentUserData.role = savedRole;
             setLocalUserCache(user.uid, currentUserData);
@@ -1835,21 +1881,43 @@
             const defaultName = currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Пользователь');
             currentUserData = {
                 uid: currentUser.uid, email: currentUser.email || '', role, plan: 'start',
-                profile: { name: defaultName, subject: 'Математика, Английский язык', bio: '' }
+                profile: { name: defaultName, subject: '', bio: '' }
             };
             setLocalUserCache(currentUser.uid, currentUserData);
             if (db) db.ref('users/' + currentUser.uid).update(currentUserData).catch(() => {});
             launchAppShell();
         }
 
-        function logoutAccount() {
+        async function logoutAccount() {
             clearHostedLessonState();
-            auth.signOut();
+            try {
+                await auth.signOut();
+                // End all live subscriptions and clear in-memory data from the previous session.
+                window.location.reload();
+            } catch (_) { showToast('Не удалось выйти. Проверьте подключение и попробуйте снова.'); }
         }
 
         function launchAppShell() {
+            document.getElementById('landing').hidden = true;
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-shell').style.display = 'flex';
+            document.body.classList.toggle('admin-only',isPlatformAdmin);
+            if (isPlatformAdmin) {
+                isOwnerAdminView = true;
+                currentSection = 'admin';
+                document.getElementById('regular-nav-list').style.display = 'none';
+                document.getElementById('admin-nav-list').style.display = 'flex';
+                document.getElementById('sidebar-tariff-btn').style.display = 'none';
+                document.getElementById('btn-toggle-admin-mode').style.display = 'none';
+                document.getElementById('nav-user-name').innerText = 'Администратор';
+                document.getElementById('nav-user-avatar').innerText = 'А';
+                document.querySelectorAll('.sec-page').forEach(p=>p.classList.remove('active'));
+                document.getElementById('sec-admin').classList.add('active');
+                document.getElementById('workspace-section-name').textContent = 'Управление платформой';
+                initAdminSubscriptions();
+                switchAdminTab('analytics');
+                return;
+            }
 
             const isTeacher = currentUserData.role === 'teacher';
             document.getElementById('nav-btn-cabinet').style.display = isTeacher ? 'flex' : 'none';
@@ -1864,7 +1932,7 @@
             document.getElementById('prof-invite-card').style.display = isTeacher ? 'block' : 'none';
 
             // Кнопка перехода в Пульт Админа доступна преподавателю-владельцу
-            document.getElementById('btn-toggle-admin-mode').style.display = isTeacher ? 'inline-flex' : 'none';
+            document.getElementById('btn-toggle-admin-mode').style.display = isPlatformAdmin ? 'inline-flex' : 'none';
 
             initRealtimeSubscriptions();
             switchSection('schedule');
@@ -1876,7 +1944,7 @@
         }
 
         function initRealtimeSubscriptions() {
-            if (!db || !currentUser) return;
+            if (demoMode || !db || !currentUser) return;
             myPresenceRef = db.ref(`boards/presence_${currentUser.uid}`);
             myPresenceRef.set({ online: true, lastSeen: Date.now() }).catch(() => {});
             myPresenceRef.onDisconnect().set({ online: false, lastSeen: Date.now() });
@@ -1898,15 +1966,15 @@
             });
 
             // Подписка на все обращения поддержки и заявки на оплату (для Пульта Админа)
-            db.ref('boards/support_threads').on('value', (snap) => {
+            if (isPlatformAdmin) db.ref('boards/support_threads').on('value', (snap) => {
                 supportThreadsMap = snap.val() || {};
                 if (isOwnerAdminView) renderAdminDashboard();
             });
-            db.ref('boards/payment_requests').on('value', (snap) => {
+            if (isPlatformAdmin) db.ref('boards/payment_requests').on('value', (snap) => {
                 paymentRequestsMap = snap.val() || {};
                 if (isOwnerAdminView) renderAdminDashboard();
             });
-            db.ref('users').on('value', (snap) => {
+            if (isPlatformAdmin) db.ref('users').on('value', (snap) => {
                 allPlatformUsersMap = snap.val() || {};
                 if (isOwnerAdminView) renderAdminDashboard();
             });
@@ -1916,6 +1984,7 @@
                 if (!snap.val()) return;
                 currentUserData = { ...currentUserData, ...snap.val() };
                 setLocalUserCache(currentUser.uid, currentUserData);
+                syncOwnedBoardAccess();
                 syncPairListeners();
                 renderAllSections();
             });
@@ -1930,6 +1999,32 @@
                 syncPairListeners();
                 renderAllSections();
                 if (currentUserData.role === 'student') checkIncomingLiveLessonCall();
+            });
+        }
+
+        function initAdminSubscriptions() {
+            if (!db || !isPlatformAdmin) return;
+            const onError = () => showToast('Нет доступа к данным администратора. Проверьте опубликованные правила Firebase.',6000);
+            db.ref('users').on('value',s=>{allPlatformUsersMap=s.val()||{};renderAdminDashboard();},onError);
+            db.ref('boards/support_threads').on('value',s=>{supportThreadsMap=s.val()||{};renderAdminDashboard();},onError);
+            db.ref('boards/payment_requests').on('value',s=>{paymentRequestsMap=s.val()||{};renderAdminDashboard();},onError);
+            db.ref('boards/platform_config').on('value',s=>{platformConfig={...platformConfig,...(s.val()||{})};renderAdminDashboard();},onError);
+        }
+
+        const grantedBoardMembers = new Set();
+        function syncOwnedBoardAccess() {
+            if (!db || !currentUser || currentUserData?.role !== 'teacher' || isPlatformAdmin) return;
+            const assignments = [...Object.values(currentUserData.prepBoards || {}), ...Object.values(currentUserData.schedule || {})];
+            const updates = {};
+            for (const entry of assignments) {
+                const room = entry.boardId || entry.id;
+                if (!room || !entry.studentUid || !OrbitaAccess.ownsRoom(currentUser.uid, room)) continue;
+                const path = `boardAccess/${room}/${entry.studentUid}`;
+                if (!grantedBoardMembers.has(path)) { updates[path] = true; grantedBoardMembers.add(path); }
+            }
+            if (Object.keys(updates).length) db.ref().update(updates).catch(() => {
+                Object.keys(updates).forEach(path => grantedBoardMembers.delete(path));
+                showToast('Не удалось обновить доступ учеников к доскам. Проверьте соединение.');
             });
         }
 
@@ -1971,6 +2066,7 @@
         }
 
         function switchSection(sec) {
+            if (isPlatformAdmin) { switchAdminTab('analytics'); return; }
             if (isOwnerAdminView) {
                 isOwnerAdminView = false;
                 document.getElementById('regular-nav-list').style.display = 'flex';
@@ -1995,22 +2091,13 @@
 
         // Переключение в отдельный Пульт Админа (скрывает все разделы учителя и включает навигацию Админа)
         function toggleOwnerAdminView() {
-            isOwnerAdminView = !isOwnerAdminView;
-            document.getElementById('regular-nav-list').style.display = isOwnerAdminView ? 'none' : 'flex';
-            document.getElementById('admin-nav-list').style.display = isOwnerAdminView ? 'flex' : 'none';
-            document.getElementById('btn-toggle-admin-mode').innerText = isOwnerAdminView ? '← Кабинет учителя' : '⚡ Пульт Админа';
-
-            document.querySelectorAll('.sec-page').forEach(p => p.classList.remove('active'));
-            if (isOwnerAdminView) {
-                document.getElementById('sec-admin').classList.add('active');
-                switchAdminTab('analytics');
-            } else {
-                document.getElementById('sec-' + currentSection).classList.add('active');
-                renderAllSections();
-            }
+            if (!isPlatformAdmin) return;
+            switchAdminTab('analytics');
         }
 
         function switchAdminTab(tab) {
+            if (!isPlatformAdmin) return;
+            document.body.classList.remove('mobile-nav-open');
             currentAdminTab = tab;
             document.querySelectorAll('#admin-nav-list .nav-item').forEach(b => {
                 b.classList.toggle('active', b.dataset.adm === tab);
@@ -2088,6 +2175,7 @@
 
         function renderAllSections() {
             if (!currentUserData) return;
+            if (isPlatformAdmin) { renderAdminDashboard(); return; }
             const prof = currentUserData.profile || {};
             const name = prof.name || 'Пользователь';
             document.getElementById('nav-user-avatar').innerHTML = renderAvatarHtml(name, prof.avatar);
@@ -2106,6 +2194,7 @@
             renderMessagesSection();
             renderProfileSection();
             if (isOwnerAdminView) renderAdminDashboard();
+            if (typeof updateOrbitaOverview === 'function') updateOrbitaOverview();
         }
 
         // ================= РАЗДЕЛ 1: РАСПИСАНИЕ И УМНЫЙ ВХОД В КЛАСС =================
@@ -2153,7 +2242,7 @@
                     <div style="display:flex; gap:8px; margin-top:auto;">
                         ${isTeacher ? `
                             <button class="btn btn-jade" onclick="openEnterClassModal()">▷ Войти в класс</button>
-                            <button class="btn" onclick="openScheduleModal()">+ Поставить урок</button>
+                            <button class="btn" onclick="openScheduleModal()">+ Добавить урок</button>
                         ` : `
                             <button class="btn" onclick="switchSection('boards')">Мои тетради</button>
                             <button class="btn" onclick="switchSection('practice')">Практика</button>
@@ -3329,6 +3418,7 @@
             const stObj = (currentUserData.students || {})[stUid];
             const hwId = 'hw_' + Date.now();
             const dedicatedHwBoardId = `hwboard_${currentUser.uid}_${stUid}_${Date.now()}`;
+            if (db) await db.ref(`boardAccess/${dedicatedHwBoardId}/${stUid}`).set(true);
 
             if (tplObj.format === 'Интерактивная доска' && tplObj.templateBoardId && db) {
                 try {
@@ -3642,7 +3732,7 @@
 
             const supportContact = {
                 uid: SUPPORT_PEER_ID,
-                name: 'Поддержка ESpace',
+                name: 'Поддержка Орбита',
                 sub: 'Помощь и вопросы по платформе',
                 isSupport: true
             };
@@ -3678,7 +3768,7 @@
             document.getElementById('chat-active-avatar').innerHTML = activePeer.isSupport ? '⚡' : renderAvatarHtml(activePeer.name, activePeer.avatar);
             document.getElementById('chat-active-name').innerText = activePeer.name;
             const peerOnline = isPeerOnline(activePeer.uid);
-            document.getElementById('chat-active-presence').innerHTML = `<span class="presence-dot ${peerOnline ? 'online' : 'offline'}"></span>${activePeer.isSupport ? 'Служба заботы ESpace' : (peerOnline ? 'В сети' : 'Не в сети')}`;
+            document.getElementById('chat-active-presence').innerHTML = `<span class="presence-dot ${peerOnline ? 'online' : 'offline'}"></span>${activePeer.isSupport ? 'Служба заботы Орбита' : (peerOnline ? 'В сети' : 'Не в сети')}`;
 
             document.getElementById('chat-header-quick-actions').innerHTML = (!activePeer.isSupport && isTeacher)
                 ? `<button class="btn btn-jade btn-sm" onclick="openEnterClassModal('${escAttr(activePeer.uid)}')">▷ Войти в класс</button>`
@@ -3818,13 +3908,17 @@
             document.getElementById('chat-picker-modal').style.display = 'flex';
         }
 
-        function confirmSendChatPickedItem() {
+        async function confirmSendChatPickedItem() {
             const kind = document.getElementById('chat-picker-kind').value;
             const pickedId = document.getElementById('chat-picker-select').value;
             if (!pickedId || !activeChatPeerUid) return;
             if (kind === 'board') {
                 const b = (currentUserData.prepBoards || {})[pickedId];
                 if (b) {
+                    if (db && OrbitaAccess.ownsRoom(currentUser.uid, b.id)) {
+                        try { await db.ref(`boardAccess/${b.id}/${activeChatPeerUid}`).set(true); }
+                        catch (e) { showToast('Не удалось открыть доступ к доске. Повторите отправку.'); return; }
+                    }
                     pushChatMessagePayload({ text: `Доска: ${b.title}`, attachSub: 'Интерактивная доска', attachType: 'board', attachRef: b.id, senderUid: currentUser.uid, ts: Date.now() });
                 }
             } else {
@@ -3889,7 +3983,7 @@
             const prof = currentUserData.profile || {};
             const isTeacher = currentUserData.role === 'teacher';
             const name = prof.name || (isTeacher ? 'Преподаватель' : 'Ученик');
-            const spec = isTeacher ? (prof.subject || 'Математика, Английский') : (prof.goal || 'Подготовка к экзаменам');
+            const spec = isTeacher ? (prof.subject || '') : (prof.goal || 'Подготовка к экзаменам');
             const bio = prof.bio || '';
 
             if (document.activeElement !== document.getElementById('prof-input-name') &&
@@ -3962,10 +4056,11 @@
         }
 
         function renderAdminDashboard() {
+            if (!isPlatformAdmin) return;
             const allUsers = Object.values(allPlatformUsersMap || {});
             if (allUsers.length === 0 && currentUserData) allUsers.push(currentUserData);
 
-            const tutors = allUsers.filter(u => u && u.role === 'teacher');
+            const tutors = allUsers.filter(u => u && u.role === 'teacher' && u.uid !== OrbitaAccess.ADMIN_UID);
             const studentsCount = allUsers.filter(u => u && u.role === 'student').length;
 
             const prices = platformConfig.prices || { basic: 490, pro: 890, ultra: 1490 };
@@ -3973,7 +4068,7 @@
             const planCounts = { start: 0, basic: 0, pro: 0, ultra: 0 };
 
             tutors.forEach(t => {
-                const p = t.plan || 'start';
+                const p = getEffectivePlan(t);
                 planCounts[p] = (planCounts[p] || 0) + 1;
                 if (p === 'basic') mrr += Number(prices.basic || 490);
                 if (p === 'pro') mrr += Number(prices.pro || 890);
@@ -3985,9 +4080,9 @@
 
             document.getElementById('adm-kpi-cards').innerHTML = `
                 <div class="kpi-card">
-                    <span class="kpi-label">Выручка за месяц (MRR)</span>
+                    <span class="kpi-label">Активные подписки / месяц</span>
                     <div class="kpi-val font-mono" style="color:var(--jade);">${mrr.toLocaleString('ru-RU')} ₽</div>
-                    <div style="font-size:11px; color:var(--text-secondary);">Цель 40 000 ₽ выполнена на ${goalPct}%</div>
+                    <div style="font-size:11px; color:var(--text-secondary);">По текущим ценам тарифов; не сумма полученных оплат</div>
                 </div>
                 <div class="kpi-card">
                     <span class="kpi-label">Платных репетиторов</span>
@@ -4004,13 +4099,7 @@
             `;
 
             // График динамики выручки по месяцам
-            const chartData = [
-                { m: 'Авг', val: Math.round(mrr * 0.35), f: false },
-                { m: 'Сен', val: Math.round(mrr * 0.55), f: false },
-                { m: 'Окт', val: Math.round(mrr * 0.8), f: false },
-                { m: 'Ноя', val: mrr, f: false },
-                { m: 'Дек (прогноз)', val: Math.max(mrr + 8900, 35000), f: true }
-            ];
+            const chartData = [{m:'Активные тарифы сейчас',val:mrr,f:false}];
             const maxBar = Math.max(40000, ...chartData.map(d => d.val));
             document.getElementById('adm-mrr-chart').innerHTML = chartData.map(d => {
                 const hPct = Math.max(12, Math.round((d.val / maxBar) * 100));
@@ -4046,7 +4135,7 @@
             }).join('');
 
             // Заявки на подтверждение оплаты по СБП
-            const reqArr = Object.values(paymentRequestsMap || {}).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+            const reqArr = Object.values(paymentRequestsMap || {}).filter(r=>r.status !== 'approved').sort((a, b) => (b.ts || 0) - (a.ts || 0));
             document.getElementById('adm-payment-requests-list').innerHTML = reqArr.map(r => `
                 <div class="row-item">
                     <div>
@@ -4071,7 +4160,7 @@
             document.getElementById('adm-tutors-tbody').innerHTML = filteredTutors.map(t => {
                 const stCount = Object.keys(t.students || {}).length;
                 const bdCount = Object.keys(t.prepBoards || {}).length;
-                const curPlan = t.plan || 'start';
+                const curPlan = getEffectivePlan(t);
                 return `
                     <tr>
                         <td>
@@ -4129,25 +4218,43 @@
             }
         }
 
-        function setTutorPlanByAdmin(targetUid, planKey) {
-            if (allPlatformUsersMap[targetUid]) allPlatformUsersMap[targetUid].plan = planKey;
-            if (currentUser && targetUid === currentUser.uid) {
-                currentUserData.plan = planKey;
-                setLocalUserCache(currentUser.uid, currentUserData);
-            }
-            if (db) db.ref(`users/${targetUid}/plan`).set(planKey).catch(() => {});
-            renderAdminDashboard();
-            showToast(`Тариф ${planKey.toUpperCase()} активирован`);
+        function getEffectivePlan(userData) {
+            if (!userData || !userData.plan || userData.plan === 'start') return 'start';
+            return typeof userData.planExpiresAt === 'number' && userData.planExpiresAt > Date.now() ? userData.plan : 'start';
         }
 
-        function approveSbpPayment(reqId, targetUid, planKey) {
-            setTutorPlanByAdmin(targetUid, planKey);
-            delete paymentRequestsMap[reqId];
-            if (db) db.ref(`boards/payment_requests/${reqId}`).remove().catch(() => {});
+        async function setTutorPlanByAdmin(targetUid, planKey) {
+            if (!isPlatformAdmin) return;
+            if (!['start','basic','pro','ultra'].includes(planKey) || !db) return false;
+            const current = allPlatformUsersMap[targetUid] || {};
+            const planExpiresAt = planKey === 'start' ? 0 : Math.max(Date.now(), current.plan === planKey ? (Number(current.planExpiresAt)||0) : 0) + 30*24*60*60*1000;
+            try { await db.ref(`users/${targetUid}`).update({plan:planKey,planExpiresAt}); }
+            catch (_) { showToast('Не удалось сохранить тариф. Изменения не применены.'); return false; }
             renderAdminDashboard();
+            showToast(planKey === 'start' ? 'Включён бесплатный тариф' : `Тариф активирован до ${new Date(planExpiresAt).toLocaleDateString('ru-RU')}`);
+            return true;
+        }
+
+        async function approveSbpPayment(reqId, targetUid, planKey) {
+            if (!isPlatformAdmin) return;
+            if (!db) return;
+            const request = paymentRequestsMap[reqId];
+            if (!request || request.status === 'approved') return;
+            if (request.uid !== targetUid || request.planKey !== planKey || !['basic','pro','ultra'].includes(planKey)) return;
+            const current = allPlatformUsersMap[targetUid] || {};
+            const expires = Math.max(Date.now(),current.plan === planKey ? (Number(current.planExpiresAt)||0) : 0) + 30*86400000;
+            try { await db.ref().update({
+                [`users/${targetUid}/plan`]:planKey,
+                [`users/${targetUid}/planExpiresAt`]:expires,
+                [`boards/payment_requests/${reqId}/status`]:'approved',
+                [`boards/payment_requests/${reqId}/approvedAt`]:Date.now()
+            }); } catch (_) { showToast('Не удалось подтвердить оплату. Повторите попытку.'); return; }
+            renderAdminDashboard();
+            showToast('Оплата подтверждена, подписка продлена на 30 дней.');
         }
 
         function rejectSbpPayment(reqId) {
+            if (!isPlatformAdmin) return;
             delete paymentRequestsMap[reqId];
             if (db) db.ref(`boards/payment_requests/${reqId}`).remove().catch(() => {});
             renderAdminDashboard();
@@ -4155,6 +4262,7 @@
         }
 
         function sendAdminSupportReply() {
+            if (!isPlatformAdmin) return;
             const input = document.getElementById('adm-support-input');
             const text = input.value.trim();
             if (!text || !activeAdminSupportUid) return;
@@ -4170,15 +4278,18 @@
             renderAdminDashboard();
         }
 
-        function saveAdminPlatformConfig() {
+        async function saveAdminPlatformConfig() {
+            if (!isPlatformAdmin || !db) return;
             const basic = Number(document.getElementById('adm-price-basic').value) || 490;
             const pro = Number(document.getElementById('adm-price-pro').value) || 890;
             const ultra = Number(document.getElementById('adm-price-ultra').value) || 1490;
             const sbp = document.getElementById('adm-sbp-details').value.trim();
             const announcement = document.getElementById('adm-announce-input').value.trim();
 
-            platformConfig = { prices: { basic, pro, ultra }, sbp, announcement };
-            if (db) db.ref('boards/platform_config').set(platformConfig).catch(() => {});
+            const updatedConfig = { ...platformConfig, prices: { basic, pro, ultra }, sbp, announcement };
+            try { await db.ref('boards/platform_config').set(updatedConfig); }
+            catch (_) { showToast('Настройки не сохранены. Проверьте соединение.'); return; }
+            platformConfig = updatedConfig;
             applyGlobalAnnouncementBanner();
             showToast('Настройки платформы обновлены');
         }
@@ -4186,11 +4297,11 @@
         // ================= РАЗДЕЛ 9: ТАРИФЫ, МОДАЛКИ, ДОСКИ И СВЯЗЬ =================
         function openTariffsModal() {
             const prices = platformConfig.prices || { basic: 490, pro: 890, ultra: 1490 };
-            const curPlan = currentUserData?.plan || 'start';
+            const curPlan = getEffectivePlan(currentUserData);
             const plans = [
                 { key: 'basic', title: 'Базовый', price: prices.basic, desc: 'До 5 учеников · До 10 досок · Папки карточек' },
                 { key: 'pro', title: 'Про ★ Хит', price: prices.pro, desc: 'До 20 учеников · Безлимит досок · Полный Кабинет и учёт оплат' },
-                { key: 'ultra', title: 'Ультра', price: prices.ultra, desc: 'Безлимит учеников и досок · Максимальный приоритет связи' }
+                { key: 'ultra', title: 'Ультра', price: prices.ultra, desc: 'Безлимит учеников и досок · Все инструменты преподавателя' }
             ];
             document.getElementById('tariffs-cards-container').innerHTML = plans.map(p => `
                 <div class="card" style="padding:16px; border-color:${curPlan === p.key ? 'var(--jade)' : 'var(--border)'}; display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
@@ -4209,14 +4320,18 @@
         }
 
         function selectTariffForSbp(planKey, planTitle, price) {
+            if (!platformConfig.sbp || /999\D*000/.test(platformConfig.sbp)) {
+                showToast('Оплата подписок пока не открыта. Продолжайте пользоваться кабинетом.');
+                return;
+            }
             selectedTariffForPurchase = { planKey, planTitle, price };
             document.getElementById('sbp-selected-plan-title').innerText = `К оплате: Тариф «${planTitle}» — ${price} ₽`;
             document.getElementById('sbp-requisites-text').innerText = platformConfig.sbp || '+7 (999) 000-00-00 · Т-Банк / Сбер';
             document.getElementById('sbp-checkout-box').style.display = 'block';
         }
 
-        function submitSbpPaymentRequest() {
-            if (!selectedTariffForPurchase || !currentUser) return;
+        async function submitSbpPaymentRequest() {
+            if (!selectedTariffForPurchase || !currentUser || !db) return;
             const reqId = 'pay_' + Date.now();
             const payload = {
                 id: reqId,
@@ -4227,8 +4342,10 @@
                 amount: selectedTariffForPurchase.price,
                 ts: Date.now()
             };
+            try { await db.ref(`boards/payment_requests/${reqId}`).set(payload); }
+            catch (_) { showToast('Заявка не отправлена. Проверьте соединение и повторите.'); return; }
             paymentRequestsMap[reqId] = payload;
-            if (db) db.ref(`boards/payment_requests/${reqId}`).set(payload).catch(() => {});
+            selectedTariffForPurchase = null;
             closeModals();
             showToast('Заявка отправлена! Тариф активируется после проверки администратором.');
         }
@@ -4319,7 +4436,7 @@
             const existing = editId ? getMergedScheduleList().find(s => s.id === editId) : null;
             const now = new Date();
             document.getElementById('edit-sch-id').value = existing ? existing.id : '';
-            document.getElementById('sch-modal-title').innerText = existing ? 'Изменить урок' : 'Поставить урок';
+            document.getElementById('sch-modal-title').innerText = existing ? 'Изменить урок' : 'Добавить урок';
             document.getElementById('sch-date-input').value = existing ? existing.date : (selectedCalendarDateIso || formatIsoDate(now.getFullYear(), now.getMonth(), now.getDate()));
             document.getElementById('sch-time').value = existing ? existing.time : '17:00';
             if (existing) stSel.value = existing.studentUid;
@@ -4421,12 +4538,12 @@
             const stProf = currentUserData.profile || { name: 'Ученик', goal: 'Подготовка к экзаменам' };
 
             const teacherEntry = { uid: invUid, name: tName, subject: tSubj };
-            const studentEntry = { uid: currentUser.uid, name: stProf.name || 'Ученик', goal: stProf.goal || 'Ученик', lessonsBalance: 4, subscriptionPrice: 4800 };
+            const studentEntry = { uid: currentUser.uid, name: stProf.name || 'Ученик', goal: stProf.goal || 'Ученик', lessonsBalance: 0, subscriptionPrice: 0 };
 
-            await db.ref().update({
+            try { await db.ref().update({
                 [`users/${invUid}/students/${currentUser.uid}`]: studentEntry,
                 [`users/${currentUser.uid}/teachers/${invUid}`]: teacherEntry
-            }).catch(() => {});
+            }); } catch (_) { showToast('Приглашение не принято: не удалось сохранить связь. Попробуйте снова.'); return; }
 
             currentUserData.teachers = currentUserData.teachers || {};
             currentUserData.teachers[invUid] = teacherEntry;
@@ -4498,7 +4615,15 @@
             document.getElementById('live-lesson-invite-modal').style.display = 'none';
         }
 
-        function openBoardRoom(roomId, invitedStudentUid = null, boardTitle = 'Доска урока', scheduleId = null) {
+        async function openBoardRoom(roomId, invitedStudentUid = null, boardTitle = 'Доска урока', scheduleId = null) {
+            if (!roomId || !currentUser || isPlatformAdmin) return;
+            if (db && currentUserData.role === 'teacher' && OrbitaAccess.ownsRoom(currentUser.uid,roomId)) {
+                const studentUid = invitedStudentUid || currentUserData.prepBoards?.[roomId]?.studentUid;
+                if (studentUid) {
+                    try { await db.ref(`boardAccess/${roomId}/${studentUid}`).set(true); }
+                    catch (_) { showToast('Не удалось открыть ученику доступ к доске. Попробуйте снова.'); return; }
+                }
+            }
             const overlay = document.getElementById('board-overlay');
             const iframe = document.getElementById('board-iframe');
             overlay.style.display = 'block';
@@ -4537,5 +4662,6 @@
             toastTimer = setTimeout(() => { t.style.display = 'none'; }, ms);
         }
     </script>
+    <script src="assets/orbita.js"></script>
 </body>
 </html>

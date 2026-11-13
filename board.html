@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ESpace — Интерактивный урок</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Орбита — Интерактивный урок</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet">
@@ -660,8 +660,12 @@
         body.role-student #btn-center-board,
         body.role-student #btn-timer-start { display: none !important; }
     </style>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/board-theme.css">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 </head>
 <body class="role-teacher">
+    <div id="board-access-status" role="status"><span>Открываем доску…</span><a href="index.html">Вернуться в кабинет</a></div>
 
     <audio id="remote-voice-player" autoplay playsinline></audio>
 
@@ -923,7 +927,7 @@
         const CENTER_X = -1400;
         const CENTER_Y = -950;
 
-        const isLightTheme = localStorage.getItem('es_theme') === 'light';
+        const isLightTheme = localStorage.getItem('es_theme') !== 'dark';
         if (isLightTheme) {
             document.body.classList.add('light-theme');
         }
@@ -936,13 +940,13 @@
 
         const ROOM_ID = rawRoom.replace(/[^a-zA-Z0-9_-]/g, '_');
         const LOCAL_BOARD_KEY = 'es_board_cache_' + ROOM_ID;
-        const localChannel = new BroadcastChannel('es_live_' + ROOM_ID);
+        const localChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('es_live_' + ROOM_ID) : {postMessage(){},close(){}};
 
         try {
             firebase.initializeApp(firebaseConfig);
             auth = firebase.auth();
             db = firebase.database();
-            roomRef = db.ref('boards/' + ROOM_ID);
+            // Subscriptions start only after authentication and access verification.
         } catch (e) {}
 
         const canvas = document.getElementById('canvas');
@@ -1075,6 +1079,17 @@
         let lastLiveStrokeSentTime = 0;
         let saveStateDebounceTimer = null;
         let isLocalCamMain = false;
+        let boardReady = false;
+        let drawingPointerId = null;
+        let mediaBusy = false;
+        let reconnectTimer = null;
+        let reconnectAttempts = 0;
+        let rtcClosed = false;
+        let rtcSessionStartedAt = Date.now();
+        let realtimeStarted = false;
+        let signalSequence = 0;
+        const seenSignals = new Set();
+        const seenEvents = new Set();
 
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
@@ -1086,7 +1101,10 @@
         // ================= 2. ФУНКЦИИ ИНТЕРФЕЙСА И СИНХРОНИЗАЦИИ =================
         if (auth) {
             auth.onAuthStateChanged(async (u) => {
-                if (!u) return;
+                const status = document.getElementById('board-access-status');
+                if (!u) { status.querySelector('span').textContent = 'Войдите в аккаунт, чтобы открыть доску.'; status.hidden=false; return; }
+                if (u.uid === 'bvEGSBPw8wTWuH5gthAiEMpaZoe2') { location.replace('index.html'); return; }
+                if (realtimeStarted) return;
                 try {
                     const cached = localStorage.getItem('es_user_' + u.uid);
                     if (cached) {
@@ -1096,11 +1114,23 @@
                     if (db) {
                         const snap = await db.ref(`users/${u.uid}/profile/name`).once('value');
                         if (snap.val()) myUserName = snap.val();
+                        const roleSnap = await db.ref(`users/${u.uid}/role`).once('value');
+                        applyVerifiedRole(roleSnap.val()==='student'?'student':'teacher');
+                        const candidateRoom = db.ref('boards/' + ROOM_ID);
+                        await candidateRoom.child('participants').once('value');
+                        roomRef = candidateRoom;
+                        realtimeStarted = true;
+                        boardReady = true;
+                        initRealtimeSync();
+                        initWebRTC();
+                        status.hidden = true;
                     }
-                } catch (e) {}
+                } catch (e) { roomRef=null; status.querySelector('span').textContent = 'Нет доступа к доске или потеряно соединение. Откройте её из кабинета преподавателя.'; return; }
                 publishMyParticipantInfo();
                 updateParticipantLabelsUI();
             });
+        } else {
+            document.getElementById('board-access-status').querySelector('span').textContent='Не удалось загрузить сервис. Проверьте интернет и обновите страницу.';
         }
 
         function publishMyParticipantInfo() {
@@ -1185,7 +1215,7 @@
         function applyVerifiedRole(verifiedRole) {
             role = (verifiedRole === 'student') ? 'student' : 'teacher';
             peerRole = role === 'teacher' ? 'student' : 'teacher';
-            document.body.className = (localStorage.getItem('es_theme') === 'light' ? 'light-theme ' : '') + 'role-' + role;
+            document.body.className = (localStorage.getItem('es_theme') !== 'dark' ? 'light-theme ' : '') + 'role-' + role;
 
             const isTeacher = role === 'teacher';
             document.getElementById('follow-status-text').innerText = isTeacher
@@ -1229,7 +1259,7 @@
         }
 
         function broadcastEvent(payload) {
-            const msg = { ...payload, sender: myClientId, ts: Date.now() };
+            const msg = { ...payload, sender: myClientId, eventId:myClientId+'_'+(++signalSequence), ts: Date.now() };
             try { localChannel.postMessage(msg); } catch (e) {}
             if (roomRef) {
                 try { roomRef.child('events').push(msg).catch(() => {}); } catch (e) {}
@@ -1242,6 +1272,14 @@
             }
         };
 
+        function boardText(value) {
+            return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function validBoardId(id) { return typeof id === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(id); }
+        function safeBoardItem(data) {
+            if (!data || !validBoardId(data.id)) return null;
+            return {...data, color: /^#[0-9a-f]{3,8}$/i.test(data.color || '') ? data.color : '#1f2937', fontSize: Math.max(14, Math.min(120, Number(data.fontSize) || 24))};
+        }
         function restoreSnapshotData(val) {
             if (!val) return;
             if (Array.isArray(val.deletedIds)) {
@@ -1270,6 +1308,8 @@
         }
 
         function initRealtimeSync() {
+            let snapshotReady=false;
+            const earlyEvents=[];
             try {
                 const localRaw = localStorage.getItem(LOCAL_BOARD_KEY);
                 if (localRaw) restoreSnapshotData(JSON.parse(localRaw));
@@ -1293,6 +1333,11 @@
                 roomRef.child('snapshot').once('value', (snap) => {
                     const val = snap.val();
                     if (val) restoreSnapshotData(val);
+                    snapshotReady=true;
+                    earlyEvents.forEach(data=>handleRemoteEvent(data));
+                },()=>{
+                    snapshotReady=true;
+                    setRtcStatus('Не удалось загрузить сохранённую доску');
                 });
 
                 roomRef.child('timerState').on('value', (snap) => {
@@ -1321,12 +1366,11 @@
                     }
                 });
 
-                let initialEventsSkipped = false;
-                roomRef.child('events').limitToLast(1).on('child_added', (snap) => {
-                    if (!initialEventsSkipped) { initialEventsSkipped = true; return; }
+                roomRef.child('events').orderByChild('ts').startAt(rtcSessionStartedAt).limitToLast(500).on('child_added', (snap) => {
                     const data = snap.val();
                     if (!data || data.sender === myClientId) return;
-                    handleRemoteEvent(data);
+                    if(!snapshotReady)earlyEvents.push(data);
+                    else handleRemoteEvent(data);
                 });
             } catch (e) {}
         }
@@ -1380,8 +1424,8 @@
                 const isMine = m.authorRole ? (m.authorRole === role) : (displayAuthor === myUserName);
                 return `
                     <div class="chat-msg ${isMine ? 'mine' : ''}">
-                        <div class="chat-msg-author">${displayAuthor.replace(/</g, '&lt;')}</div>
-                        <div>${(m.text || '').replace(/</g, '&lt;')}</div>
+                        <div class="chat-msg-author">${boardText(displayAuthor)}</div>
+                        <div>${boardText(m.text)}</div>
                     </div>
                 `;
             }).join('');
@@ -1870,7 +1914,8 @@
         }
 
         function createTextNode(existingData, broadcast, recordInHistory = true) {
-            if (document.getElementById(existingData.id)) return;
+            existingData = safeBoardItem(existingData);
+            if (!existingData || document.getElementById(existingData.id)) return;
             const fontSize = existingData.fontSize || Math.max(20, Math.min(54, 14 + baseStrokeSize * 2));
             const data = { ...existingData, fontSize };
 
@@ -1882,7 +1927,7 @@
 
             node.innerHTML = `
                 <div class="board-text-drag">⋮⋮</div>
-                <div class="board-text-content" contenteditable="true" spellcheck="false" style="color: ${data.color}; font-size: ${fontSize}px;">${data.text || ''}</div>
+                <div class="board-text-content" contenteditable="true" spellcheck="false" style="color: ${data.color}; font-size: ${fontSize}px;">${boardText(data.text)}</div>
                 <button class="board-text-del" onclick="removeDynamicItem('${data.id}', true)">✕</button>
                 <div class="text-resize-handle">◢</div>
             `;
@@ -1981,7 +2026,7 @@
         function createVideoWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
             const data = existingData || { id: 'video-' + Date.now(), left: 1600, top: 1100, width: 350, height: 255 };
-            if (document.getElementById(data.id)) return;
+            if (!data || !validBoardId(data.id) || document.getElementById(data.id)) return;
 
             const div = document.createElement('div');
             div.className = 'widget video-widget-box'; div.id = data.id; div.dataset.type = 'video';
@@ -2095,7 +2140,7 @@
         function createEssayWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
             const data = existingData || { id: 'essay-' + Date.now(), left: 2020, top: 1100, width: 350, height: 245, text: '' };
-            if (document.getElementById(data.id)) return;
+            if (!data || !validBoardId(data.id) || document.getElementById(data.id)) return;
 
             const div = document.createElement('div');
             div.className = 'widget essay-widget-box'; div.id = data.id; div.dataset.type = 'essay';
@@ -2109,7 +2154,7 @@
                     <div class="grip-bar"></div>
                     <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
-                <textarea placeholder="Поле для текста, конспекта и решений..." oninput="onEssayWidgetInput('${data.id}', this.value)">${data.text || ''}</textarea>
+                <textarea placeholder="Поле для текста, конспекта и решений..." oninput="onEssayWidgetInput('${data.id}', this.value)">${boardText(data.text)}</textarea>
                 <div class="word-counter font-mono">Слов: 0</div>
                 <div class="resize-handle">◢</div>
             `;
@@ -2168,7 +2213,7 @@
         }
 
         function spawnPhotoWidget(data, broadcast, recordInHistory = true) {
-            if (document.getElementById(data.id)) return;
+            if (!data || !validBoardId(data.id) || document.getElementById(data.id)) return;
             const div = document.createElement('div');
             div.className = 'widget photo-widget'; div.id = data.id; div.dataset.type = 'photo'; div.dataset.aspect = data.aspect || 1;
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
@@ -2180,7 +2225,7 @@
                     <div class="grip-bar"></div>
                     <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
-                <img src="${data.src}" alt="">
+                <img src="${boardText(data.src)}" alt="">
                 <div class="resize-handle">◢</div>
             `;
             dynamicItems.appendChild(div);
@@ -2192,7 +2237,7 @@
         function createSticker(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
             const data = existingData || { id: 'sticker-' + Date.now(), left: 1800, top: 1200, width: 210, height: 175, theme: 'yellow', text: '' };
-            if (document.getElementById(data.id)) return;
+            if (!data || !validBoardId(data.id) || document.getElementById(data.id)) return;
             const tObj = STICKER_THEMES[data.theme || 'yellow'] || STICKER_THEMES.yellow;
 
             const div = document.createElement('div');
@@ -2212,7 +2257,7 @@
                     <div class="grip-bar"></div>
                     <div class="widget-actions-right"><button class="close-btn" onclick="removeDynamicItem('${data.id}', true)">✕</button></div>
                 </div>
-                <textarea placeholder="Заметка..." oninput="syncStickerText('${data.id}', this.value)">${data.text || ''}</textarea>
+                <textarea placeholder="Заметка..." oninput="syncStickerText('${data.id}', this.value)">${boardText(data.text)}</textarea>
                 <div class="resize-handle">◢</div>
             `;
             dynamicItems.appendChild(div);
@@ -2234,7 +2279,7 @@
         function createSpeakingWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
             const data = existingData || { id: 'speaking-' + Date.now(), left: 1800, top: 1200, width: 345, height: 248 };
-            if (document.getElementById(data.id)) return;
+            if (!data || !validBoardId(data.id) || document.getElementById(data.id)) return;
             const div = document.createElement('div');
             div.className = 'widget speaking-widget-box'; div.id = data.id; div.dataset.type = 'speaking';
             div.dataset.minW = '280'; div.dataset.minH = '225';
@@ -2409,7 +2454,7 @@
         function createDictWidget(existingData, broadcast, recordInHistory = true) {
             if (role === 'student' && broadcast) return;
             const data = existingData || { id: 'dict-' + Date.now(), left: 1900, top: 1150, width: 345, height: 275 };
-            if (document.getElementById(data.id)) return;
+            if (!data || !validBoardId(data.id) || document.getElementById(data.id)) return;
             const div = document.createElement('div');
             div.className = 'widget dict-widget-box'; div.id = data.id; div.dataset.type = 'dict';
             div.style.left = data.left + 'px'; div.style.top = data.top + 'px';
@@ -2458,11 +2503,11 @@
                 if (oxRes.status === 'fulfilled' && Array.isArray(oxRes.value) && oxRes.value.length > 0) {
                     const entry = oxRes.value[0];
                     const phonetic = entry.phonetic || (entry.phonetics?.find(p => p.text)?.text) || '';
-                    bodyEl.innerHTML = `<div style="margin-bottom:6px;"><b>${entry.word}</b> <span style="color:var(--emerald);">${phonetic}</span></div>` +
-                        (ruWord ? `<div style="background:var(--emerald-soft); color:var(--emerald); padding:4px 8px; border-radius:6px; font-weight:700; margin-bottom:6px;">Перевод: ${ruWord}</div>` : '') +
-                        `<div>${entry.meanings[0]?.definitions[0]?.definition || ''}</div>`;
+                    bodyEl.innerHTML = `<div style="margin-bottom:6px;"><b>${boardText(entry.word)}</b> <span style="color:var(--emerald);">${boardText(phonetic)}</span></div>` +
+                        (ruWord ? `<div style="background:var(--emerald-soft); color:var(--emerald); padding:4px 8px; border-radius:6px; font-weight:700; margin-bottom:6px;">Перевод: ${boardText(ruWord)}</div>` : '') +
+                        `<div>${boardText(entry.meanings?.[0]?.definitions?.[0]?.definition)}</div>`;
                 } else if (ruWord) {
-                    bodyEl.innerHTML = `<b>${word}</b> — ${ruWord}`;
+                    bodyEl.innerHTML = `<b>${boardText(word)}</b> — ${boardText(ruWord)}`;
                 } else { bodyEl.innerHTML = 'Слово не найдено.'; }
             } catch (e) { bodyEl.innerHTML = 'Ошибка соединения.'; }
         }
@@ -2484,6 +2529,7 @@
 
         function flushBoardStateImmediate() {
             clearTimeout(saveStateDebounceTimer);
+            if (!boardReady) return;
             try {
                 const items = [];
                 dynamicItems.querySelectorAll('.widget, .board-text-node').forEach(el => {
@@ -2503,13 +2549,15 @@
                     chatHistory,
                     items
                 };
-                localStorage.setItem(LOCAL_BOARD_KEY, JSON.stringify(payload));
-                if (roomRef) roomRef.child('snapshot').set(payload).catch(() => {});
+                payload.savedAt = Date.now();
+                try { localStorage.setItem(LOCAL_BOARD_KEY, JSON.stringify(payload)); } catch (_) {}
+                if (roomRef) roomRef.child('snapshot').set(payload).catch(() => setRtcStatus('Не сохранено: проверьте интернет и доступ к доске'));
             } catch (e) {}
         }
 
         function resetSavedLesson() {
             if (role === 'student') return;
+            if (!confirm('Очистить всю доску и её материалы? Это действие нельзя отменить.')) return;
             strokeHistory = []; actionHistory = []; redoActionStack = [];
             deletedStrokeIds.clear();
             redrawAllStrokes(); dynamicItems.innerHTML = '';
@@ -2594,6 +2642,7 @@
 
         // ================= 3. СОБЫТИЯ РИСОВАНИЯ НА ХОЛСТЕ =================
         viewport.addEventListener('pointerdown', (e) => {
+            if (!boardReady || !e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
             if (e.target.closest('.left-toolbar') || e.target.closest('.tool-settings-card') ||
                 e.target.closest('.bottom-left-island') || e.target.closest('.bottom-right-island') ||
                 e.target.closest('.resize-handle') || e.target.closest('.text-resize-handle') ||
@@ -2613,6 +2662,8 @@
             }
 
             if (e.target.closest('.widget') && !e.target.closest('.photo-widget')) return;
+            drawingPointerId = e.pointerId;
+            viewport.setPointerCapture(e.pointerId);
 
             if (tool === 'pan') {
                 if (role === 'student' && followMode) return;
@@ -2641,6 +2692,7 @@
         });
 
         viewport.addEventListener('pointermove', (e) => {
+            if (!boardReady || (drawingPointerId !== null && e.pointerId !== drawingPointerId)) return;
             const pt = screenToWorld(e.clientX, e.clientY);
             const worldX = Math.round(pt.x); const worldY = Math.round(pt.y);
             const now = Date.now();
@@ -2688,7 +2740,8 @@
             }
         });
 
-        window.addEventListener('pointerup', () => {
+        window.addEventListener('pointerup', (e) => {
+            if (drawingPointerId !== null && e.pointerId !== drawingPointerId) return;
             if (drawing && currentStrokePoints.length > 0 && tool !== 'pan' && tool !== 'text' && tool !== 'eraser') {
                 if (tool === 'highlighter') {
                     clearTempBounds(strokeBounds, getToolWidth(tool, baseStrokeSize) + 15);
@@ -2708,7 +2761,7 @@
                     roomRef.child(`liveStroke/${role}`).set({ active: false }).catch(() => {});
                 }
             }
-            drawing = false; panning = false; currentStrokePoints = []; currentStrokeId = null;
+            drawing = false; panning = false; currentStrokePoints = []; currentStrokeId = null; drawingPointerId = null;
             if (tool === 'pan' && !pendingWidgetType) viewport.style.cursor = 'grab';
         });
 
@@ -2724,6 +2777,12 @@
         }
 
         function handleRemoteEvent(data) {
+            if (!data || (data.id != null && !validBoardId(data.id)) || (data.data?.id != null && !validBoardId(data.data.id))) return;
+            if (data.eventId) {
+                if (seenEvents.has(data.eventId)) return;
+                seenEvents.add(data.eventId);
+                if(seenEvents.size>1000)seenEvents.delete(seenEvents.values().next().value);
+            }
             if (data.type === 'teacher_move_local') {
                 handleTeacherMoveData(data);
             } else if (data.type === 'follow_toggle') {
@@ -2831,16 +2890,18 @@
         }
 
         function sendRtcSignal(payload) {
-            const msg = { ...payload, type: 'webrtc_signal', sender: myClientId, senderRole: role, ts: Date.now() };
+            const msg = { ...payload, type: 'webrtc_signal', signalId:myClientId+'_'+(++signalSequence), sender: myClientId, senderRole: role, ts: Date.now() };
             try { localChannel.postMessage(msg); } catch (e) {}
-            if (rtcSignalRef) { try { rtcSignalRef.push(msg).catch(() => {}); } catch (e) {} }
+            if (rtcSignalRef) { try { const ref=rtcSignalRef.push(); ref.set(msg).catch(()=>setRtcStatus('Нет связи с сервером')); ref.onDisconnect().remove(); } catch (e) {} }
         }
 
         function ensurePeerConnection() {
-            if (pc && pc.connectionState !== 'closed' && pc.connectionState !== 'failed') return pc;
+            if (pc && pc.connectionState !== 'closed') return pc;
             if (pc) { try { pc.close(); } catch (e) {} }
 
             pc = new RTCPeerConnection(RTC_CONFIG);
+            const connection = pc;
+            pc.onnegotiationneeded = () => scheduleDebouncedOffer();
             remoteVideoStream = new MediaStream();
             remoteAudioStream = new MediaStream();
             p2pVideoWorking = false;
@@ -2855,13 +2916,15 @@
             };
 
             pc.onconnectionstatechange = () => {
-                if (!pc) return;
+                if (!pc || pc !== connection || rtcClosed) return;
                 if (pc.connectionState === 'connected') {
-                    setRtcStatus('HD-связь активна');
+                    clearTimeout(reconnectTimer); reconnectTimer=null; reconnectAttempts=0;
+                    setRtcStatus('Соединение установлено');
                 } else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
                     p2pVideoWorking = false;
                     p2pAudioWorking = false;
-                    setRtcStatus('Резервный поток');
+                    setRtcStatus('Восстанавливаем соединение…');
+                    queueIceRestart();
                 }
             };
 
@@ -2908,6 +2971,7 @@
         }
 
         async function makeWebRTCOffer() {
+            if (rtcClosed || !roomRef) return;
             const conn = ensurePeerConnection();
             if (makingOffer || conn.signalingState !== 'stable') return;
             try {
@@ -2927,7 +2991,8 @@
         }
 
         async function handleWebRTCSignal(data) {
-            if (!data || data.sender === myClientId) return;
+            if (!data || data.sender === myClientId || data.senderRole === role || rtcClosed || (data.ts && data.ts < rtcSessionStartedAt - 15000)) return;
+            if(data.signalId){if(seenSignals.has(data.signalId))return;seenSignals.add(data.signalId);if(seenSignals.size>500)seenSignals.delete(seenSignals.values().next().value);}
             const conn = ensurePeerConnection();
             const polite = myClientId < data.sender;
 
@@ -2942,10 +3007,8 @@
                     if (ignoreOffer) return;
 
                     if (offerCollision) {
-                        await Promise.all([
-                            conn.setLocalDescription({ type: 'rollback' }),
-                            conn.setRemoteDescription(new RTCSessionDescription(desc))
-                        ]);
+                        await conn.setLocalDescription({ type: 'rollback' });
+                        await conn.setRemoteDescription(desc);
                     } else {
                         await conn.setRemoteDescription(new RTCSessionDescription(desc));
                     }
@@ -2966,6 +3029,7 @@
                         });
                     }
                 } else if (data.kind === 'ice' && data.candidate) {
+                    if (ignoreOffer) return;
                     if (conn.remoteDescription && conn.remoteDescription.type) {
                         try { await conn.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch (err) {}
                     } else {
@@ -2982,12 +3046,7 @@
             if (!roomRef) return;
 
             rtcSignalRef = roomRef.child('rtcSignals');
-            let initialSignalsSkipped = false;
-            rtcSignalRef.limitToLast(1).on('child_added', (snap) => {
-                if (!initialSignalsSkipped) {
-                    initialSignalsSkipped = true;
-                    return;
-                }
+            rtcSignalRef.orderByChild('ts').startAt(rtcSessionStartedAt-15000).limitToLast(150).on('child_added', (snap) => {
                 const val = snap.val();
                 if (!val || val.sender === myClientId) return;
                 handleWebRTCSignal(val);
@@ -3167,6 +3226,7 @@
         function reconnectWebRTC() {
             unlockAudioPlayback();
             setRtcStatus('Обновление...');
+            clearTimeout(reconnectTimer); reconnectTimer=null; reconnectAttempts=0; pendingIceCandidates=[]; ignoreOffer=false; makingOffer=false;
             if (pc) { try { pc.close(); } catch (e) {} pc = null; }
             ensurePeerConnection();
             sendRtcSignal({ kind: 'hello' });
@@ -3174,6 +3234,8 @@
         }
 
         function cleanupWebRTC() {
+            rtcClosed = true;
+            clearTimeout(reconnectTimer); clearTimeout(offerDebounceTimer);
             stopFirebaseVideoRelay();
             stopFirebaseAudioRelay();
             if (localStream) localStream.getTracks().forEach(t => t.stop());
@@ -3240,6 +3302,7 @@
         }
 
         async function toggleMic() {
+            if (mediaBusy || !boardReady) return;
             unlockAudioPlayback();
             const micBtn = document.getElementById('btn-mic-toggle');
             if (localStream && localStream.getAudioTracks().length > 0) {
@@ -3250,6 +3313,7 @@
                 sendRtcSignal({ kind: 'media_state', hasVideo: cameraActive, hasAudio: micActive });
                 return;
             }
+            mediaBusy=true;
             try {
                 const audioStream = await navigator.mediaDevices.getUserMedia({
                     audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
@@ -3261,11 +3325,10 @@
                 micActive = true;
                 micBtn.classList.add('lit');
                 showLocalPreview();
-                startFirebaseAudioRelay();
                 await attachOrReplaceTrack(audioTrack);
             } catch (err) {
                 alert('Разрешите доступ к микрофону в настройках браузера.');
-            }
+            } finally { mediaBusy=false; }
         }
 
         function toggleRemoteSound() {
@@ -3279,10 +3342,13 @@
         }
 
         async function toggleCamera() {
+            if (mediaBusy || !boardReady) return;
             unlockAudioPlayback();
             const camBtn = document.getElementById('btn-cam-toggle');
             if (cameraActive && localStream) {
                 localStream.getVideoTracks().forEach(track => {
+                    const sender=pc?.getSenders().find(s=>s.track===track);
+                    if(sender)pc.removeTrack(sender);
                     track.stop();
                     localStream.removeTrack(track);
                 });
@@ -3294,11 +3360,11 @@
                 scheduleDebouncedOffer();
                 return;
             }
+            mediaBusy=true;
             try {
-                const needAudio = !localStream || localStream.getAudioTracks().length === 0;
                 const media = await navigator.mediaDevices.getUserMedia({
-                    video: { width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 24, max: 30 }, facingMode: 'user' },
-                    audio: needAudio ? { echoCancellation: true, noiseSuppression: true, autoGainControl: true } : false
+                    video: { width: { ideal: 640 }, height: { ideal: 360 }, frameRate: { ideal: 20, max: 24 }, facingMode: 'user' },
+                    audio: false
                 });
                 if (!localStream) localStream = new MediaStream();
 
@@ -3315,23 +3381,21 @@
                     localStream.addTrack(audioTrack);
                     micActive = true;
                     document.getElementById('btn-mic-toggle').classList.add('lit');
-                    startFirebaseAudioRelay();
                     await attachOrReplaceTrack(audioTrack);
                 }
 
                 showLocalPreview();
-                startFirebaseVideoRelay();
             } catch (err) {
-                alert('Разрешите доступ к камере и микрофону в настройках браузера.');
-            }
+                alert('Не удалось включить камеру. Проверьте разрешение браузера; микрофоном можно пользоваться отдельно.');
+            } finally { mediaBusy=false; }
         }
 
         // ================= 5. ЗАПУСК ВСЕХ СИСТЕМ В КОНЦЕ СКРИПТА =================
         applyVerifiedRole(role);
         applyBoardTransform();
         startSmoothAnimationLoop();
-        initRealtimeSync();
-        initWebRTC();
+        // Online systems start in the authenticated session above.
     </script>
+    <script src="assets/board-enhancements.js"></script>
 </body>
 </html>
