@@ -58,6 +58,8 @@ function requireVerified(node){
         else if(value && typeof value==='object')requireVerified(value);
     }
 }
+require('./learning-rules.cjs')(rules,{admin});
+require('./commerce-rules.cjs')(rules,{admin});
 requireVerified(rules);
 fs.mkdirSync('firebase',{recursive:true});
 fs.writeFileSync('firebase/database.rules.json',JSON.stringify({rules},null,2)+'\n');

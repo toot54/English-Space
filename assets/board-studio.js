@@ -45,8 +45,8 @@ async function flushLessonNotes(){
     try{
         await roomRef.child('lessonNotes').update(changes);
         for(const [key,value] of Object.entries(changes))if(lessonNoteDrafts.get(key)===value)lessonNoteDrafts.delete(key);
-        document.getElementById('lesson-notes-status').textContent=lessonNoteDrafts.size?'Сохраняем…':'Сохранено для обоих участников';
-    }catch(_){document.getElementById('lesson-notes-status').textContent='Ждём соединение · не закрывайте урок';}
+        document.getElementById('lesson-notes-status').textContent=lessonNoteDrafts.size?'Сохраняем…':'Сохранено для обоих участников';return true;
+    }catch(_){document.getElementById('lesson-notes-status').textContent='Ждём соединение · не закрывайте урок';return false;}
 }
 function downloadLessonNotes(){
     const sections=[...document.querySelectorAll('[data-lesson-note]')].map(input=>input.getAttribute('aria-label')+'\n'+input.value);

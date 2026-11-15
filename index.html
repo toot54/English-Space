@@ -11,7 +11,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="assets/access.js"></script>
-    <script src="assets/lesson-ledger.js"></script>
+    <script src="assets/learning-core.js"></script>
+<script src="assets/learning-hub.js"></script>
+<script src="assets/commerce-core.js"></script>
+<script src="assets/commerce.js"></script>
+<link rel="stylesheet" href="assets/commerce.css">
+<script src="assets/lesson-ledger.js"></script>
     <script src="assets/student-ledger-ui.js"></script>
     <script src="assets/notebooks.js"></script>
     <script src="assets/email-verification.js"></script>
@@ -594,6 +599,7 @@
     <link rel="stylesheet" href="assets/orbita.css">
     <link rel="stylesheet" href="assets/mobile.css">
     <link rel="stylesheet" href="assets/workspace-refinements.css">
+<link rel="stylesheet" href="assets/learning.css">
 </head>
 <body>
 <section id="landing" aria-label="Орбита — пространство репетитора">
@@ -698,7 +704,7 @@
                 </div>
 
                 <!-- Навигация Учителя и Ученика -->
-                <nav class="nav-list" id="regular-nav-list">
+                <nav class="nav-list" id="regular-nav-list"><button class="nav-item" data-sec="learning" onclick="switchSection('learning')"><span class="nav-item-left"><svg viewBox="0 0 24 24"><path d="M4 4h7v16H4zM13 4h7v16h-7z"/></svg><span class="nav-label">Обучение</span></span></button>
                     <button class="nav-item active" data-sec="schedule" onclick="switchSection('schedule')">
                         <span class="nav-item-left">
                             <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
@@ -741,6 +747,7 @@
 
                 <!-- Отдельная Навигация Админа (когда включён режим Админа — никаких лишних вкладок!) -->
                 <nav class="nav-list" id="admin-nav-list" style="display:none;">
+                    <button class="nav-item" data-adm="commerce" aria-label="Промокоды и рефералы" title="Промокоды и рефералы" onclick="switchAdminTab('commerce')"><span class="nav-item-left"><svg viewBox="0 0 24 24"><path d="M3 8h18v4H3zM5 12v9h14v-9M12 8v13M12 8C6 8 5 5 7 3c2-2 5 2 5 5Zm0 0c6 0 7-3 5-5-2-2-5 2-5 5Z"/></svg><span class="nav-label">Промокоды и рефералы</span></span></button>
                     <button class="nav-item active" data-adm="analytics" onclick="switchAdminTab('analytics')">
                         <span class="nav-item-left">
                             <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
@@ -858,7 +865,8 @@
             </section>
 
             <!-- ================= ЭКРАН 2: КАБИНЕТ РЕПЕТИТОРА (ФИНАНСЫ, ДОСЬЕ, ИСТОРИЯ ОПЛАТ) ================= -->
-            <section class="sec-page" id="sec-cabinet">
+            <section class="sec-page" id="sec-learning"><div id="learning-content"></div></section>
+<section class="sec-page" id="sec-cabinet">
                 <div class="page-head">
                     <h1 class="page-h1">Ученики</h1>
                     <div class="ledger-actions"><button class="btn" onclick="exportLessonLedger()">Скачать отчёт</button><button class="btn btn-jade" onclick="openInviteModal()">+ Пригласить ученика</button></div>
@@ -1098,6 +1106,7 @@
                 </div>
 
                 <!-- Вкладка Админа 1: Аналитика, графики и касса -->
+                <div id="adm-view-commerce" style="display:none;"><div id="admin-commerce-content"></div></div>
                 <div id="adm-view-analytics">
                     <div class="kpi-grid-4" id="adm-kpi-cards"></div>
 
@@ -1172,7 +1181,7 @@
                 <div id="adm-view-settings" style="display:none;">
                     <div class="schedule-grid">
                         <div class="card" style="padding:20px;">
-                            <div class="card-title" style="margin-bottom:14px;">Цены тарифов и реквизиты СБП</div>
+                            <div class="card-title" style="margin-bottom:14px;">Подписки и ручная оплата</div><label class="field-label">Практика — ₽ за 30 дней<input id="adm-practice-price" class="field-input" type="number" min="1" value="590"></label><label class="learning-check"><input id="adm-sales-enabled" type="checkbox"> Открыть приём заявок на оплату после пилота</label><p class="learning-muted">Старт — бесплатно. Пробный период — 14 дней. Автоматических списаний нет. Поля старых тарифов ниже сохранены для ранее выданных подписок.</p>
                             <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:12px;">
                                 <div>
                                     <label class="field-label">Базовый (₽/мес)</label>
@@ -1435,7 +1444,7 @@
             </div>
             <div>
                 <label class="field-label">Тема занятия</label>
-                <input type="text" id="sch-topic" class="field-input" placeholder="Например: Тригонометрия / Present Perfect">
+                <div id="sch-repeat-options" class="learning-help"><label>Повторить <select id="sch-repeat-count" class="form-select"><option value="1">Только один урок</option><option value="4">4 занятия</option><option value="8">8 занятий</option><option value="16">16 занятий</option></select></label><label>Интервал <select id="sch-repeat-every" class="form-select"><option value="1">Каждую неделю</option><option value="2">Раз в две недели</option></select></label><small>Повторение — «Практика». Для каждого будущего занятия создаётся отдельная доска. Время — по часовому поясу устройства преподавателя.</small></div><input type="text" id="sch-topic" class="field-input" placeholder="Например: Тригонометрия / Present Perfect">
             </div>
             <button class="btn btn-jade" style="height:40px; width:100%;" onclick="saveScheduleItem()">Сохранить в расписание</button>
         </div>
@@ -1926,6 +1935,7 @@
                 document.getElementById('sec-admin').classList.add('active');
                 document.getElementById('workspace-section-name').textContent = 'Управление платформой';
                 initAdminSubscriptions();
+                initCommerce();
                 switchAdminTab('analytics');
                 return;
             }
@@ -1946,6 +1956,8 @@
             document.getElementById('btn-toggle-admin-mode').style.display = isPlatformAdmin ? 'inline-flex' : 'none';
 
             initRealtimeSubscriptions();
+            initLearningHub();
+            initCommerce();
             setInterval(() => { syncCompletedLessonHistory(); if(currentSection==='cabinet')renderCabinetSection(); },60000);
             switchSection('schedule');
 
@@ -2000,6 +2012,7 @@
                 syncOwnedBoardAccess();
                 syncCompletedLessonHistory();
                 syncPairListeners();
+                initLearningHub();
                 renderAllSections();
             });
 
@@ -2112,11 +2125,20 @@
         function switchAdminTab(tab) {
             if (!isPlatformAdmin) return;
             document.body.classList.remove('mobile-nav-open');
+            document.querySelector('.mobile-menu-toggle')?.setAttribute('aria-expanded','false');
             currentAdminTab = tab;
+            if(tab==='settings'){
+                document.getElementById('adm-practice-price').value=platformConfig.practicePrice||590;
+                document.getElementById('adm-sales-enabled').checked=!!platformConfig.salesEnabled;
+                document.getElementById('adm-sbp-details').value=platformConfig.sbp||'';
+                document.getElementById('adm-announce-input').value=platformConfig.announcement||'';
+                for(const name of ['basic','pro','ultra'])document.getElementById('adm-price-'+name).value=platformConfig.prices?.[name]||({basic:490,pro:590,ultra:1490})[name];
+            }
             document.querySelectorAll('#admin-nav-list .nav-item').forEach(b => {
                 b.classList.toggle('active', b.dataset.adm === tab);
+                b.setAttribute('aria-label',b.querySelector('.nav-label').textContent);
             });
-            ['analytics', 'tutors', 'support', 'settings'].forEach(t => {
+            ['analytics', 'tutors', 'support', 'settings', 'commerce'].forEach(t => {
                 const el = document.getElementById('adm-view-' + t);
                 if (el) el.style.display = (t === tab) ? 'block' : 'none';
             });
@@ -2210,6 +2232,7 @@
             renderProfileSection();
             if (isOwnerAdminView) renderAdminDashboard();
             if (typeof updateOrbitaOverview === 'function') updateOrbitaOverview();
+            renderLearningHub();
         }
 
         // ================= РАЗДЕЛ 1: РАСПИСАНИЕ И УМНЫЙ ВХОД В КЛАСС =================
@@ -2545,8 +2568,15 @@
             askConfirmDelete(`Удалить ученика «${stName}»?`, 'Карточка, история и расписание этого ученика будут удалены. Сначала сохраните отчёт, если он нужен.', async () => {
                 const updates={
                     [`users/${currentUser.uid}/students/${stUid}`]:null,
-                    [`users/${stUid}/teachers/${currentUser.uid}`]:null
+                    [`users/${stUid}/teachers/${currentUser.uid}`]:null,
+                    [`learning/${currentUser.uid}/${stUid}`]:null,
+                    [`familyReports/${currentUser.uid}/${stUid}`]:null,
+                    [`guardianAccess/${currentUser.uid}/${stUid}`]:null
                 };
+                try{
+                    const invites=db?(await db.ref(`teaching/${currentUser.uid}/invites`).once('value')).val()||{}:{};
+                    for(const [token,invite]of Object.entries(invites))if(invite.studentUid===stUid){updates[`familyInvites/${token}`]=null;updates[`teaching/${currentUser.uid}/invites/${token}`]=null;}
+                }catch(_){showToast('Не удалось проверить доступ родителей. Повторите удаление при соединении.');return;}
                 for(const lesson of Object.values(currentUserData.schedule||{}))if(lesson.studentUid===stUid){
                     updates[`users/${currentUser.uid}/schedule/${lesson.id}`]=null;
                     updates[`boards/${getPairKey(stUid)}/schedule/${lesson.id}`]=null;
@@ -3277,6 +3307,7 @@
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
                         <button class="btn btn-jade" onclick="gradeHomework('${escAttr(currentTask.id)}', true)">✓ Принять и поставить оценку</button>
                         <button class="btn" onclick="gradeHomework('${escAttr(currentTask.id)}', false)">Вернуть на доработку</button>
+                        <button class="btn" onclick="rememberHomeworkDifficulty('${escAttr(currentTask.id)}')">В копилку ошибок</button>
                     </div>
                 `;
             } else {
@@ -3736,6 +3767,7 @@
 
         function renderAdminDashboard() {
             if (!isPlatformAdmin) return;
+            renderAdminCommerce();
             const allUsers = Object.values(allPlatformUsersMap || {});
             if (allUsers.length === 0 && currentUserData) allUsers.push(currentUserData);
 
@@ -3750,7 +3782,7 @@
                 const p = getEffectivePlan(t);
                 planCounts[p] = (planCounts[p] || 0) + 1;
                 if (p === 'basic') mrr += Number(prices.basic || 490);
-                if (p === 'pro') mrr += Number(prices.pro || 890);
+                if (p === 'pro') mrr += Number(platformConfig.practicePrice || 590);
                 if (p === 'ultra') mrr += Number(prices.ultra || 1490);
             });
 
@@ -3795,7 +3827,7 @@
             const totalT = Math.max(1, tutors.length);
             document.getElementById('adm-plans-breakdown').innerHTML = [
                 { key: 'ultra', name: 'Ультра', count: planCounts.ultra || 0, color: 'var(--terra)' },
-                { key: 'pro', name: 'Про ★ Хит', count: planCounts.pro || 0, color: 'var(--jade)' },
+                { key: 'pro', name: 'Практика', count: planCounts.pro || 0, color: 'var(--jade)' },
                 { key: 'basic', name: 'Базовый', count: planCounts.basic || 0, color: 'var(--jade)' },
                 { key: 'start', name: 'Старт (Бесплатный)', count: planCounts.start || 0, color: 'var(--text-muted)' }
             ].map(item => {
@@ -3898,6 +3930,8 @@
         }
 
         function getEffectivePlan(userData) {
+            const account=userData?.uid===currentUser?.uid?myCommerce:commerceState.accounts?.[userData?.uid];
+            if(OrbitaCommerce.expiry(account)>Date.now())return 'pro';
             if (!userData || !userData.plan || userData.plan === 'start') return 'start';
             return typeof userData.planExpiresAt === 'number' && userData.planExpiresAt > Date.now() ? userData.plan : 'start';
         }
@@ -3906,8 +3940,8 @@
             if (!isPlatformAdmin) return;
             if (!['start','basic','pro','ultra'].includes(planKey) || !db) return false;
             const current = allPlatformUsersMap[targetUid] || {};
-            const planExpiresAt = planKey === 'start' ? 0 : Math.max(Date.now(), current.plan === planKey ? (Number(current.planExpiresAt)||0) : 0) + 30*24*60*60*1000;
-            try { await db.ref(`users/${targetUid}`).update({plan:planKey,planExpiresAt}); }
+            const planExpiresAt = planKey === 'start' ? 0 : Math.max(Date.now(),Number(current.planExpiresAt)||0,OrbitaCommerce.expiry(commerceState.accounts?.[targetUid])) + 30*24*60*60*1000;
+            try { await db.ref().update({[`users/${targetUid}/plan`]:planKey,[`users/${targetUid}/planExpiresAt`]:planExpiresAt,[`commerce/accounts/${targetUid}/access`]:planKey==='start'?null:{plan:planKey,expiresAt:planExpiresAt},...(planKey==='start'?{[`commerce/accounts/${targetUid}/activeRewardId`]:null}:{})}); }
             catch (_) { showToast('Не удалось сохранить тариф. Изменения не применены.'); return false; }
             renderAdminDashboard();
             showToast(planKey === 'start' ? 'Включён бесплатный тариф' : `Тариф активирован до ${new Date(planExpiresAt).toLocaleDateString('ru-RU')}`);
@@ -3965,7 +3999,10 @@
             const sbp = document.getElementById('adm-sbp-details').value.trim();
             const announcement = document.getElementById('adm-announce-input').value.trim();
 
-            const updatedConfig = { ...platformConfig, prices: { basic, pro, ultra }, sbp, announcement };
+            const practicePrice=Number(document.getElementById('adm-practice-price').value);
+            if(!Number.isFinite(practicePrice)||practicePrice<1){showToast('Укажите положительную цену');return;}
+            if(document.getElementById('adm-sales-enabled').checked&&(!sbp||/999\D*000/.test(sbp))){showToast('Перед открытием продаж укажите действительные реквизиты.');return;}
+            const updatedConfig = { ...platformConfig, practicePrice, salesEnabled:document.getElementById('adm-sales-enabled').checked, prices: { basic, pro:practicePrice, ultra }, sbp, announcement };
             try { await db.ref('boards/platform_config').set(updatedConfig); }
             catch (_) { showToast('Настройки не сохранены. Проверьте соединение.'); return; }
             platformConfig = updatedConfig;
@@ -3974,59 +4011,14 @@
         }
 
         // ================= РАЗДЕЛ 9: ТАРИФЫ, МОДАЛКИ, ДОСКИ И СВЯЗЬ =================
-        function openTariffsModal() {
-            const prices = platformConfig.prices || { basic: 490, pro: 890, ultra: 1490 };
-            const curPlan = getEffectivePlan(currentUserData);
-            const plans = [
-                { key: 'basic', title: 'Базовый', price: prices.basic, desc: 'До 5 учеников · До 10 досок · Папки карточек' },
-                { key: 'pro', title: 'Про ★ Хит', price: prices.pro, desc: 'До 20 учеников · Безлимит досок · Полный Кабинет и учёт оплат' },
-                { key: 'ultra', title: 'Ультра', price: prices.ultra, desc: 'Безлимит учеников и досок · Все инструменты преподавателя' }
-            ];
-            document.getElementById('tariffs-cards-container').innerHTML = plans.map(p => `
-                <div class="card" style="padding:16px; border-color:${curPlan === p.key ? 'var(--jade)' : 'var(--border)'}; display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
-                    <div>
-                        <div style="font-size:16px; font-weight:800; margin-bottom:4px;">${p.title}</div>
-                        <div class="font-mono" style="font-size:22px; font-weight:800; color:var(--jade); margin-bottom:8px;">${p.price} ₽ <span style="font-size:12px; color:var(--text-secondary);">/ мес</span></div>
-                        <p style="font-size:12px; color:var(--text-secondary); line-height:1.45;">${p.desc}</p>
-                    </div>
-                    <button class="btn ${curPlan === p.key ? '' : 'btn-jade'} btn-sm" style="width:100%;" onclick="selectTariffForSbp('${p.key}', '${p.title}', ${p.price})">
-                        ${curPlan === p.key ? 'Ваш текущий тариф' : 'Выбрать тариф'}
-                    </button>
-                </div>
-            `).join('');
-            document.getElementById('sbp-checkout-box').style.display = 'none';
-            document.getElementById('tariffs-modal').style.display = 'flex';
-        }
+        // Tariffs are rendered by learning-hub.js.
 
         function selectTariffForSbp(planKey, planTitle, price) {
-            if (!platformConfig.sbp || /999\D*000/.test(platformConfig.sbp)) {
-                showToast('Оплата подписок пока не открыта. Продолжайте пользоваться кабинетом.');
-                return;
-            }
-            selectedTariffForPurchase = { planKey, planTitle, price };
-            document.getElementById('sbp-selected-plan-title').innerText = `К оплате: Тариф «${planTitle}» — ${price} ₽`;
-            document.getElementById('sbp-requisites-text').innerText = platformConfig.sbp || '+7 (999) 000-00-00 · Т-Банк / Сбер';
-            document.getElementById('sbp-checkout-box').style.display = 'block';
+            openCommerceAccount();
         }
 
         async function submitSbpPaymentRequest() {
-            if (!selectedTariffForPurchase || !currentUser || !db) return;
-            const reqId = 'pay_' + Date.now();
-            const payload = {
-                id: reqId,
-                uid: currentUser.uid,
-                userName: currentUserData.profile?.name || 'Репетитор',
-                planKey: selectedTariffForPurchase.planKey,
-                planTitle: selectedTariffForPurchase.planTitle,
-                amount: selectedTariffForPurchase.price,
-                ts: Date.now()
-            };
-            try { await db.ref(`boards/payment_requests/${reqId}`).set(payload); }
-            catch (_) { showToast('Заявка не отправлена. Проверьте соединение и повторите.'); return; }
-            paymentRequestsMap[reqId] = payload;
-            selectedTariffForPurchase = null;
-            closeModals();
-            showToast('Заявка отправлена! Тариф активируется после проверки администратором.');
+            openCommerceAccount();
         }
 
         function isDuplicateBoardTitle(title, ignoreBoardId = null) {
@@ -4123,60 +4115,12 @@
             populateScheduleBoardSelect();
             if (existing && existing.boardId) document.getElementById('sch-board-select').value = existing.boardId;
             document.getElementById('sch-topic').value = existing ? existing.topic : '';
+            document.getElementById('sch-repeat-count').value=1;
+            document.getElementById('sch-repeat-options').hidden=!!existing;
             document.getElementById('schedule-modal').style.display = 'flex';
         }
 
-        function saveScheduleItem() {
-            const editId = document.getElementById('edit-sch-id').value;
-            const dateVal = document.getElementById('sch-date-input').value;
-            const timeVal = document.getElementById('sch-time').value || '17:00';
-            const stUid = document.getElementById('sch-student-select').value;
-            let boardId = document.getElementById('sch-board-select').value;
-            const topic = document.getElementById('sch-topic').value.trim() || 'Урок';
-
-            if (!dateVal || !timeVal || !stUid) { showToast('Укажите дату, время и ученика'); return; }
-            let boardTitle = 'Доска урока';
-            if (!boardId) {
-                boardId = `prep_${currentUser.uid}_${Date.now()}`;
-                boardTitle = isDuplicateBoardTitle(topic) ? `${topic} (${dateVal})` : topic;
-                const nb = { id: boardId, title: boardTitle, studentUid: stUid, createdAt: Date.now() };
-                currentUserData.prepBoards = currentUserData.prepBoards || {};
-                currentUserData.prepBoards[boardId] = nb;
-                if (db) db.ref(`users/${currentUser.uid}/prepBoards/${boardId}`).set(nb).catch(() => {});
-            } else {
-                boardTitle = (currentUserData.prepBoards || {})[boardId]?.title || 'Доска урока';
-            }
-
-            const stObj = (currentUserData.students || {})[stUid];
-            const id = editId || ('sch_' + Date.now());
-            const payload = {
-                ...(editId ? currentUserData.schedule?.[editId]||{} : {}),
-                id, date: dateVal, time: timeVal, topic, boardId, boardTitle,
-                durationMinutes:Math.max(15,Math.min(360,Number(document.getElementById("sch-duration").value)||60)),
-                lessonPrice: editId && currentUserData.schedule?.[editId]?.lessonPrice != null ? currentUserData.schedule[editId].lessonPrice : OrbitaLedger.price(stObj),
-                teacherUid: currentUser.uid,
-                teacherName: currentUserData.profile?.name || 'Преподаватель',
-                studentUid: stUid,
-                studentName: stObj ? stObj.name : 'Ученик'
-            };
-
-            currentUserData.schedule = currentUserData.schedule || {};
-            currentUserData.schedule[id] = payload;
-            setLocalUserCache(currentUser.uid, currentUserData);
-            const pKey = getPairKey(stUid);
-            if (pKey) {
-                sharedPairsData[pKey] = sharedPairsData[pKey] || {};
-                sharedPairsData[pKey].schedule = sharedPairsData[pKey].schedule || {};
-                sharedPairsData[pKey].schedule[id] = payload;
-            }
-            if (db) {
-                db.ref(`users/${currentUser.uid}/schedule/${id}`).set(payload).catch(() => {});
-                if (pKey) db.ref(`boards/${pKey}/schedule/${id}`).set(payload).catch(() => {});
-            }
-            closeModals();
-            renderAllSections();
-            showToast('Урок сохранён в расписание');
-        }
+        // Scheduling is handled by learning-hub.js.
 
         function requestDeleteScheduleItem(id, stUid, topic) {
             askConfirmDelete(`Удалить урок «${topic}»?`, 'Урок будет удалён из расписания.', () => {

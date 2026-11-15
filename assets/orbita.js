@@ -30,9 +30,10 @@ function updateOrbitaOverview() {
         ['✓', homework.length, teacher ? 'На проверке' : 'Заданий к уроку']
     ];
     document.getElementById('schedule-summary').innerHTML = items.map(([icon,count,label]) => `<div class="summary-item"><span class="summary-icon" aria-hidden="true">${icon}</span><div><strong>${count}</strong><small>${label}</small></div></div>`).join('');
-    const names = {schedule:'Мой день',cabinet:'Ученики',boards:teacher?'Доски':'Тетради',practice:'Практика',assignments:'Задания',messages:'Сообщения',profile:'Профиль',admin:'Управление'};
+    const names = {learning:'Обучение',schedule:'Мой день',cabinet:'Ученики',boards:teacher?'Доски':'Тетради',practice:'Практика',assignments:'Задания',messages:'Сообщения',profile:'Профиль',admin:'Управление'};
     document.getElementById('workspace-section-name').textContent = names[currentSection] || 'Кабинет';
     document.body.classList.remove('mobile-nav-open');
+    document.querySelector('.mobile-menu-toggle')?.setAttribute('aria-expanded','false');
     document.getElementById('workspace-date').textContent = today.toLocaleDateString('ru-RU',{day:'numeric',month:'long',weekday:'short'});
     document.getElementById('schedule-subtitle').textContent = teacher ? 'Ваши занятия, ученики и планы. Всё на своих местах.' : 'Ваши занятия и задания. Следующий шаг к новым знаниям.';
     document.querySelectorAll('#regular-nav-list .nav-item').forEach(button => {
@@ -75,6 +76,8 @@ function startOrbitaDemo() {
         flashcardSets:{math:{id:'math',title:'Основные формулы',subject:'Математика',cards:[{q:'Дискриминант квадратного уравнения',a:'D = b² − 4ac'},{q:'Теорема Пифагора',a:'a² + b² = c²'},{q:'Производная xⁿ',a:'n · xⁿ⁻¹'}]}}
     };
     peerPresenceMap={anna:{online:true}};
+    learningPrivate={templates:{0:{title:'Квадратные уравнения: от примера к самостоятельной работе',subject:'Математика',description:'Объяснение → задача → домашнее задание',snapshotJson:'{"items":[]}'}}};
+    learningShared={anna:{mistakes:{0:{title:'Знаки при переносе слагаемых',example:'2x + 6 = 12. Какое действие нужно выполнить с обеими частями?',explanation:'Вычесть 6 из обеих частей, затем разделить на 2.',status:'hint',streak:0,dueAt:Date.now()}},skills:{equations:{title:'Линейные уравнения',status:'independent',evidence:'Три задачи решены без подсказок.'}}}};
     launchAppShell();
     window.scrollTo(0,0);
 }
@@ -84,7 +87,7 @@ document.addEventListener('click', event => {
     const target = event.target.closest('[onclick]');
     if (!target) return;
     const action = target.getAttribute('onclick');
-    const allowed = /^(selectLedgerStudent|toggleMobileMenu|switchSection|onBrandLogoClick|toggleThemeQuick|shiftSidebarMonth|onSidebarCalDayClick|resetCalendarFilter|openTariffsModal|closeModals|openOrbitaAuth|exitOrbitaDemo|setPracticeMode|onMatchColumnClick|answerQuizQuestion|filterTasks|switchHwViewMode|showLowBalanceStudentsPanel)\(/;
+    const allowed = /^(setLearningTab|selectLedgerStudent|toggleMobileMenu|switchSection|onBrandLogoClick|toggleThemeQuick|shiftSidebarMonth|onSidebarCalDayClick|resetCalendarFilter|openTariffsModal|closeModals|openOrbitaAuth|exitOrbitaDemo|setPracticeMode|onMatchColumnClick|answerQuizQuestion|filterTasks|switchHwViewMode|showLowBalanceStudentsPanel)\(/;
     const local = /^(activeCabinetStudentUid|activeTaskId|activeDeckId|selectedBoardFolder|activeChatPeerUid|cardFlipped|currentCardIdx|learnedCardIndices|quizStepIdx|quizFinished|practiceMode)/;
     if (!allowed.test(action.trim()) && !local.test(action.trim())) {
         event.preventDefault(); event.stopImmediatePropagation();

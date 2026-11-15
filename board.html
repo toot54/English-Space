@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet">
-    <script src="assets/board-studio.js"></script>
+    <script src="assets/learning-core.js"></script><script src="assets/commerce-core.js"></script><script src="assets/qrcode.js"></script><script src="assets/board-workflow.js"></script><script src="assets/board-studio.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -663,7 +663,7 @@
     </style>
 <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/board-theme.css">
-    <link rel="stylesheet" href="assets/board-studio.css">
+    <link rel="stylesheet" href="assets/board-studio.css"><link rel="stylesheet" href="assets/board-workflow.css">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 </head>
 <body class="role-teacher">
@@ -710,7 +710,7 @@
                     <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg>
                 </button>
 
-                <button class="top-btn top-btn-danger" onclick="exitToCabinet()">Завершить урок</button>
+                <button class="top-btn top-btn-danger" onclick="finishLessonAndReview()">Завершить урок</button>
             </div>
         </header>
 
@@ -721,7 +721,7 @@
                 <button class="close-btn" onclick="closePopovers()">✕</button>
             </div>
             <label class="board-paper-control">Фон доски<select id="board-paper-select" onchange="setBoardPaper(this.value)"><option value="dots">Точки</option><option value="grid">Клетка</option><option value="plain">Чистый лист</option></select></label>
-            <div class="widget-section-label">Для вашего предмета</div><div class="widget-grid"><button class="widget-pick-btn" onclick="startWidgetPlacement('graph','График функции')">График функции</button><button class="widget-pick-btn" onclick="startWidgetPlacement('problem','Решение задачи')">Решение задачи</button><button class="widget-pick-btn" onclick="startWidgetPlacement('timeline','Лента времени')">Лента времени</button><button class="widget-pick-btn" onclick="startWidgetPlacement('compare','Сравнение')">Сравнение</button></div><div class="widget-section-label">Материалы и практика</div>
+            <button class="widget-pick-btn" id="workflow-photo-button" hidden onclick="openPhoneCompanion()">Фото с телефона<span id="workflow-photo-count"></span></button><div id="workflow-teacher-tools" class="workflow-tools" hidden><button class="widget-pick-btn" onclick="saveBoardTemplate()">В библиотеку</button><button class="widget-pick-btn" onclick="showPrivateAnswers()">Мои ответы</button><button class="widget-pick-btn" onclick="rememberBoardDifficulty()">Копилка ошибок</button></div><label class="workflow-pen-toggle"><input id="workflow-pen-only" type="checkbox" onchange="togglePenOnly(this.checked)"> Рисовать только стилусом</label><p class="workflow-muted">Два пальца — движение и масштаб. В режиме стилуса касание ладонью не рисует.</p><div class="widget-section-label">Для вашего предмета</div><div class="widget-grid"><button class="widget-pick-btn" onclick="startWidgetPlacement('graph','График функции')">График функции</button><button class="widget-pick-btn" onclick="startWidgetPlacement('problem','Решение задачи')">Решение задачи</button><button class="widget-pick-btn" onclick="startWidgetPlacement('timeline','Лента времени')">Лента времени</button><button class="widget-pick-btn" onclick="startWidgetPlacement('compare','Сравнение')">Сравнение</button></div><div class="widget-section-label">Материалы и практика</div>
             <div class="widget-grid">
                 <label for="photo-upload-input" class="widget-pick-btn">Фото / Учебник</label>
                 <button class="widget-pick-btn" onclick="startWidgetPlacement('video', 'Видео / Аудио')">Видео / Аудио</button>
@@ -1130,6 +1130,7 @@
                         boardReady = true;
                         initRealtimeSync();
                         subscribeBoardStudio();
+                        initBoardWorkflow();
                         initWebRTC();
                         status.hidden = true;
                     }
@@ -2526,7 +2527,7 @@
 
         function flushBoardStateImmediate() {
             clearTimeout(saveStateDebounceTimer);
-            if (!boardReady) return;
+            if (!boardReady) return false;
             try {
                 const items = [];
                 dynamicItems.querySelectorAll('.widget, .board-text-node').forEach(el => {
@@ -2551,8 +2552,9 @@
                 };
                 payload.savedAt = Date.now();
                 try { localStorage.setItem(LOCAL_BOARD_KEY, JSON.stringify(payload)); } catch (_) {}
-                if (roomRef) roomRef.child('snapshot').set(payload).catch(() => setRtcStatus('Не сохранено: проверьте интернет и доступ к доске'));
-            } catch (e) {}
+                if (roomRef) return roomRef.child('snapshot').set(payload).then(()=>true).catch(() => {setRtcStatus('Не сохранено: проверьте интернет и доступ к доске');return false;});
+                return false;
+            } catch (e) { setRtcStatus('Доска пока не сохранена. Повторите попытку.'); return false; }
         }
 
         function resetSavedLesson() {
@@ -3400,6 +3402,6 @@
         // Online systems start in the authenticated session above.
     </script>
     <script src="assets/board-enhancements.js"></script>
-    <script>initBoardStudio();</script>
+    <script>initBoardStudio();initWorkflowGestures();</script>
 </body>
 </html>

@@ -1,12 +1,14 @@
 /* Synthetic browser QA only. Served by preview.cjs; never connected to Firebase. */
 (()=>{
     const role=new URLSearchParams(location.search).get('role')||'student';
-    const uid=role==='teacher'?'fixtureTeacher':'fixtureStudent';
+    const uid=role==='admin'?'bvEGSBPw8wTWuH5gthAiEMpaZoe2':role==='teacher'?'fixtureTeacher':'fixtureStudent';
     const today=new Date(),date=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
     let state={users:{
         fixtureTeacher:{uid:'fixtureTeacher',role:'teacher',plan:'start',profile:{name:'Тестовый преподаватель',subject:'Математика'},students:{fixtureStudent:{uid:'fixtureStudent',name:'Никита (проверка)',lessonPrice:300,lessonsBalance:0,subscriptionPrice:0}},schedule:{testLesson:{id:'testLesson',studentUid:'fixtureStudent',teacherUid:'fixtureTeacher',date,time:'00:00',topic:'Тест: квадратные уравнения',boardId:'prep_fixtureTeacher_test',durationMinutes:60,lessonPrice:300}}},
         fixtureStudent:{uid:'fixtureStudent',role:'student',plan:'start',profile:{name:'Тестовый ученик'},teachers:{fixtureTeacher:{uid:'fixtureTeacher',name:'Тестовый преподаватель',subject:'Математика'}},notebooks:{testNotebook:{id:'testNotebook',title:'Математика · проверка',paper:'grid',pages:['<p>Проверяем непрерывный ввод.</p><div class="nb-callout-rule">Тестовое правило</div>','<p>Вторая страница</p>']}}}
     },boards:{},boardAccess:{prep_fixtureTeacher_test:{fixtureStudent:true}}};
+    if(role==='admin')state.users[uid]={uid,email:'naran33.ru@gmail.com',role:'admin',profile:{name:'Администратор'}};
+    state.commerce={codes:{TEST20:{kind:'percent',value:20,active:true,startsAt:Date.now()-86400000,expiresAt:Date.now()+30*86400000,maxUses:20,used:0,reserved:0}},links:{fixtureTeacher:{active:true,createdAt:Date.now()}},accounts:{}};
     const listeners=[],read=path=>path.split('/').filter(Boolean).reduce((obj,key)=>obj?.[key],state)??null;
     const snap=value=>({val:()=>structuredClone(value),exists:()=>value!==null,key:null});
     function emit(changed){for(const l of [...listeners])if(l.event==='value' && (!l.path || changed.startsWith(l.path)||l.path.startsWith(changed)))l.cb(snap(read(l.path)));}
@@ -20,9 +22,11 @@
         orderByChild(){return this;},startAt(){return this;},limitToLast(){return this;},limitToFirst(){return this;}
     };}
     const verified=new URLSearchParams(location.search).get('verified')!=='false';
-    const user={uid,email:uid+'@example.invalid',emailVerified:verified,displayName:'Тестовый пользователь',getIdTokenResult:async()=>({claims:{email_verified:verified}}),reload:async()=>{},getIdToken:async()=>'',sendEmailVerification:async()=>{}};
+    const email=role==='admin'?'naran33.ru@gmail.com':uid+'@example.invalid';
+    const user={uid,email,emailVerified:verified,displayName:'Тестовый пользователь',getIdTokenResult:async()=>({claims:{email,email_verified:verified}}),reload:async()=>{},getIdToken:async()=>'',sendEmailVerification:async()=>{}};
     const auth={currentUser:user,onAuthStateChanged:callback=>setTimeout(()=>callback(user),20),signOut:async()=>{}};
     window.firebase={initializeApp(){},auth:()=>auth,database:()=>({ref})};
+    window.firebase.database.ServerValue={TIMESTAMP:Date.now()};
     const notice=document.createElement('div');notice.textContent='Локальная проверка · вымышленные данные · Firebase отключён';notice.style='position:fixed;bottom:0;left:0;right:0;z-index:99999;text-align:center;font:11px sans-serif;background:#183d30;color:white;padding:4px;pointer-events:none';
     document.addEventListener('DOMContentLoaded',()=>document.body.appendChild(notice));
 })();

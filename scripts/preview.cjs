@@ -16,6 +16,6 @@ http.createServer((req,res)=>{
         res.writeHead(200,{'Content-Type':types['.html'],'Cache-Control':'no-store'});res.end(html);return;
     }
     const name=url.pathname==='/'?'index.html':decodeURIComponent(url.pathname.slice(1));
-    if(!['index.html','board.html'].includes(name)&&!/^assets\/[a-z0-9.-]+$/.test(name)){res.writeHead(404);res.end('Not found');return;}
+    if(!['index.html','board.html','family.html','phone.html'].includes(name)&&!/^assets\/[a-z0-9.-]+$/.test(name)){res.writeHead(404);res.end('Not found');return;}
     fs.readFile(path.join(root,name),(error,data)=>{if(error){res.writeHead(404);res.end('Not found');return;}res.writeHead(200,{'Content-Type':types[path.extname(name)]||'text/plain','Cache-Control':'no-store'});res.end(data);});
 }).listen(4173,'127.0.0.1',()=>console.log('Орбита: http://127.0.0.1:4173'));

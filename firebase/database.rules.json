@@ -34,6 +34,13 @@
           "$teacher": {
             ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child(\"users\").child(auth.uid).child(\"students\").child($uid).exists())"
           }
+        },
+        "schedule": {
+          "$lesson": {
+            "seriesId": {
+              ".validate": "(auth != null && auth.uid === 'bvEGSBPw8wTWuH5gthAiEMpaZoe2' && auth.token.email === 'naran33.ru@gmail.com' && auth.token.email_verified === true) || newData.val() === data.val() || ((root.child('users').child($uid).child('planExpiresAt').isNumber() && root.child('users').child($uid).child('planExpiresAt').val() > now && (root.child('users').child($uid).child('plan').val() === 'basic' || root.child('users').child($uid).child('plan').val() === 'pro' || root.child('users').child($uid).child('plan').val() === 'ultra')) || (root.child('trials').child($uid).isNumber() && root.child('trials').child($uid).val() <= now && root.child('trials').child($uid).val() + 1209600000 > now) || (root.child('commerce/accounts').child($uid).child('access/expiresAt').isNumber() && root.child('commerce/accounts').child($uid).child('access/expiresAt').val() > now) || (root.child('commerce/accounts').child($uid).child('activeRewardId').isString() && root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('activatedAt').isNumber() && (root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('activatedAt').val() + 604800000 > now || root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('baseExpiry').val() + 604800000 > now)))"
+            }
+          }
         }
       }
     },
@@ -83,6 +90,218 @@
           ".indexOn": [
             "ts"
           ]
+        }
+      }
+    },
+    "trials": {
+      "$teacher": {
+        ".read": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher)",
+        ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher' && !data.exists() && newData.isNumber() && newData.val() === now)"
+      }
+    },
+    "teaching": {
+      "$teacher": {
+        ".read": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher')",
+        "templates": {
+          ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher')",
+          "$id": {
+            ".validate": "((auth != null && auth.uid === 'bvEGSBPw8wTWuH5gthAiEMpaZoe2' && auth.token.email === 'naran33.ru@gmail.com' && auth.token.email_verified === true) || data.exists() || (((root.child('users').child($teacher).child('planExpiresAt').isNumber() && root.child('users').child($teacher).child('planExpiresAt').val() > now && (root.child('users').child($teacher).child('plan').val() === 'basic' || root.child('users').child($teacher).child('plan').val() === 'pro' || root.child('users').child($teacher).child('plan').val() === 'ultra')) || (root.child('trials').child($teacher).isNumber() && root.child('trials').child($teacher).val() <= now && root.child('trials').child($teacher).val() + 1209600000 > now) || (root.child('commerce/accounts').child($teacher).child('access/expiresAt').isNumber() && root.child('commerce/accounts').child($teacher).child('access/expiresAt').val() > now) || (root.child('commerce/accounts').child($teacher).child('activeRewardId').isString() && root.child('commerce/accounts').child($teacher).child('rewards').child(root.child('commerce/accounts').child($teacher).child('activeRewardId').val()).child('activatedAt').isNumber() && (root.child('commerce/accounts').child($teacher).child('rewards').child(root.child('commerce/accounts').child($teacher).child('activeRewardId').val()).child('activatedAt').val() + 604800000 > now || root.child('commerce/accounts').child($teacher).child('rewards').child(root.child('commerce/accounts').child($teacher).child('activeRewardId').val()).child('baseExpiry').val() + 604800000 > now))) ? $id.matches(/^([0-9]|[1-9][0-9])$/) : $id.matches(/^[0-2]$/))) && newData.hasChildren(['title','snapshotJson']) && newData.child('title').isString() && newData.child('title').val().length <= 150 && newData.child('snapshotJson').isString() && newData.child('snapshotJson').val().length <= 700000"
+          }
+        },
+        "answers": {
+          ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher')"
+        },
+        "boardAnswers": {
+          ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher')"
+        },
+        "drafts": {
+          ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher')"
+        },
+        "invites": {
+          ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher')"
+        }
+      }
+    },
+    "learning": {
+      "$teacher": {
+        "$student": {
+          ".read": "auth != null && auth.token.email_verified === true && (auth != null && (auth.uid === $teacher || (auth.uid === $student && root.child('users').child($teacher).child('students').child($student).exists())))",
+          ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher' && root.child('users').child($teacher).child('students').child($student).exists())",
+          "mistakes": {
+            "$id": {
+              ".validate": "((auth != null && auth.uid === 'bvEGSBPw8wTWuH5gthAiEMpaZoe2' && auth.token.email === 'naran33.ru@gmail.com' && auth.token.email_verified === true) || data.exists() || (((root.child('users').child($teacher).child('planExpiresAt').isNumber() && root.child('users').child($teacher).child('planExpiresAt').val() > now && (root.child('users').child($teacher).child('plan').val() === 'basic' || root.child('users').child($teacher).child('plan').val() === 'pro' || root.child('users').child($teacher).child('plan').val() === 'ultra')) || (root.child('trials').child($teacher).isNumber() && root.child('trials').child($teacher).val() <= now && root.child('trials').child($teacher).val() + 1209600000 > now) || (root.child('commerce/accounts').child($teacher).child('access/expiresAt').isNumber() && root.child('commerce/accounts').child($teacher).child('access/expiresAt').val() > now) || (root.child('commerce/accounts').child($teacher).child('activeRewardId').isString() && root.child('commerce/accounts').child($teacher).child('rewards').child(root.child('commerce/accounts').child($teacher).child('activeRewardId').val()).child('activatedAt').isNumber() && (root.child('commerce/accounts').child($teacher).child('rewards').child(root.child('commerce/accounts').child($teacher).child('activeRewardId').val()).child('activatedAt').val() + 604800000 > now || root.child('commerce/accounts').child($teacher).child('rewards').child(root.child('commerce/accounts').child($teacher).child('activeRewardId').val()).child('baseExpiry').val() + 604800000 > now))) ? $id.matches(/^([0-9]|[1-9][0-9]|[1-4][0-9][0-9])$/) : $id.matches(/^[0-9]$/))) && newData.hasChildren(['title','example','explanation','dueAt','status']) && newData.child('title').isString() && newData.child('title').val().length <= 150 && newData.child('example').isString() && newData.child('example').val().length <= 10000 && newData.child('explanation').isString() && newData.child('explanation').val().length <= 10000 && newData.child('dueAt').isNumber()"
+            }
+          },
+          "submissions": {
+            "$lesson": {
+              ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $student && root.child('users').child($teacher).child('students').child($student).exists() && root.child('learning').child($teacher).child($student).child('lessons').child($lesson).exists())",
+              ".validate": "newData.hasChildren(['text','updatedAt']) && newData.child('text').isString() && newData.child('text').val().length <= 10000 && newData.child('updatedAt').isNumber()",
+              "text": {},
+              "updatedAt": {},
+              "$other": {
+                ".validate": false
+              }
+            }
+          },
+          "reviewAnswers": {
+            "$mistake": {
+              ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $student && root.child('users').child($teacher).child('students').child($student).exists() && root.child('learning').child($teacher).child($student).child('mistakes').child($mistake).exists())",
+              ".validate": "newData.hasChildren(['text','updatedAt']) && newData.child('text').isString() && newData.child('text').val().length <= 10000 && newData.child('updatedAt').isNumber()",
+              "text": {},
+              "updatedAt": {},
+              "$other": {
+                ".validate": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "availability": {
+      "$teacher": {
+        ".read": "auth != null && auth.token.email_verified === true && (auth != null && (auth.uid === $teacher || root.child('users').child($teacher).child('students').child(auth.uid).exists()))",
+        "policy": {
+          ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher')",
+          ".validate": "newData.isString() && newData.val().length <= 3000"
+        },
+        "slots": {
+          ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher' && ((root.child('users').child($teacher).child('planExpiresAt').isNumber() && root.child('users').child($teacher).child('planExpiresAt').val() > now && (root.child('users').child($teacher).child('plan').val() === 'basic' || root.child('users').child($teacher).child('plan').val() === 'pro' || root.child('users').child($teacher).child('plan').val() === 'ultra')) || (root.child('trials').child($teacher).isNumber() && root.child('trials').child($teacher).val() <= now && root.child('trials').child($teacher).val() + 1209600000 > now) || (root.child('commerce/accounts').child($teacher).child('access/expiresAt').isNumber() && root.child('commerce/accounts').child($teacher).child('access/expiresAt').val() > now) || (root.child('commerce/accounts').child($teacher).child('activeRewardId').isString() && root.child('commerce/accounts').child($teacher).child('rewards').child(root.child('commerce/accounts').child($teacher).child('activeRewardId').val()).child('activatedAt').isNumber() && (root.child('commerce/accounts').child($teacher).child('rewards').child(root.child('commerce/accounts').child($teacher).child('activeRewardId').val()).child('activatedAt').val() + 604800000 > now || root.child('commerce/accounts').child($teacher).child('rewards').child(root.child('commerce/accounts').child($teacher).child('activeRewardId').val()).child('baseExpiry').val() + 604800000 > now))))",
+          "$slot": {
+            ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher' && !newData.exists())",
+            ".validate": "$slot.matches(/^([0-9]|[1-9][0-9])$/) && newData.hasChildren(['date','time','durationMinutes']) && newData.child('date').isString() && newData.child('time').isString() && newData.child('durationMinutes').isNumber() && newData.child('durationMinutes').val() >= 15 && newData.child('durationMinutes').val() <= 180"
+          }
+        }
+      }
+    },
+    "rescheduleRequests": {
+      "$teacher": {
+        ".read": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher')",
+        "$request": {
+          ".read": "auth != null && auth.token.email_verified === true && (auth != null && data.child('studentUid').val() === auth.uid)",
+          ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher' || (auth != null && (!data.exists() || data.child('status').val() !== 'pending') && newData.child('studentUid').val() === auth.uid && newData.child('status').val() === 'pending' && ((root.child('users').child($teacher).child('planExpiresAt').isNumber() && root.child('users').child($teacher).child('planExpiresAt').val() > now && (root.child('users').child($teacher).child('plan').val() === 'basic' || root.child('users').child($teacher).child('plan').val() === 'pro' || root.child('users').child($teacher).child('plan').val() === 'ultra')) || (root.child('trials').child($teacher).isNumber() && root.child('trials').child($teacher).val() <= now && root.child('trials').child($teacher).val() + 1209600000 > now) || (root.child('commerce/accounts').child($teacher).child('access/expiresAt').isNumber() && root.child('commerce/accounts').child($teacher).child('access/expiresAt').val() > now) || (root.child('commerce/accounts').child($teacher).child('activeRewardId').isString() && root.child('commerce/accounts').child($teacher).child('rewards').child(root.child('commerce/accounts').child($teacher).child('activeRewardId').val()).child('activatedAt').isNumber() && (root.child('commerce/accounts').child($teacher).child('rewards').child(root.child('commerce/accounts').child($teacher).child('activeRewardId').val()).child('activatedAt').val() + 604800000 > now || root.child('commerce/accounts').child($teacher).child('rewards').child(root.child('commerce/accounts').child($teacher).child('activeRewardId').val()).child('baseExpiry').val() + 604800000 > now))) && root.child('users').child($teacher).child('students').child(auth.uid).exists() && root.child('users').child($teacher).child('schedule').child(newData.child('lessonId').val()).child('studentUid').val() === auth.uid && root.child('users').child($teacher).child('schedule').child(newData.child('lessonId').val()).child('completed').val() !== true && !root.child('availability').child($teacher).child('slots').child(newData.child('slotId').val()).child('reservedBy').exists() && root.child('availability').child($teacher).child('slots').child(newData.child('slotId').val()).child('date').val() === newData.child('targetDate').val() && root.child('availability').child($teacher).child('slots').child(newData.child('slotId').val()).child('time').val() === newData.child('targetTime').val()))",
+          ".validate": "newData.hasChildren(['studentUid','lessonId','slotId','status','createdAt']) && newData.child('reason').isString() && newData.child('reason').val().length <= 2000"
+        }
+      }
+    },
+    "familyInvites": {
+      "$token": {
+        ".read": "auth != null && auth.token.email_verified === true && (auth != null && (data.child('teacherUid').val() === auth.uid || data.child('email').val() === auth.token.email))",
+        ".write": "auth != null && auth.token.email_verified === true && (auth != null && ((data.child('teacherUid').val() === auth.uid && !newData.exists()) || (newData.child('teacherUid').val() === auth.uid && ((root.child('users').child(auth.uid).child('planExpiresAt').isNumber() && root.child('users').child(auth.uid).child('planExpiresAt').val() > now && (root.child('users').child(auth.uid).child('plan').val() === 'basic' || root.child('users').child(auth.uid).child('plan').val() === 'pro' || root.child('users').child(auth.uid).child('plan').val() === 'ultra')) || (root.child('trials').child(auth.uid).isNumber() && root.child('trials').child(auth.uid).val() <= now && root.child('trials').child(auth.uid).val() + 1209600000 > now) || (root.child('commerce/accounts').child(auth.uid).child('access/expiresAt').isNumber() && root.child('commerce/accounts').child(auth.uid).child('access/expiresAt').val() > now) || (root.child('commerce/accounts').child(auth.uid).child('activeRewardId').isString() && root.child('commerce/accounts').child(auth.uid).child('rewards').child(root.child('commerce/accounts').child(auth.uid).child('activeRewardId').val()).child('activatedAt').isNumber() && (root.child('commerce/accounts').child(auth.uid).child('rewards').child(root.child('commerce/accounts').child(auth.uid).child('activeRewardId').val()).child('activatedAt').val() + 604800000 > now || root.child('commerce/accounts').child(auth.uid).child('rewards').child(root.child('commerce/accounts').child(auth.uid).child('activeRewardId').val()).child('baseExpiry').val() + 604800000 > now))) && root.child('users').child(auth.uid).child('students').child(newData.child('studentUid').val()).exists())))",
+        ".validate": "newData.hasChildren(['teacherUid','studentUid','email','expiresAt']) && newData.child('email').isString() && newData.child('expiresAt').isNumber() && newData.child('expiresAt').val() > now && newData.child('expiresAt').val() <= now + 604800000"
+      }
+    },
+    "guardianAccess": {
+      "$teacher": {
+        "$student": {
+          ".read": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher')",
+          ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher' && !newData.exists())",
+          "$parent": {
+            ".read": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $parent)",
+            ".write": "auth != null && auth.token.email_verified === true && ((auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher' && !newData.exists()) || (auth != null && auth.uid === $parent && root.child('users').child($teacher).child('students').child($student).exists() && root.child('familyInvites').child(newData.child('inviteToken').val()).child('teacherUid').val() === $teacher && root.child('familyInvites').child(newData.child('inviteToken').val()).child('studentUid').val() === $student && root.child('familyInvites').child(newData.child('inviteToken').val()).child('email').val() === auth.token.email && root.child('familyInvites').child(newData.child('inviteToken').val()).child('expiresAt').val() > now))",
+            ".validate": "newData.hasChildren(['inviteToken']) && newData.child('inviteToken').isString()",
+            "inviteToken": {},
+            "$other": {
+              ".validate": false
+            }
+          }
+        }
+      }
+    },
+    "familyReports": {
+      "$teacher": {
+        "$student": {
+          ".read": "auth != null && auth.token.email_verified === true && (auth != null && (auth.uid === $teacher || (auth.uid === $student && root.child('users').child($teacher).child('students').child($student).exists()) || (root.child('guardianAccess').child($teacher).child($student).child(auth.uid).child('inviteToken').isString() && root.child('familyInvites').child(root.child('guardianAccess').child($teacher).child($student).child(auth.uid).child('inviteToken').val()).child('email').val() === auth.token.email)))",
+          ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $teacher && root.child('users').child($teacher).child('role').val() === 'teacher' && root.child('users').child($teacher).child('students').child($student).exists() && (((root.child('users').child($teacher).child('planExpiresAt').isNumber() && root.child('users').child($teacher).child('planExpiresAt').val() > now && (root.child('users').child($teacher).child('plan').val() === 'basic' || root.child('users').child($teacher).child('plan').val() === 'pro' || root.child('users').child($teacher).child('plan').val() === 'ultra')) || (root.child('trials').child($teacher).isNumber() && root.child('trials').child($teacher).val() <= now && root.child('trials').child($teacher).val() + 1209600000 > now) || (root.child('commerce/accounts').child($teacher).child('access/expiresAt').isNumber() && root.child('commerce/accounts').child($teacher).child('access/expiresAt').val() > now) || (root.child('commerce/accounts').child($teacher).child('activeRewardId').isString() && root.child('commerce/accounts').child($teacher).child('rewards').child(root.child('commerce/accounts').child($teacher).child('activeRewardId').val()).child('activatedAt').isNumber() && (root.child('commerce/accounts').child($teacher).child('rewards').child(root.child('commerce/accounts').child($teacher).child('activeRewardId').val()).child('activatedAt').val() + 604800000 > now || root.child('commerce/accounts').child($teacher).child('rewards').child(root.child('commerce/accounts').child($teacher).child('activeRewardId').val()).child('baseExpiry').val() + 604800000 > now))) || !newData.exists()))"
+        }
+      }
+    },
+    "companionUploads": {
+      "$room": {
+        ".read": "auth != null && auth.token.email_verified === true && (auth != null && (($room.beginsWith('prep_' + auth.uid + '_') || $room.beginsWith('hwboard_' + auth.uid + '_') || $room.beginsWith('lesson_' + auth.uid + '_') || ($room.beginsWith('pair_' + auth.uid + '_') && root.child('users').child(auth.uid).child('role').val() === 'teacher')) || ($room.beginsWith('pair_') && $room.endsWith('_' + auth.uid)) || root.child('boardAccess').child($room).child(auth.uid).val() === true))",
+        "$upload": {
+          ".write": "auth != null && auth.token.email_verified === true && (auth != null && (($room.beginsWith('prep_' + auth.uid + '_') || $room.beginsWith('hwboard_' + auth.uid + '_') || $room.beginsWith('lesson_' + auth.uid + '_') || ($room.beginsWith('pair_' + auth.uid + '_') && root.child('users').child(auth.uid).child('role').val() === 'teacher')) || ($room.beginsWith('pair_') && $room.endsWith('_' + auth.uid)) || root.child('boardAccess').child($room).child(auth.uid).val() === true) && ((!data.exists() && newData.child('uid').val() === auth.uid) || (!newData.exists() && (($room.beginsWith('prep_' + auth.uid + '_') || $room.beginsWith('hwboard_' + auth.uid + '_') || $room.beginsWith('lesson_' + auth.uid + '_') || ($room.beginsWith('pair_' + auth.uid + '_') && root.child('users').child(auth.uid).child('role').val() === 'teacher')) || data.child('uid').val() === auth.uid))))",
+          ".validate": "$upload.matches(/^[0-7]$/) && newData.hasChildren(['uid','src','aspect','createdAt']) && newData.child('src').isString() && newData.child('src').val().beginsWith('data:image/jpeg;base64,') && newData.child('src').val().length <= 600000 && newData.child('aspect').isNumber() && newData.child('aspect').val() > 0 && newData.child('aspect').val() < 20",
+          "uid": {},
+          "src": {},
+          "aspect": {},
+          "createdAt": {},
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "commerce": {
+      "links": {
+        "$uid": {
+          ".read": "auth != null && auth.token.email_verified === true && (auth != null)",
+          ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $uid && root.child('users').child($uid).child('role').val() === 'teacher' && !data.exists() && newData.child('active').val() === true && newData.child('createdAt').val() === now)",
+          "active": {
+            ".validate": "newData.isBoolean()"
+          },
+          "createdAt": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      },
+      "accounts": {
+        "$uid": {
+          ".read": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $uid && root.child('users').child($uid).child('role').val() === 'teacher')",
+          "referral": {
+            ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $uid && root.child('users').child($uid).child('role').val() === 'teacher' && !data.exists() && !root.child('commerce/accounts').child($uid).child('firstPaidOrder').exists() && !root.child('commerce/accounts').child($uid).child('orders').exists() && newData.child('inviterUid').isString() && newData.child('inviterUid').val() !== $uid && root.child('commerce/links').child(newData.child('inviterUid').val()).child('active').val() === true && newData.child('joinedAt').val() === now)",
+            "inviterUid": {},
+            "joinedAt": {},
+            "$other": {
+              ".validate": false
+            }
+          },
+          "orders": {
+            "$order": {
+              ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $uid && root.child('users').child($uid).child('role').val() === 'teacher' && root.child('boards/platform_config/salesEnabled').val() === true && ((!data.exists() && newData.child('status').val() === 'requested' && newData.child('createdAt').val() === now && $order === 'current') || (data.exists() && (data.child('status').val() === 'approved' || data.child('status').val() === 'cancelled') && newData.child('status').val() === 'requested' && $order === 'current' && newData.child('createdAt').val() === now)))",
+              ".validate": "(auth != null && auth.uid === 'bvEGSBPw8wTWuH5gthAiEMpaZoe2' && auth.token.email === 'naran33.ru@gmail.com' && auth.token.email_verified === true) || (newData.hasChildren(['status','createdAt','promoCode']) && newData.child('promoCode').isString() && newData.child('promoCode').val().length <= 40 && !newData.child('amount').exists() && !newData.child('approvedAt').exists() && !newData.child('basePrice').exists() && !newData.child('discount').exists() && !newData.child('quotedAt').exists() && !newData.child('rewardIssued').exists() && !newData.child('cancelledAt').exists())",
+              "status": {},
+              "createdAt": {},
+              "promoCode": {},
+              "amount": {},
+              "basePrice": {},
+              "discount": {},
+              "quotedAt": {},
+              "approvedAt": {},
+              "rewardIssued": {},
+              "cancelledAt": {},
+              "$other": {
+                ".validate": false
+              }
+            }
+          },
+          "paymentNotices": {
+            "$order": {
+              ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $uid && root.child('users').child($uid).child('role').val() === 'teacher' && root.child('commerce/accounts').child($uid).child('orders').child($order).child('status').val() === 'quoted' && !data.exists() && newData.val() === now)"
+            }
+          },
+          "rewards": {
+            "$reward": {
+              ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $uid && root.child('users').child($uid).child('role').val() === 'teacher' && data.exists() && !data.child('activatedAt').exists() && data.child('claimUntil').val() > now && newData.child('activatedAt').val() === now)",
+              ".validate": "(auth != null && auth.uid === 'bvEGSBPw8wTWuH5gthAiEMpaZoe2' && auth.token.email === 'naran33.ru@gmail.com' && auth.token.email_verified === true) || (newData.child('code').val() === data.child('code').val() && newData.child('sourceUid').val() === data.child('sourceUid').val() && newData.child('orderId').val() === data.child('orderId').val() && newData.child('createdAt').val() === data.child('createdAt').val() && newData.child('claimUntil').val() === data.child('claimUntil').val() && newData.child('days').val() === 7 && newData.child('baseExpiry').val() === ((root.child('users').child($uid).child('planExpiresAt').isNumber() ? root.child('users').child($uid).child('planExpiresAt').val() : 0) > ((root.child('commerce/accounts').child($uid).child('access/expiresAt').isNumber() ? root.child('commerce/accounts').child($uid).child('access/expiresAt').val() : 0) > (root.child('commerce/accounts').child($uid).child('activeRewardId').isString() && root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('activatedAt').isNumber() ? (root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('activatedAt').val() > root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('baseExpiry').val() ? root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('activatedAt').val() : root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('baseExpiry').val()) + 604800000 : 0) ? (root.child('commerce/accounts').child($uid).child('access/expiresAt').isNumber() ? root.child('commerce/accounts').child($uid).child('access/expiresAt').val() : 0) : (root.child('commerce/accounts').child($uid).child('activeRewardId').isString() && root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('activatedAt').isNumber() ? (root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('activatedAt').val() > root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('baseExpiry').val() ? root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('activatedAt').val() : root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('baseExpiry').val()) + 604800000 : 0)) ? (root.child('users').child($uid).child('planExpiresAt').isNumber() ? root.child('users').child($uid).child('planExpiresAt').val() : 0) : ((root.child('commerce/accounts').child($uid).child('access/expiresAt').isNumber() ? root.child('commerce/accounts').child($uid).child('access/expiresAt').val() : 0) > (root.child('commerce/accounts').child($uid).child('activeRewardId').isString() && root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('activatedAt').isNumber() ? (root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('activatedAt').val() > root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('baseExpiry').val() ? root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('activatedAt').val() : root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('baseExpiry').val()) + 604800000 : 0) ? (root.child('commerce/accounts').child($uid).child('access/expiresAt').isNumber() ? root.child('commerce/accounts').child($uid).child('access/expiresAt').val() : 0) : (root.child('commerce/accounts').child($uid).child('activeRewardId').isString() && root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('activatedAt').isNumber() ? (root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('activatedAt').val() > root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('baseExpiry').val() ? root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('activatedAt').val() : root.child('commerce/accounts').child($uid).child('rewards').child(root.child('commerce/accounts').child($uid).child('activeRewardId').val()).child('baseExpiry').val()) + 604800000 : 0))) && newData.parent().parent().child('activeRewardId').val() === $reward)",
+              "code": {},
+              "sourceUid": {},
+              "orderId": {},
+              "createdAt": {},
+              "claimUntil": {},
+              "days": {},
+              "activatedAt": {},
+              "baseExpiry": {},
+              "$other": {
+                ".validate": false
+              }
+            }
+          },
+          "activeRewardId": {
+            ".write": "auth != null && auth.token.email_verified === true && (auth != null && auth.uid === $uid && root.child('users').child($uid).child('role').val() === 'teacher' && newData.isString() && newData.parent().child('rewards').child(newData.val()).child('activatedAt').val() === now && !root.child('commerce/accounts').child($uid).child('rewards').child(newData.val()).child('activatedAt').exists())"
+          }
         }
       }
     }

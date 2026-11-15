@@ -21,6 +21,7 @@ function cancelBoardGesture(){
 const boardPointers=new Set();
 viewport.addEventListener('pointerdown',e=>{
     if(e.target.closest('button,input,textarea,.lesson-notebook-panel,.widget,.board-text-node,.left-toolbar,.tool-settings-card,.bottom-left-island,.bottom-right-island'))return;
+    if(window.orbitaPenOnly && e.pointerType==='touch'){e.stopImmediatePropagation();return;}
     boardPointers.add(e.pointerId);
     if(boardPointers.size>1){cancelBoardGesture();e.stopImmediatePropagation();}
 },true);

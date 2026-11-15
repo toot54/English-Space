@@ -1,7 +1,7 @@
 const fs=require('node:fs');
 const vm=require('node:vm');
 const assert=require('node:assert/strict');
-for(const file of ['index.html','board.html']){
+for(const file of ['index.html','board.html','family.html','phone.html']){
     const source=fs.readFileSync(file,'utf8');
     let count=0;
     for(const match of source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)){

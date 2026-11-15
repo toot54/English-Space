@@ -1,0 +1,58 @@
+const fs=require('node:fs'),assert=require('node:assert/strict'),C=require('../assets/commerce-core.js');
+const base='http://127.0.0.1:9000',now=Date.now(),sv={'.sv':'timestamp'};
+const actor=uid=>({uid,token:{email:uid+'@example.invalid',email_verified:true}}),teacher=actor('teacher'),buyer=actor('buyer'),other=actor('other'),admin={uid:'bvEGSBPw8wTWuH5gthAiEMpaZoe2',token:{email:'naran33.ru@gmail.com',email_verified:true}};
+async function req(path,method='GET',data,auth=teacher){const url=new URL(base+path+'.json');url.searchParams.set('ns','orbita-commerce-test');if(auth!=='owner')url.searchParams.set('auth_variable_override',JSON.stringify(auth));const r=await fetch(url,{method,headers:{'Content-Type':'application/json',Authorization:'Bearer owner'},body:data===undefined?undefined:JSON.stringify(data)});return {status:r.status,data:await r.json()};}
+async function allow(...args){const r=await req(...args);assert.equal(r.status,200,JSON.stringify({path:args[0],method:args[1],result:r.data}));return r.data;}
+async function deny(...args){const r=await req(...args);assert([401,403].includes(r.status),JSON.stringify({path:args[0],status:r.status,data:r.data}));}
+(async()=>{
+ await allow('/.settings/rules','PUT',JSON.parse(fs.readFileSync('firebase/database.rules.json','utf8')),'owner');
+ await allow('/','PUT',{users:{teacher:{role:'teacher',plan:'start'},buyer:{role:'teacher',plan:'start'},other:{role:'teacher',plan:'start'}},boards:{platform_config:{salesEnabled:true}}},'owner');
+ await allow('/commerce/links/teacher','PUT',{active:true,createdAt:sv});
+ await deny('/commerce/links/teacher','PUT',{active:false,createdAt:sv});
+ await deny('/commerce/accounts/teacher/referral','PUT',{inviterUid:'teacher',joinedAt:sv});
+ await allow('/commerce/accounts/buyer/referral','PUT',{inviterUid:'teacher',joinedAt:sv},buyer);
+ await deny('/commerce/accounts/buyer/referral','PUT',{inviterUid:'other',joinedAt:sv},buyer);
+ await deny('/commerce/accounts/buyer/referral','DELETE',undefined,buyer);
+ await deny('/commerce','GET');await deny('/commerce/accounts/buyer','GET');
+ await deny('/commerce/codes/HACK','PUT',{active:true});
+ await allow('/commerce/codes/SAVE20','PUT',{kind:'percent',value:20,active:true,startsAt:now-1000,expiresAt:now+86400000,maxUses:1,used:0,reserved:0},admin);
+ await deny('/commerce/codes/SAVE20','GET');
+ const order={status:'requested',createdAt:sv,promoCode:'SAVE20'};
+ await allow('/commerce/accounts/buyer/orders/current','PUT',order,buyer);
+ await deny('/commerce/accounts/buyer/orders/other','PUT',order,buyer);
+ await deny('/commerce/accounts/buyer/orders/current','PATCH',{status:'approved',amount:1},buyer);
+ await deny('/commerce/accounts/buyer/access','PUT',{expiresAt:now+999999999},buyer);
+ await deny('/commerce/accounts/buyer/orders/current','DELETE',undefined,buyer);
+ let state=await allow('/commerce','GET',undefined,admin);
+ state=C.transition(state,'buyer','current','quote',{now:Date.now(),price:590});
+ await allow('/commerce','PUT',state,admin);
+ await allow('/commerce/accounts/buyer/paymentNotices/current','PUT',sv,buyer);
+ await deny('/commerce/accounts/buyer/paymentNotices/current','PUT',sv,buyer);
+ state=await allow('/commerce','GET',undefined,admin);
+ state=C.transition(state,'buyer','current','approve',{now:Date.now(),price:590,rewardCode:'GIFT-BOUND'});
+ await allow('/commerce','PUT',state,admin);
+ const reward=state.accounts.teacher.rewards['REF-buyer'];
+ await deny('/commerce/accounts/teacher/rewards/REF-buyer','GET',undefined,buyer);
+ await deny('/commerce/accounts/buyer/rewards/copied','PUT',reward,buyer);
+ await deny('/commerce/accounts/teacher','PATCH',{'rewards/REF-buyer':{...reward,activatedAt:sv,baseExpiry:now+99999999},activeRewardId:'REF-buyer'});
+ await deny('/commerce/accounts/teacher/activeRewardId','PUT','REF-buyer');
+ await deny('/commerce/accounts/teacher/rewards/REF-buyer','PATCH',{claimUntil:now+999999999});
+ await allow('/commerce/accounts/teacher','PATCH',{'rewards/REF-buyer':{...reward,activatedAt:sv,baseExpiry:0},activeRewardId:'REF-buyer'});
+ await deny('/commerce/accounts/teacher','PATCH',{'rewards/REF-buyer':{...reward,activatedAt:sv,baseExpiry:0},activeRewardId:'REF-buyer'});
+ await deny('/commerce/accounts/teacher/rewards/REF-buyer','DELETE');
+ await allow('/teaching/teacher/templates/99','PUT',{title:'Reward access',snapshotJson:'{}'});
+ await allow('/teaching/buyer/templates/99','PUT',{title:'Paid access',snapshotJson:'{}'},buyer);
+ const expired={...reward,claimUntil:now-1,code:'EXPIRED'};
+ await allow('/commerce/accounts/teacher/rewards/expired','PUT',expired,admin);
+ await deny('/commerce/accounts/teacher','PATCH',{'rewards/expired':{...expired,activatedAt:sv,baseExpiry:0},activeRewardId:'expired'});
+ const firstAccount=await allow('/commerce/accounts/teacher');const firstEnd=C.expiry(firstAccount);
+ await allow('/commerce/accounts/teacher/rewards/second','PUT',{...reward,code:'SECOND'},admin);
+ await allow('/commerce/accounts/teacher','PATCH',{'rewards/second':{...reward,code:'SECOND',activatedAt:sv,baseExpiry:firstEnd},activeRewardId:'second'});
+ assert.equal(C.expiry(await allow('/commerce/accounts/teacher')),firstEnd+7*C.DAY);
+ await allow('/commerce/accounts/teacher/rewards/second','PATCH',{activatedAt:now-20*C.DAY,baseExpiry:0},admin);
+ await deny('/teaching/teacher/templates/98','PUT',{title:'Expired reward',snapshotJson:'{}'});
+ await deny('/commerce/accounts/teacher','GET',undefined,{...teacher,token:{...teacher.token,email_verified:false}});
+ await allow('/boards/platform_config/salesEnabled','PUT',false,admin);
+ await deny('/commerce/accounts/other/orders/current','PUT',order,other);
+ console.log('PASS: admin-only coupons, private accounts, immutable referral attribution, invoice tamper prevention, bound rewards, atomic activation, replay/expiry rejection and premium entitlement');
+})().catch(error=>{console.error(error);process.exitCode=1;});
