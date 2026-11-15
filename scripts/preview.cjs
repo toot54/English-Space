@@ -5,6 +5,16 @@ const root=path.resolve(__dirname,'..');
 const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml'};
 http.createServer((req,res)=>{
     const url=new URL(req.url,'http://127.0.0.1');
+    if(url.pathname==='/__fixture-firebase.js'){
+        res.writeHead(200,{'Content-Type':types['.js'],'Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'scripts/fixtures/firebase.js')));return;
+    }
+    if(url.pathname==='/__fixture.html' || url.pathname==='/__fixture-board.html'){
+        const file=url.pathname.includes('-board')?'board.html':'index.html';
+        let html=fs.readFileSync(path.join(root,file),'utf8');
+        html=html.replace(/<script src="https:\/\/www\.gstatic\.com\/firebasejs\/[^\"]+"><\/script>/g,'');
+        html=html.replace('<head>','<head><script src="/__fixture-firebase.js"></script>');
+        res.writeHead(200,{'Content-Type':types['.html'],'Cache-Control':'no-store'});res.end(html);return;
+    }
     const name=url.pathname==='/'?'index.html':decodeURIComponent(url.pathname.slice(1));
     if(!['index.html','board.html'].includes(name)&&!/^assets\/[a-z0-9.-]+$/.test(name)){res.writeHead(404);res.end('Not found');return;}
     fs.readFile(path.join(root,name),(error,data)=>{if(error){res.writeHead(404);res.end('Not found');return;}res.writeHead(200,{'Content-Type':types[path.extname(name)]||'text/plain','Cache-Control':'no-store'});res.end(data);});

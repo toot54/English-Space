@@ -5,8 +5,8 @@ const {rules}=JSON.parse(fs.readFileSync('firebase/database.rules.json','utf8'))
 const access=require('../assets/access.js');
 const admin={uid:access.ADMIN_UID,email:access.ADMIN_EMAIL,emailVerified:true,token:{email:access.ADMIN_EMAIL,email_verified:true}};
 const teacher={uid:'teacher1',token:{email:'teacher@example.invalid',email_verified:true}};
-const student={uid:'student1',token:{}};
-const outsider={uid:'outsider',token:{}};
+const student={uid:'student1',token:{email_verified:true}};
+const outsider={uid:'outsider',token:{email_verified:true}};
 function snap(value){return {val:()=>value??null,exists:()=>value!=null,child:key=>snap(value?.[key]),isString:()=>typeof value==='string',isNumber:()=>typeof value==='number',isBoolean:()=>typeof value==='boolean',hasChildren:keys=>keys.every(key=>value?.[key]!=null)};}
 const data={users:{teacher1:{role:'teacher',plan:'start'},student1:{role:'student',plan:'start'}},boardAccess:{prep_teacher1_123:{student1:true}}};
 function evaluate(expression,auth,vars={}){

@@ -11,6 +11,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="assets/access.js"></script>
+    <script src="assets/lesson-ledger.js"></script>
+    <script src="assets/student-ledger-ui.js"></script>
+    <script src="assets/notebooks.js"></script>
+    <script src="assets/email-verification.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -498,7 +502,7 @@
         }
         @media (max-width: 860px) { .messages-full-grid { grid-template-columns: 1fr; height: auto; } }
         .chat-main-box { display: flex; flex-direction: column; height: 100%; position: relative; }
-        .chat-stream- patterned {
+        .chat-stream-patterned {
             flex: 1; padding: 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
             background-color: var(--chat-wallpaper);
             background-image: url("data:image/svg+xml,%3Csvg width='180' height='180' viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23166E52' stroke-opacity='0.09' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 28 L42 18 L30 42 L26 32 Z'/%3E%3Crect x='84' y='20' width='32' height='22' rx='4'/%3E%3Cpath d='M90 28 H108 M90 34 H102'/%3E%3Ccircle cx='150' cy='38' r='12'/%3E%3Cpath d='M150 31 V38 L155 41'/%3E%3Cpath d='M24 96 C36 76, 52 116, 64 90'/%3E%3Cpolygon points='112,82 116,91 126,92 118,98 120,108 112,103 104,108 106,98 98,92 108,91'/%3E%3Cpath d='M145 105 L168 95 L156 118 Z'/%3E%3Cpath d='M30 148 H56 M43 135 V161'/%3E%3Ccircle cx='105' cy='150' r='11'/%3E%3Cpath d='M146 144 H168 V162 H146 Z'/%3E%3C/g%3E%3C/svg%3E");
@@ -589,6 +593,7 @@
     </style>
     <link rel="stylesheet" href="assets/orbita.css">
     <link rel="stylesheet" href="assets/mobile.css">
+    <link rel="stylesheet" href="assets/workspace-refinements.css">
 </head>
 <body>
 <section id="landing" aria-label="Орбита — пространство репетитора">
@@ -661,6 +666,7 @@
                         </div>
                     </div>
 
+                    <div id="auth-step-verification" hidden><div class="verification-icon">✉</div><h2>Подтвердите вашу почту</h2><p>Откройте письмо от Орбиты и перейдите по ссылке. После этого вернитесь сюда.</p><strong id="verification-email"></strong><button id="verification-check" class="btn btn-jade" onclick="checkEmailVerification()">Я подтвердил почту</button><button id="verification-resend" class="btn" onclick="resendVerificationEmail()">Отправить письмо ещё раз</button><button class="link-jade" onclick="logoutAccount()">Выйти и указать другую почту</button></div>
                     <div id="auth-step-role" style="display:none;">
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
                             <button class="role-pill" style="height:54px;" onclick="finalizeUserRole('teacher')">Преподаватель</button>
@@ -855,7 +861,7 @@
             <section class="sec-page" id="sec-cabinet">
                 <div class="page-head">
                     <h1 class="page-h1">Ученики</h1>
-                    <button class="btn btn-jade" onclick="openInviteModal()">+ Пригласить ученика</button>
+                    <div class="ledger-actions"><button class="btn" onclick="exportLessonLedger()">Скачать отчёт</button><button class="btn btn-jade" onclick="openInviteModal()">+ Пригласить ученика</button></div>
                 </div>
 
                 <!-- 4 финансовых и учебных KPI (с фильтром должников по абонементу) -->
@@ -1414,6 +1420,7 @@
                 <div>
                     <label class="field-label">Время</label>
                     <input type="time" id="sch-time" class="field-input font-mono" value="17:00">
+                    <label class="field-label" for="sch-duration">Длительность, минут</label><input type="number" min="15" max="360" step="5" id="sch-duration" class="field-input" value="60">
                 </div>
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
@@ -1727,7 +1734,7 @@
             if (s.completed) return true;
             const startMs = new Date(`${s.date}T${s.time}`).getTime();
             if (isNaN(startMs)) return true;
-            return (startMs + 45 * 60 * 1000) < Date.now();
+            return OrbitaLedger.endTime(s) <= Date.now();
         }
 
         function formatHumanDate(isoDate, timeStr) {
@@ -1799,6 +1806,8 @@
                     if (cred.user) {
                         localStorage.setItem('es_role_' + cred.user.uid, selectedRegisterRole);
                         await cred.user.updateProfile({ displayName: name || email.split('@')[0], photoURL: selectedRegisterRole });
+                        showEmailVerification(cred.user);
+                        await resendVerificationEmail();
                     }
                 } else {
                     await auth.signInWithEmailAndPassword(email, pass);
@@ -1836,6 +1845,8 @@
                 return;
             }
             currentUser = user;
+            if (!user.emailVerified) { showEmailVerification(user); return; }
+            document.getElementById("auth-step-verification").hidden=true;
             document.getElementById('landing').hidden = true;
             try { const token = await user.getIdTokenResult(); isPlatformAdmin = OrbitaAccess.isAdmin(user,token.claims); } catch (_) { isPlatformAdmin = false; }
             if (user.uid === OrbitaAccess.ADMIN_UID && !isPlatformAdmin) {
@@ -1935,6 +1946,7 @@
             document.getElementById('btn-toggle-admin-mode').style.display = isPlatformAdmin ? 'inline-flex' : 'none';
 
             initRealtimeSubscriptions();
+            setInterval(() => { syncCompletedLessonHistory(); if(currentSection==='cabinet')renderCabinetSection(); },60000);
             switchSection('schedule');
 
             if (!isTeacher) {
@@ -1984,7 +1996,9 @@
                 if (!snap.val()) return;
                 currentUserData = { ...currentUserData, ...snap.val() };
                 setLocalUserCache(currentUser.uid, currentUserData);
+                mergeNotebookDrafts();
                 syncOwnedBoardAccess();
+                syncCompletedLessonHistory();
                 syncPairListeners();
                 renderAllSections();
             });
@@ -2018,7 +2032,7 @@
             const updates = {};
             for (const entry of assignments) {
                 const room = entry.boardId || entry.id;
-                if (!room || !entry.studentUid || !OrbitaAccess.ownsRoom(currentUser.uid, room)) continue;
+                if (!room || !entry.studentUid || !currentUserData.students?.[entry.studentUid] || !OrbitaAccess.ownsRoom(currentUser.uid, room)) continue;
                 const path = `boardAccess/${room}/${entry.studentUid}`;
                 if (!grantedBoardMembers.has(path)) { updates[path] = true; grantedBoardMembers.add(path); }
             }
@@ -2131,10 +2145,11 @@
             });
             Object.values(sharedPairsData).forEach(pair => {
                 Object.values(pair?.schedule || {}).forEach(s => {
-                    if (isValidScheduleLesson(s)) map[s.id] = s;
+                    if (currentUserData?.role !== 'teacher' && isValidScheduleLesson(s)) map[s.id] = s;
                 });
             });
-            return Object.values(map).sort((a, b) => {
+            if(currentUserData?.role==='teacher')Object.assign(map,currentUserData.schedule||{});
+            return Object.values(map).filter(s=>!s.cancelled && isValidScheduleLesson(s)).sort((a, b) => {
                 const ta = new Date(`${a.date}T${a.time}`).getTime() || 0;
                 const tb = new Date(`${b.date}T${b.time}`).getTime() || 0;
                 return ta - tb;
@@ -2306,20 +2321,21 @@
                     `);
                 });
                 getContactsArray().forEach(st => {
-                    const bal = typeof st.lessonsBalance === 'number' ? st.lessonsBalance : 2;
-                    if (bal <= 1) {
+                    const unpaid = studentHistory(st).filter(h=>!h.paid);
+                    const debt = unpaid.reduce((sum,h)=>sum+OrbitaLedger.amount(h,st),0);
+                    if (unpaid.length) {
                         alerts.push(`
                             <div class="row-item">
                                 <div>
                                     <div class="row-title">${escHtml(st.name)}</div>
-                                    <div class="row-sub">Осталось оплаченных уроков: ${bal}</div>
+                                    <div class="row-sub">Ожидают оплаты: ${unpaid.length} зан. · ${ledgerCurrency(debt)}</div>
                                 </div>
-                                <button class="btn btn-sm" onclick="activeCabinetStudentUid='${escAttr(st.uid)}'; switchSection('cabinet');">Абонемент</button>
+                                <button class="btn btn-sm" onclick="activeCabinetStudentUid='${escAttr(st.uid)}'; switchSection('cabinet');">История</button>
                             </div>
                         `);
                     }
                 });
-                sideBody.innerHTML = alerts.join('') || '<div class="empty-box">Все работы проверены, абонементы активны</div>';
+                sideBody.innerHTML = alerts.join('') || '<div class="empty-box">Всё в порядке: нет непроверенных работ и неоплаченных занятий</div>';
             } else {
                 sideTitle.innerText = 'Мои преподаватели';
                 sideBody.innerHTML = getContactsArray().map(t => `
@@ -2486,226 +2502,9 @@
         }
 
         // Завершение урока (добавляет запись в историю занятий ученика и списывает 1 урок с баланса)
-        function completeScheduledLesson(scheduleId) {
-            const lesson = getMergedScheduleList().find(s => s.id === scheduleId);
-            if (!lesson) return;
-            const stUid = lesson.studentUid;
-            const stObj = (currentUserData.students || {})[stUid];
+        // completeScheduledLesson is defined in the workspace modules.
 
-            lesson.completed = true;
-            if (currentUserData.schedule && currentUserData.schedule[scheduleId]) {
-                currentUserData.schedule[scheduleId].completed = true;
-            }
-            const pKey = getPairKey(stUid);
-            if (db) {
-                db.ref(`users/${currentUser.uid}/schedule/${scheduleId}/completed`).set(true).catch(() => {});
-                if (pKey) db.ref(`boards/${pKey}/schedule/${scheduleId}/completed`).set(true).catch(() => {});
-            }
-
-            if (stObj) {
-                const curBal = typeof stObj.lessonsBalance === 'number' ? stObj.lessonsBalance : 2;
-                const newBal = Math.max(0, curBal - 1);
-                stObj.lessonsBalance = newBal;
-                stObj.lessonHistory = stObj.lessonHistory || {};
-                const histId = 'lh_' + Date.now();
-                stObj.lessonHistory[histId] = {
-                    id: histId,
-                    date: lesson.date,
-                    time: lesson.time,
-                    topic: lesson.topic,
-                    paid: curBal > 0
-                };
-                if (db) {
-                    db.ref(`users/${currentUser.uid}/students/${stUid}`).update({
-                        lessonsBalance: newBal,
-                        lessonHistory: stObj.lessonHistory
-                    }).catch(() => {});
-                }
-            }
-            setLocalUserCache(currentUser.uid, currentUserData);
-            renderAllSections();
-            showToast('Урок завершён и добавлен в историю занятий');
-        }
-
-        // ================= РАЗДЕЛ 2: КАБИНЕТ РЕПЕТИТОРА (ДОХОД, ИСТОРИЯ ОПЛАТ, УДАЛЕНИЕ УЧЕНИКОВ) =================
-        function showLowBalanceStudentsPanel() {
-            const lowStudents = getContactsArray().filter(s => (typeof s.lessonsBalance === 'number' ? s.lessonsBalance : 2) <= 1);
-            const box = document.getElementById('low-balance-alert-box');
-            const listEl = document.getElementById('low-balance-students-list');
-            if (lowStudents.length === 0) {
-                showToast('У всех учеников достаточно оплаченных уроков');
-                box.style.display = 'none';
-                return;
-            }
-            listEl.innerHTML = lowStudents.map(s => {
-                const bal = typeof s.lessonsBalance === 'number' ? s.lessonsBalance : 2;
-                return `
-                    <div class="row-item">
-                        <div class="row-left">
-                            <div class="avatar">${renderAvatarHtml(s.name, s.avatar)}</div>
-                            <div>
-                                <div class="row-title">${escHtml(s.name)}</div>
-                                <div class="row-sub">Остаток: ${bal} ур. · Абонемент: ${s.subscriptionPrice || 4800} ₽</div>
-                            </div>
-                        </div>
-                        <div class="row-right">
-                            <button class="btn btn-sm" onclick="activeCabinetStudentUid='${escAttr(s.uid)}'; renderCabinetSection();">Открыть досье</button>
-                            <button class="btn btn-terra btn-sm" onclick="sendPaymentReminderToStudent('${escAttr(s.uid)}')">Напомнить в чат</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            box.style.display = 'block';
-        }
-
-        function renderCabinetSection() {
-            const students = getContactsArray();
-            if (!activeCabinetStudentUid && students[0]) activeCabinetStudentUid = students[0].uid;
-            const activeSt = students.find(s => s.uid === activeCabinetStudentUid) || students[0] || null;
-
-            // Считаем предварительный доход за текущий месяц и доход за прошлые месяцы
-            let preliminaryMonthlyIncome = 0;
-            let pastMonthsIncome = 0;
-            let lowBalanceCount = 0;
-
-            students.forEach(s => {
-                const subPrice = Number(s.subscriptionPrice) || 4800;
-                const bal = typeof s.lessonsBalance === 'number' ? s.lessonsBalance : 2;
-                if (bal <= 1) lowBalanceCount++;
-                preliminaryMonthlyIncome += subPrice;
-                const histArr = Object.values(s.lessonHistory || {});
-                const paidLessonsCount = histArr.filter(h => h && h.paid).length;
-                pastMonthsIncome += paidLessonsCount * Math.round(subPrice / 4);
-            });
-
-            document.getElementById('cabinet-kpi-row').innerHTML = `
-                <div class="kpi-card">
-                    <span class="kpi-label">Активных учеников</span>
-                    <div class="kpi-val font-mono">${students.length}</div>
-                </div>
-                <div class="kpi-card">
-                    <span class="kpi-label">Предварительный доход (мес.)</span>
-                    <div class="kpi-val font-mono" style="color:var(--jade);">${preliminaryMonthlyIncome.toLocaleString('ru-RU')} ₽</div>
-                </div>
-                <div class="kpi-card">
-                    <span class="kpi-label">Оплачено по истории уроков</span>
-                    <div class="kpi-val font-mono">${pastMonthsIncome.toLocaleString('ru-RU')} ₽</div>
-                </div>
-                <div class="kpi-card" style="cursor:pointer;" onclick="showLowBalanceStudentsPanel()">
-                    <span class="kpi-label">Ждут оплаты (≤ 1 ур.)</span>
-                    <div style="display:flex; align-items:center; justify-content:space-between;">
-                        <span class="kpi-val font-mono" style="color:${lowBalanceCount > 0 ? 'var(--terra)' : 'var(--text-primary)'};">${lowBalanceCount} уч.</span>
-                        <span class="link-jade" style="font-size:12px;">Показать всех →</span>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('cabinet-students-roster').innerHTML = students.map(s => {
-                const bal = typeof s.lessonsBalance === 'number' ? s.lessonsBalance : 2;
-                const online = isPeerOnline(s.uid);
-                return `
-                    <div class="st-roster-item ${activeSt && activeSt.uid === s.uid ? 'active' : ''}" onclick="activeCabinetStudentUid='${escAttr(s.uid)}'; renderCabinetSection();">
-                        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
-                            <div class="avatar">${renderAvatarHtml(s.name, s.avatar)}</div>
-                            <div style="min-width:0;">
-                                <div class="row-title" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(s.name)}</div>
-                                <div class="row-sub"><span class="presence-dot ${online ? 'online' : 'offline'}"></span>${online ? 'В сети' : escHtml(s.goal || 'Ученик')}</div>
-                            </div>
-                        </div>
-                        <span class="badge ${bal <= 1 ? 'badge-terra' : 'badge-jade'} font-mono">${bal} ур.</span>
-                    </div>
-                `;
-            }).join('') || '<div class="empty-box">Пригласите первого ученика по ссылке</div>';
-
-            const dossierEl = document.getElementById('cabinet-student-dossier');
-            if (!activeSt) {
-                dossierEl.innerHTML = '<div class="empty-box" style="padding:0;">Выберите ученика слева</div>';
-                return;
-            }
-
-            const bal = typeof activeSt.lessonsBalance === 'number' ? activeSt.lessonsBalance : 2;
-            const subPrice = Number(activeSt.subscriptionPrice) || 4800;
-            const notes = activeSt.teacherNotes || '';
-            const historyList = Object.values(activeSt.lessonHistory || {}).sort((a, b) => (b.id || '').localeCompare(a.id || ''));
-
-            let pillsHtml = '';
-            for (let i = 0; i < 8; i++) {
-                const filled = i < bal;
-                pillsHtml += `<div class="sub-unit ${filled ? (bal <= 1 ? 'warn' : 'filled') : ''}"></div>`;
-            }
-
-            dossierEl.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; padding-bottom:16px; border-bottom:1px solid var(--border); margin-bottom:16px;">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <div class="avatar" style="width:46px; height:46px; font-size:16px;">${renderAvatarHtml(activeSt.name, activeSt.avatar)}</div>
-                        <div>
-                            <h2 style="font-size:19px; font-weight:800;">${escHtml(activeSt.name)}</h2>
-                            <div class="row-sub">${escHtml(activeSt.goal || 'Подготовка к экзаменам')}</div>
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button class="btn btn-jade btn-sm" onclick="openEnterClassModal('${escAttr(activeSt.uid)}')">▷ Войти в класс</button>
-                        <button class="btn btn-sm" onclick="activeChatPeerUid='${escAttr(activeSt.uid)}'; switchSection('messages');">Чат</button>
-                        <button class="btn btn-danger btn-sm" onclick="requestDeleteStudent('${escAttr(activeSt.uid)}', '${escAttr(activeSt.name)}')">Удалить ученика</button>
-                    </div>
-                </div>
-
-                <!-- Блок абонемента и стоимости -->
-                <div style="display:grid; grid-template-columns:1.25fr 1fr; gap:14px; margin-bottom:18px;">
-                    <div style="padding:14px; background:var(--bg-subtle); border-radius:11px; border:1px solid var(--border);">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-size:13px; font-weight:700;">Баланс абонемента</span>
-                            <span class="badge ${bal <= 1 ? 'badge-terra' : 'badge-jade'} font-mono">Оплачено: ${bal} ур.</span>
-                        </div>
-                        <div class="sub-pills-bar">${pillsHtml}</div>
-                        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;">
-                            <button class="btn btn-sm font-mono" onclick="adjustStudentBalance('${escAttr(activeSt.uid)}', -1)">−1</button>
-                            <button class="btn btn-sm font-mono" onclick="adjustStudentBalance('${escAttr(activeSt.uid)}', 1)">+1</button>
-                            <button class="btn btn-jade btn-sm font-mono" onclick="adjustStudentBalance('${escAttr(activeSt.uid)}', 4)">+4 ур.</button>
-                            <button class="btn btn-jade btn-sm font-mono" onclick="adjustStudentBalance('${escAttr(activeSt.uid)}', 8)">+8 ур.</button>
-                            <button class="btn btn-terra btn-sm" onclick="sendPaymentReminderToStudent('${escAttr(activeSt.uid)}')">Напомнить</button>
-                        </div>
-                    </div>
-
-                    <div style="padding:14px; background:var(--bg-subtle); border-radius:11px; border:1px solid var(--border);">
-                        <label class="field-label">Стоимость абонемента ученика (₽ / мес)</label>
-                        <div style="display:flex; gap:8px; margin-top:6px;">
-                            <input type="number" id="st-sub-price-input" class="field-input font-mono" value="${subPrice}">
-                            <button class="btn btn-jade btn-sm" style="height:38px;" onclick="saveStudentSubscriptionPrice('${escAttr(activeSt.uid)}')">Сохранить</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Педагогический дневник -->
-                <div style="margin-bottom:18px;">
-                    <label class="field-label">Педагогический дневник и заметки по ученику</label>
-                    <textarea class="form-textarea" placeholder="Цели, пробелы в знаниях, договорённости по расписанию..." onblur="saveStudentDiaryNotes('${escAttr(activeSt.uid)}', this.value)">${escHtml(notes)}</textarea>
-                </div>
-
-                <!-- История занятий с отметкой "Оплачено / Не оплачено" -->
-                <div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <span style="font-size:14px; font-weight:700;">История занятий и оплат</span>
-                        <button class="btn btn-sm" onclick="addManualHistoryLesson('${escAttr(activeSt.uid)}')">+ Добавить занятие в историю</button>
-                    </div>
-                    <div class="card" style="background:var(--bg-subtle);">
-                        ${historyList.map(h => `
-                            <div class="row-item">
-                                <div>
-                                    <div class="row-title">${escHtml(h.topic || 'Урок')}</div>
-                                    <div class="row-sub font-mono">${escHtml(h.date || '')} · ${escHtml(h.time || '')}</div>
-                                </div>
-                                <div class="row-right">
-                                    <button class="btn ${h.paid ? 'btn-jade' : 'btn-terra'} btn-sm" onclick="toggleHistoryLessonPaid('${escAttr(activeSt.uid)}', '${escAttr(h.id)}')">
-                                        ${h.paid ? '✓ Оплачено' : 'Не оплачено'}
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('') || '<div class="empty-box">Завершённых уроков в истории пока нет</div>'}
-                    </div>
-                </div>
-            `;
-        }
+        // showLowBalanceStudentsPanel is defined in the workspace modules.
 
         function adjustStudentBalance(stUid, delta) {
             const st = (currentUserData.students || {})[stUid];
@@ -2717,16 +2516,7 @@
             renderAllSections();
         }
 
-        function saveStudentSubscriptionPrice(stUid) {
-            const st = (currentUserData.students || {})[stUid];
-            if (!st) return;
-            const val = Number(document.getElementById('st-sub-price-input').value) || 0;
-            st.subscriptionPrice = val;
-            setLocalUserCache(currentUser.uid, currentUserData);
-            if (db) db.ref(`users/${currentUser.uid}/students/${stUid}/subscriptionPrice`).set(val).catch(() => {});
-            renderCabinetSection();
-            showToast('Стоимость абонемента сохранена');
-        }
+        // saveStudentSubscriptionPrice is defined in the workspace modules.
 
         function saveStudentDiaryNotes(stUid, text) {
             const st = (currentUserData.students || {})[stUid];
@@ -2736,32 +2526,7 @@
             if (db) db.ref(`users/${currentUser.uid}/students/${stUid}/teacherNotes`).set(text).catch(() => {});
         }
 
-        function addManualHistoryLesson(stUid) {
-            const st = (currentUserData.students || {})[stUid];
-            if (!st) return;
-            st.lessonHistory = st.lessonHistory || {};
-            const now = new Date();
-            const histId = 'lh_' + Date.now();
-            st.lessonHistory[histId] = {
-                id: histId,
-                date: formatIsoDate(now.getFullYear(), now.getMonth(), now.getDate()),
-                time: `${String(now.getHours()).padStart(2, '0')}:00`,
-                topic: 'Занятие по абонементу',
-                paid: true
-            };
-            setLocalUserCache(currentUser.uid, currentUserData);
-            if (db) db.ref(`users/${currentUser.uid}/students/${stUid}/lessonHistory/${histId}`).set(st.lessonHistory[histId]).catch(() => {});
-            renderCabinetSection();
-        }
-
-        function toggleHistoryLessonPaid(stUid, histId) {
-            const st = (currentUserData.students || {})[stUid];
-            if (!st || !st.lessonHistory || !st.lessonHistory[histId]) return;
-            st.lessonHistory[histId].paid = !st.lessonHistory[histId].paid;
-            setLocalUserCache(currentUser.uid, currentUserData);
-            if (db) db.ref(`users/${currentUser.uid}/students/${stUid}/lessonHistory/${histId}/paid`).set(st.lessonHistory[histId].paid).catch(() => {});
-            renderCabinetSection();
-        }
+        // addManualHistoryLesson is defined in the workspace modules.
 
         function sendPaymentReminderToStudent(stUid) {
             const st = (currentUserData.students || {})[stUid];
@@ -2777,16 +2542,20 @@
         }
 
         function requestDeleteStudent(stUid, stName) {
-            askConfirmDelete(`Удалить ученика «${stName}»?`, 'Ученик будет убран из вашего кабинета и расписания.', () => {
-                if (currentUserData.students) delete currentUserData.students[stUid];
-                setLocalUserCache(currentUser.uid, currentUserData);
-                if (db) {
-                    db.ref(`users/${currentUser.uid}/students/${stUid}`).remove().catch(() => {});
-                    db.ref(`users/${stUid}/teachers/${currentUser.uid}`).remove().catch(() => {});
+            askConfirmDelete(`Удалить ученика «${stName}»?`, 'Карточка, история и расписание этого ученика будут удалены. Сначала сохраните отчёт, если он нужен.', async () => {
+                const updates={
+                    [`users/${currentUser.uid}/students/${stUid}`]:null,
+                    [`users/${stUid}/teachers/${currentUser.uid}`]:null
+                };
+                for(const lesson of Object.values(currentUserData.schedule||{}))if(lesson.studentUid===stUid){
+                    updates[`users/${currentUser.uid}/schedule/${lesson.id}`]=null;
+                    updates[`boards/${getPairKey(stUid)}/schedule/${lesson.id}`]=null;
                 }
-                activeCabinetStudentUid = null;
-                renderAllSections();
-                showToast('Ученик удалён');
+                for(const board of Object.values(currentUserData.prepBoards||{}))if(board.studentUid===stUid){
+                    updates[`users/${currentUser.uid}/prepBoards/${board.id}/studentUid`]=null;
+                    if(OrbitaAccess.ownsRoom(currentUser.uid,board.id))updates[`boardAccess/${board.id}/${stUid}`]=null;
+                }
+                if(await writeLedger(updates)){activeCabinetStudentUid=null;renderAllSections();showToast('Ученик удалён');}
             });
         }
 
@@ -2848,110 +2617,20 @@
         }
 
         // Настоящие "Мои тетради" ученика (клетка / линейка / точка)
-        function renderStudentNotebooksSection() {
-            const nbsObj = currentUserData.notebooks || {};
-            const nbsArr = Object.values(nbsObj).filter(n => n && n.id && n.title);
-            if (!activeNotebookId && nbsArr[0]) activeNotebookId = nbsArr[0].id;
-            const activeNb = nbsObj[activeNotebookId] || nbsArr[0] || null;
+        // renderStudentNotebooksSection is defined in the workspace modules.
 
-            document.getElementById('s-notebooks-roster').innerHTML = nbsArr.map(n => `
-                <div class="st-roster-item ${activeNb && activeNb.id === n.id ? 'active' : ''}" onclick="activeNotebookId='${escAttr(n.id)}'; activeNotebookPageIdx=0; renderStudentNotebooksSection();">
-                    <div>
-                        <div class="row-title">${escHtml(n.title)}</div>
-                        <div class="row-sub">${n.paper === 'lined' ? 'В линейку' : (n.paper === 'dot' ? 'В точку' : 'В клетку')}</div>
-                    </div>
-                    <button class="btn btn-icon" onclick="event.stopPropagation(); requestDeleteNotebook('${escAttr(n.id)}', '${escAttr(n.title)}')">✕</button>
-                </div>
-            `).join('') || '<div class="empty-box">Создайте свою первую тетрадь</div>';
+        // setNotebookPaper is defined in the workspace modules.
 
-            // Доски прошедших и предстоящих уроков
-            const schBoards = getMergedScheduleList();
-            document.getElementById('s-lesson-boards-list').innerHTML = schBoards.map(s => `
-                <div class="row-item">
-                    <div>
-                        <div class="row-title">${escHtml(s.topic)}</div>
-                        <div class="row-sub">${escHtml(formatHumanDate(s.date))}</div>
-                    </div>
-                    <button class="btn btn-sm" onclick="openBoardRoom('${escAttr(s.boardId)}', null, '${escAttr(s.topic)}')">Доска</button>
-                </div>
-            `).join('') || '<div class="empty-box">Досок с уроков пока нет</div>';
-
-            const editorCard = document.getElementById('s-notebook-editor-card');
-            if (!activeNb) {
-                editorCard.innerHTML = '<div class="empty-box">Выберите или создайте тетрадь</div>';
-                return;
-            }
-            activeNb.pages = Array.isArray(activeNb.pages) && activeNb.pages.length > 0 ? activeNb.pages : [''];
-            if (activeNotebookPageIdx >= activeNb.pages.length) activeNotebookPageIdx = 0;
-            const paperClass = activeNb.paper === 'lined' ? 'lined-paper' : (activeNb.paper === 'dot' ? 'dot-paper' : 'grid-paper');
-
-            editorCard.innerHTML = `
-                <div class="card-head">
-                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                        <span class="card-title">${escHtml(activeNb.title)}</span>
-                        ${activeNb.pages.map((_, idx) => `
-                            <button class="folder-chip ${idx === activeNotebookPageIdx ? 'active' : ''}" onclick="activeNotebookPageIdx=${idx}; renderStudentNotebooksSection();">Стр. ${idx + 1}</button>
-                        `).join('')}
-                        <button class="btn btn-sm" onclick="addNotebookPage('${escAttr(activeNb.id)}')">+ Стр.</button>
-                    </div>
-                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                        <button class="btn btn-sm" onclick="setNotebookPaper('${escAttr(activeNb.id)}', 'grid')">Клетка</button>
-                        <button class="btn btn-sm" onclick="setNotebookPaper('${escAttr(activeNb.id)}', 'lined')">Линейка</button>
-                        <button class="btn btn-sm" onclick="setNotebookPaper('${escAttr(activeNb.id)}', 'dot')">Точка</button>
-                        <button class="btn btn-jade btn-sm" onclick="insertNotebookBlock('rule')">+ Правило</button>
-                        <button class="btn btn-terra btn-sm" onclick="insertNotebookBlock('imp')">+ Важно</button>
-                    </div>
-                </div>
-                <div id="notebook-sheet-editable" class="paper-sheet ${paperClass}" contenteditable="true" oninput="saveActiveNotebookContent('${escAttr(activeNb.id)}')">${activeNb.pages[activeNotebookPageIdx] || ''}</div>
-            `;
-        }
-
-        function setNotebookPaper(nbId, paperType) {
-            const nb = (currentUserData.notebooks || {})[nbId];
-            if (!nb) return;
-            nb.paper = paperType;
-            setLocalUserCache(currentUser.uid, currentUserData);
-            if (db) db.ref(`users/${currentUser.uid}/notebooks/${nbId}/paper`).set(paperType).catch(() => {});
-            renderStudentNotebooksSection();
-        }
-
-        function addNotebookPage(nbId) {
-            const nb = (currentUserData.notebooks || {})[nbId];
-            if (!nb) return;
-            nb.pages = Array.isArray(nb.pages) ? nb.pages : [''];
-            nb.pages.push('');
-            activeNotebookPageIdx = nb.pages.length - 1;
-            setLocalUserCache(currentUser.uid, currentUserData);
-            if (db) db.ref(`users/${currentUser.uid}/notebooks/${nbId}/pages`).set(nb.pages).catch(() => {});
-            renderStudentNotebooksSection();
-        }
-
-        function insertNotebookBlock(kind) {
-            const sheet = document.getElementById('notebook-sheet-editable');
-            if (!sheet) return;
-            const blockHtml = kind === 'rule'
-                ? `<div class="nb-callout-rule">Правило: напишите формулу или определение...</div><div><br></div>`
-                : `<div class="nb-callout-imp">Важно: обратите внимание...</div><div><br></div>`;
-            sheet.focus();
-            document.execCommand('insertHTML', false, blockHtml);
-            if (activeNotebookId) saveActiveNotebookContent(activeNotebookId);
-        }
-
-        function saveActiveNotebookContent(nbId) {
-            const nb = (currentUserData.notebooks || {})[nbId];
-            const sheet = document.getElementById('notebook-sheet-editable');
-            if (!nb || !sheet) return;
-            nb.pages = Array.isArray(nb.pages) ? nb.pages : [''];
-            nb.pages[activeNotebookPageIdx] = sheet.innerHTML;
-            setLocalUserCache(currentUser.uid, currentUserData);
-            if (db) db.ref(`users/${currentUser.uid}/notebooks/${nbId}/pages`).set(nb.pages).catch(() => {});
-        }
+        // addNotebookPage is defined in the workspace modules.
 
         function requestDeleteNotebook(nbId, title) {
-            askConfirmDelete(`Удалить тетрадь «${title}»?`, 'Все страницы тетради будут удалены.', () => {
+            askConfirmDelete(`Удалить тетрадь «${title}»?`, 'Все страницы тетради будут удалены.', async () => {
+                await flushNotebookDrafts();
+                try { if(db)await db.ref(`users/${currentUser.uid}/notebooks/${nbId}`).remove(); }
+                catch(_) { showToast('Тетрадь не удалена. Проверьте интернет.');return; }
+                for(const [key,draft] of notebookDrafts)if(draft.id===nbId)notebookDrafts.delete(key);
                 delete currentUserData.notebooks[nbId];
                 setLocalUserCache(currentUser.uid, currentUserData);
-                if (db) db.ref(`users/${currentUser.uid}/notebooks/${nbId}`).remove().catch(() => {});
                 activeNotebookId = null;
                 renderStudentNotebooksSection();
                 showToast('Тетрадь удалена');
@@ -4439,6 +4118,7 @@
             document.getElementById('sch-modal-title').innerText = existing ? 'Изменить урок' : 'Добавить урок';
             document.getElementById('sch-date-input').value = existing ? existing.date : (selectedCalendarDateIso || formatIsoDate(now.getFullYear(), now.getMonth(), now.getDate()));
             document.getElementById('sch-time').value = existing ? existing.time : '17:00';
+            document.getElementById('sch-duration').value=existing?.durationMinutes||60;
             if (existing) stSel.value = existing.studentUid;
             populateScheduleBoardSelect();
             if (existing && existing.boardId) document.getElementById('sch-board-select').value = existing.boardId;
@@ -4470,7 +4150,10 @@
             const stObj = (currentUserData.students || {})[stUid];
             const id = editId || ('sch_' + Date.now());
             const payload = {
+                ...(editId ? currentUserData.schedule?.[editId]||{} : {}),
                 id, date: dateVal, time: timeVal, topic, boardId, boardTitle,
+                durationMinutes:Math.max(15,Math.min(360,Number(document.getElementById("sch-duration").value)||60)),
+                lessonPrice: editId && currentUserData.schedule?.[editId]?.lessonPrice != null ? currentUserData.schedule[editId].lessonPrice : OrbitaLedger.price(stObj),
                 teacherUid: currentUser.uid,
                 teacherName: currentUserData.profile?.name || 'Преподаватель',
                 studentUid: stUid,

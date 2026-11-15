@@ -61,9 +61,9 @@ function startOrbitaDemo() {
     currentUserData = {
         uid:currentUser.uid,role:'teacher',plan:'start',profile:{name:'Александра',subject:'Математика',bio:'Помогаю увидеть логику за формулами. Демонстрационный профиль.'},
         students:{
-            anna:{uid:'anna',name:'Анна Волкова',goal:'Математика · 9 класс',lessonsBalance:6,subscriptionPrice:6000},
-            mikhail:{uid:'mikhail',name:'Михаил Соколов',goal:'Математика · 10 класс',lessonsBalance:1,subscriptionPrice:6400},
-            sofia:{uid:'sofia',name:'София Белова',goal:'Подготовка к ЕГЭ',lessonsBalance:4,subscriptionPrice:7200}
+            anna:{uid:'anna',name:'Анна Волкова',goal:'Математика · 9 класс',lessonPrice:1500},
+            mikhail:{uid:'mikhail',name:'Михаил Соколов',goal:'Математика · 10 класс',lessonPrice:1600},
+            sofia:{uid:'sofia',name:'София Белова',goal:'Подготовка к ЕГЭ',lessonPrice:1800}
         },
         schedule:{
             lesson1:{id:'lesson1',studentUid:'anna',studentName:'Анна Волкова',date:lessonDate,time:String(hour).padStart(2,'0')+':00',topic:'Квадратные уравнения',boardId:'algebra',boardTitle:'Алгебра · 9 класс'},
@@ -84,7 +84,7 @@ document.addEventListener('click', event => {
     const target = event.target.closest('[onclick]');
     if (!target) return;
     const action = target.getAttribute('onclick');
-    const allowed = /^(toggleMobileMenu|switchSection|onBrandLogoClick|toggleThemeQuick|shiftSidebarMonth|onSidebarCalDayClick|resetCalendarFilter|openTariffsModal|closeModals|openOrbitaAuth|exitOrbitaDemo|setPracticeMode|onMatchColumnClick|answerQuizQuestion|filterTasks|switchHwViewMode|showLowBalanceStudentsPanel)\(/;
+    const allowed = /^(selectLedgerStudent|toggleMobileMenu|switchSection|onBrandLogoClick|toggleThemeQuick|shiftSidebarMonth|onSidebarCalDayClick|resetCalendarFilter|openTariffsModal|closeModals|openOrbitaAuth|exitOrbitaDemo|setPracticeMode|onMatchColumnClick|answerQuizQuestion|filterTasks|switchHwViewMode|showLowBalanceStudentsPanel)\(/;
     const local = /^(activeCabinetStudentUid|activeTaskId|activeDeckId|selectedBoardFolder|activeChatPeerUid|cardFlipped|currentCardIdx|learnedCardIndices|quizStepIdx|quizFinished|practiceMode)/;
     if (!allowed.test(action.trim()) && !local.test(action.trim())) {
         event.preventDefault(); event.stopImmediatePropagation();

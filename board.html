@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Unbounded:wght@600;700;800&display=swap" rel="stylesheet">
+    <script src="assets/board-studio.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -662,6 +663,7 @@
     </style>
 <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/board-theme.css">
+    <link rel="stylesheet" href="assets/board-studio.css">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 </head>
 <body class="role-teacher">
@@ -678,12 +680,13 @@
 
                 <nav class="top-tabs">
                     <button class="top-tab active" id="top-tab-board" onclick="switchTopTab('board')">Доска</button>
-                    <button class="top-tab" id="top-tab-notebook" onclick="switchTopTab('notebook')">Тетрадь</button>
+                    <button class="top-tab" id="top-tab-notebook" onclick="switchTopTab('notebook')">Конспект</button>
                     <button class="top-tab" id="top-tab-materials" onclick="toggleWidgetsModal(event)">Материалы</button>
                 </nav>
             </div>
 
             <div class="topbar-right">
+                <button class="top-btn mobile-notes-button" onclick="switchTopTab('notebook')">Конспект</button>
                 <div class="timer-pill">
                     <span class="timer-digits font-mono" id="timer-text">00:00</span>
                     <button class="timer-action-link" id="btn-timer-start" onclick="toggleLessonTimeMenu(event)">Старт</button>
@@ -696,7 +699,7 @@
 
                 <button class="top-btn" id="btn-open-widgets" onclick="toggleWidgetsModal(event)">
                     <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L8 8m4-4l4 4M4 20h16"/></svg>
-                    Файл
+                    Инструменты
                 </button>
 
                 <button class="top-btn active" id="btn-toggle-chat" onclick="toggleChatSection()" title="Скрыть чат (оставить только камеры без пустой зоны)">
@@ -717,12 +720,14 @@
                 <span class="font-display" style="font-size:12px;">Добавить на доску</span>
                 <button class="close-btn" onclick="closePopovers()">✕</button>
             </div>
+            <label class="board-paper-control">Фон доски<select id="board-paper-select" onchange="setBoardPaper(this.value)"><option value="dots">Точки</option><option value="grid">Клетка</option><option value="plain">Чистый лист</option></select></label>
+            <div class="widget-section-label">Для вашего предмета</div><div class="widget-grid"><button class="widget-pick-btn" onclick="startWidgetPlacement('graph','График функции')">График функции</button><button class="widget-pick-btn" onclick="startWidgetPlacement('problem','Решение задачи')">Решение задачи</button><button class="widget-pick-btn" onclick="startWidgetPlacement('timeline','Лента времени')">Лента времени</button><button class="widget-pick-btn" onclick="startWidgetPlacement('compare','Сравнение')">Сравнение</button></div><div class="widget-section-label">Материалы и практика</div>
             <div class="widget-grid">
                 <label for="photo-upload-input" class="widget-pick-btn">Фото / Учебник</label>
                 <button class="widget-pick-btn" onclick="startWidgetPlacement('video', 'Видео / Аудио')">Видео / Аудио</button>
-                <button class="widget-pick-btn" onclick="startWidgetPlacement('essay', 'Редактор Эссе')">Редактор Эссе</button>
+                <button class="widget-pick-btn" onclick="startWidgetPlacement('essay', 'Текст и эссе')">Текст и эссе</button>
                 <button class="widget-pick-btn" onclick="startWidgetPlacement('sticker', 'Стикер')">Стикер</button>
-                <button class="widget-pick-btn" onclick="startWidgetPlacement('speaking', 'Speaking')">Speaking</button>
+                <button class="widget-pick-btn" onclick="startWidgetPlacement('speaking', 'Устный ответ')">Устный ответ</button>
                 <button class="widget-pick-btn" onclick="startWidgetPlacement('dict', 'Словарь')">Словарь</button>
             </div>
             <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border);" id="btn-reset-all">
@@ -756,6 +761,7 @@
         <!-- 2. ОСНОВНАЯ ОБЛАСТЬ: ХОЛСТ + ПРАВАЯ КОЛОНКА -->
         <div class="class-body">
             <div id="board-viewport">
+                <section id="lesson-notebook-panel" class="lesson-notebook-panel" hidden aria-label="Общий конспект урока"><div class="lesson-notebook-head"><div><h2>Конспект урока</h2><small>Общие записи · сохраняются вместе с уроком</small></div><button class="close-btn" aria-label="Закрыть конспект" onclick="switchTopTab('board')">✕</button></div><div class="lesson-notebook-fields"><label>Главная идея и правила<textarea data-lesson-note="rules" aria-label="Главная идея и правила" placeholder="Формулы, определения, важные даты…"></textarea></label><label>Что разобрали на уроке<textarea data-lesson-note="summary" aria-label="Что разобрали на уроке" placeholder="Ход решения, примеры, выводы…"></textarea></label><label>Что повторить самостоятельно<textarea data-lesson-note="next" aria-label="Что повторить самостоятельно" placeholder="Вопросы и следующие шаги…"></textarea></label></div><div class="lesson-notebook-footer"><span id="lesson-notes-status" role="status">Для преподавателя и ученика</span><button class="top-btn" onclick="downloadLessonNotes()">Скачать .txt</button></div></section>
                 <div class="follow-status-pill" id="follow-status-pill">
                     <span class="follow-status-dot"></span>
                     <span id="follow-status-text">Ученик следует за вашей доской</span>
@@ -1104,6 +1110,7 @@
                 const status = document.getElementById('board-access-status');
                 if (!u) { status.querySelector('span').textContent = 'Войдите в аккаунт, чтобы открыть доску.'; status.hidden=false; return; }
                 if (u.uid === 'bvEGSBPw8wTWuH5gthAiEMpaZoe2') { location.replace('index.html'); return; }
+                if (!u.emailVerified) { status.querySelector('span').textContent='Подтвердите почту в кабинете, чтобы открыть доску.';return; }
                 if (realtimeStarted) return;
                 try {
                     const cached = localStorage.getItem('es_user_' + u.uid);
@@ -1122,6 +1129,7 @@
                         realtimeStarted = true;
                         boardReady = true;
                         initRealtimeSync();
+                        subscribeBoardStudio();
                         initWebRTC();
                         status.hidden = true;
                     }
@@ -1226,22 +1234,7 @@
             updateStudentPanLock();
         }
 
-        function switchTopTab(tab) {
-            document.getElementById('top-tab-board').classList.toggle('active', tab === 'board');
-            document.getElementById('top-tab-notebook').classList.toggle('active', tab === 'notebook');
-            if (tab === 'notebook') {
-                const existingEssay = dynamicItems.querySelector('.essay-widget-box');
-                if (existingEssay) {
-                    existingEssay.style.display = 'flex';
-                    bringToFront(existingEssay);
-                } else if (role === 'teacher') {
-                    const vw = viewport.clientWidth || window.innerWidth;
-                    const vh = viewport.clientHeight || window.innerHeight;
-                    const pt = screenToWorld(vw / 2 - 175, vh / 2 - 120);
-                    createEssayWidget({ id: 'essay-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 360, height: 260, text: '' }, true, true);
-                }
-            }
-        }
+        // switchTopTab is provided by board-studio.js.
 
         function toggleSidebarPanel() {
             document.getElementById('class-sidebar').classList.toggle('collapsed');
@@ -1282,6 +1275,7 @@
         }
         function restoreSnapshotData(val) {
             if (!val) return;
+            if(val.paper)setBoardPaper(val.paper,false);
             if (Array.isArray(val.deletedIds)) {
                 val.deletedIds.forEach(id => deletedStrokeIds.add(id));
             }
@@ -1296,13 +1290,16 @@
             if (val.items && Array.isArray(val.items)) {
                 dynamicItems.innerHTML = '';
                 val.items.forEach(item => {
-                    if (item.type === 'video') createVideoWidget(item, false, false);
+                    if (!item) return;
+                    if(item.type==='subject')createSubjectWidget(item,false,false);
+                    else if (item.type === 'video') createVideoWidget(item, false, false);
                     else if (item.type === 'essay') createEssayWidget(item, false, false);
                     else if (item.type === 'photo') spawnPhotoWidget(item, false, false);
                     else if (item.type === 'sticker') createSticker(item, false, false);
                     else if (item.type === 'speaking') createSpeakingWidget(item, false, false);
                     else if (item.type === 'dict') createDictWidget(item, false, false);
                     else if (item.type === 'text') createTextNode(item, false, false);
+                    if(item.locked && !document.getElementById(item.id)?.classList.contains('locked-widget'))toggleLockWidget(item.id,false);
                 });
             }
         }
@@ -2536,7 +2533,9 @@
                     if (el.style.display === 'none') return;
                     const type = el.dataset.type;
                     const base = { id: el.id, type, left: el.offsetLeft, top: el.offsetTop, width: el.offsetWidth, height: el.offsetHeight };
-                    if (type === 'essay') base.text = el.querySelector('textarea').value;
+                    base.locked=el.classList.contains('locked-widget');
+                    if(type==='subject'){base.subjectKind=el.dataset.subjectKind;base.fields=subjectFields(el);}
+                    else if (type === 'essay') base.text = el.querySelector('textarea').value;
                     else if (type === 'sticker') { base.text = el.querySelector('textarea').value; base.theme = el.dataset.theme || 'yellow'; }
                     else if (type === 'photo') { base.src = el.querySelector('img').src; base.aspect = parseFloat(el.dataset.aspect) || 1; }
                     else if (type === 'text') { base.text = el.querySelector('.board-text-content').innerText; base.color = el.dataset.color || '#f2f7f5'; base.fontSize = parseFloat(el.dataset.fontSize) || 24; }
@@ -2544,6 +2543,7 @@
                 });
                 const cleanStrokes = strokeHistory.filter(s => s && (!s.id || !deletedStrokeIds.has(s.id)));
                 const payload = {
+                    paper:boardPaper,
                     strokeHistory: cleanStrokes,
                     deletedIds: Array.from(deletedStrokeIds).slice(-200),
                     chatHistory,
@@ -2643,6 +2643,7 @@
         // ================= 3. СОБЫТИЯ РИСОВАНИЯ НА ХОЛСТЕ =================
         viewport.addEventListener('pointerdown', (e) => {
             if (!boardReady || !e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
+            if(e.target.closest('.lesson-notebook-panel'))return;
             if (e.target.closest('.left-toolbar') || e.target.closest('.tool-settings-card') ||
                 e.target.closest('.bottom-left-island') || e.target.closest('.bottom-right-island') ||
                 e.target.closest('.resize-handle') || e.target.closest('.text-resize-handle') ||
@@ -2653,7 +2654,8 @@
             if (pendingWidgetType && role === 'teacher') {
                 const pt = screenToWorld(e.clientX, e.clientY);
                 const wType = pendingWidgetType; cancelPendingPlacement();
-                if (wType === 'video') createVideoWidget({ id: 'video-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 350, height: 255 }, true, true);
+                if (Object.hasOwn(subjectDefinitions,wType))createSubjectWidget({id:'subject-'+Date.now(),subjectKind:wType,left:Math.round(pt.x),top:Math.round(pt.y),width:420,height:380},true,true);
+                else if (wType === 'video') createVideoWidget({ id: 'video-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 350, height: 255 }, true, true);
                 else if (wType === 'essay') createEssayWidget({ id: 'essay-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 350, height: 245, text: '' }, true, true);
                 else if (wType === 'sticker') createSticker({ id: 'sticker-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 210, height: 175, theme: 'yellow', text: '' }, true, true);
                 else if (wType === 'speaking') createSpeakingWidget({ id: 'speaking-' + Date.now(), left: Math.round(pt.x), top: Math.round(pt.y), width: 345, height: 248 }, true, true);
@@ -2783,6 +2785,7 @@
                 seenEvents.add(data.eventId);
                 if(seenEvents.size>1000)seenEvents.delete(seenEvents.values().next().value);
             }
+            if(handleStudioEvent(data))return;
             if (data.type === 'teacher_move_local') {
                 handleTeacherMoveData(data);
             } else if (data.type === 'follow_toggle') {
@@ -3397,5 +3400,6 @@
         // Online systems start in the authenticated session above.
     </script>
     <script src="assets/board-enhancements.js"></script>
+    <script>initBoardStudio();</script>
 </body>
 </html>

@@ -8,7 +8,7 @@ for(const [,id] of html.split('<script>')[0].matchAll(/\bid="([^"]+)"/g)){
     const classes=new Set();
     elements.set(id,{id,style:{},dataset:{},value:'',textContent:'',innerText:'',innerHTML:'',hidden:false,
         classList:{add:x=>classes.add(x),remove:x=>classes.delete(x),contains:x=>classes.has(x),toggle(x,on){if(on??!classes.has(x))classes.add(x);else classes.delete(x);}},
-        setAttribute(){},removeAttribute(){},focus(){},querySelectorAll(){return[];},querySelector(){return null;}});
+        setAttribute(){},removeAttribute(){},focus(){},contains(){return false;},querySelectorAll(){return[];},querySelector(){return null;}});
 }
 const context=vm.createContext({console,URLSearchParams,Date,Math,Set,Map,Promise,
     document:{title:'Орбита',activeElement:null,getElementById:id=>{assert(elements.has(id),'Missing DOM ID: '+id);return elements.get(id);},querySelectorAll:()=>[],addEventListener(){},createElement:()=>({}),head:{appendChild(){}},body:{classList:{add(){},remove(){},toggle(){}}}},
@@ -18,6 +18,7 @@ const context=vm.createContext({console,URLSearchParams,Date,Math,Set,Map,Promis
     setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){}
 });
 vm.runInContext(fs.readFileSync('assets/access.js','utf8'),context);
+for(const file of ['lesson-ledger.js','student-ledger-ui.js','notebooks.js','email-verification.js'])vm.runInContext(fs.readFileSync('assets/'+file,'utf8'),context);
 for(const match of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi))if(match[1].trim())vm.runInContext(match[1],context);
 vm.runInContext(fs.readFileSync('assets/orbita.js','utf8'),context);
 vm.runInContext('startOrbitaDemo()',context);

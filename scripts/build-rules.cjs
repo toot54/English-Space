@@ -13,8 +13,12 @@ const rules={
             '.validate':`(${admin}) || (newData.child('plan').val() === data.child('plan').val() || (!data.child('plan').exists() && newData.child('plan').val() === 'start')) && newData.child('planExpiresAt').val() === data.child('planExpiresAt').val()`,
             profile:{'.read':'auth != null'},
             students:{'$student':{
-                '.write':"auth != null && auth.uid === $student && root.child('users').child($uid).child('role').val() === 'teacher' && (!newData.exists() || newData.child('uid').val() === auth.uid)",
-                '.validate':`(${admin}) || auth.uid === $uid || (newData.child('uid').val() === auth.uid && ((!data.exists() && newData.child('lessonsBalance').val() === 0) || (data.exists() && newData.child('lessonsBalance').val() === data.child('lessonsBalance').val() && newData.child('subscriptionPrice').val() === data.child('subscriptionPrice').val())))`
+                '.write':"auth != null && auth.uid === $student && root.child('users').child($uid).child('role').val() === 'teacher' && !data.exists() && newData.child('uid').val() === auth.uid && !newData.child('lessonPrice').exists() && !newData.child('lessonHistory').exists()",
+                '.validate':`(${admin}) || auth.uid === $uid || (newData.child('uid').val() === auth.uid && ((!data.exists() && newData.child('lessonsBalance').val() === 0) || (data.exists() && newData.child('lessonsBalance').val() === data.child('lessonsBalance').val() && newData.child('subscriptionPrice').val() === data.child('subscriptionPrice').val())))`,
+                name:{'.write':"auth != null && auth.uid === $student && data.parent().child('uid').val() === auth.uid && newData.isString() && newData.val().length <= 150"},
+                uid:{'.write':"auth != null && auth.uid === $student && data.val() === auth.uid && newData.val() === auth.uid"},
+                lessonPrice:{'.validate':`(${admin}) || auth.uid === $uid || newData.val() === data.val()`},
+                lessonHistory:{'$lesson':{'.validate':`(${admin}) || auth.uid === $uid`}}
             }},
             teachers:{'$teacher':{'.write':'auth != null && auth.uid === $teacher && root.child("users").child(auth.uid).child("students").child($uid).exists()'}}
         }
@@ -46,6 +50,15 @@ const rules={
         }
     }
 };
+// An unverified email account may authenticate to request a verification email,
+// but cannot read or write application data, even using the REST API directly.
+function requireVerified(node){
+    for(const [key,value] of Object.entries(node)){
+        if((key==='.read'||key==='.write')&&typeof value==='string')node[key]=`auth != null && auth.token.email_verified === true && (${value})`;
+        else if(value && typeof value==='object')requireVerified(value);
+    }
+}
+requireVerified(rules);
 fs.mkdirSync('firebase',{recursive:true});
 fs.writeFileSync('firebase/database.rules.json',JSON.stringify({rules},null,2)+'\n');
 console.log('Generated Firebase rules');

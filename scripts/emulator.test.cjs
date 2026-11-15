@@ -30,14 +30,15 @@ async function denied(path,method,body,auth) {
     const rules = JSON.parse(fs.readFileSync('firebase/database.rules.json','utf8'));
     await allowed('/.settings/rules','PUT',rules,'owner');
     const teacher={uid:'teacher1',token:{email:'teacher@example.invalid',email_verified:true}};
-    const student={uid:'student1',token:{}};
-    const outsider={uid:'outsider',token:{}};
+    const student={uid:'student1',token:{email_verified:true}};
+    const outsider={uid:'outsider',token:{email_verified:true}};
     const admin={uid:ADMIN_UID,token:{email:ADMIN_EMAIL,email_verified:true}};
     await allowed('/','PUT',{
         users:{teacher1:{role:'teacher',plan:'start',profile:{name:'Teacher'}},student1:{role:'student',plan:'start'}},
         boards:{prep_teacher1_123:{participants:{teacher:{name:'Teacher'}}},pair_teacher1_student1:{messages:{}}}
     },'owner');
     await denied('/boards/prep_teacher1_123');
+    await denied('/users/teacher1',undefined,undefined,{...teacher,token:{email_verified:false}});
     await denied('/boards/prep_teacher1_123','PUT',{},outsider);
     await denied('/users/teacher1',undefined,undefined,outsider);
     await denied('/users',undefined,undefined,teacher);
@@ -54,6 +55,13 @@ async function denied(path,method,body,auth) {
     },student);
     await denied('/users/teacher1/students/student1/lessonsBalance','PUT',100,student);
     await allowed('/users/teacher1/students/student1/lessonsBalance','PUT',4,teacher);
+    await allowed('/users/teacher1/students/student1/lessonPrice','PUT',300,teacher);
+    await allowed('/users/teacher1/students/student1/lessonHistory/one','PUT',{amount:300,paid:false},teacher);
+    await denied('/users/teacher1/students/student1/lessonPrice','PUT',1,student);
+    await denied('/users/teacher1/students/student1/lessonPrice','DELETE',undefined,student);
+    await denied('/users/teacher1/students/student1/lessonHistory','DELETE',undefined,student);
+    await denied('/users/teacher1/students/student1/lessonHistory/one/paid','PUT',true,student);
+    await allowed('/users/teacher1/students/student1','PATCH',{uid:'student1',name:'New name'},student);
     await allowed('/boardAccess/prep_teacher1_123/student1','PUT',true,teacher);
     await allowed('/boards/prep_teacher1_123',undefined,undefined,student);
     await allowed('/boards/prep_teacher1_123/events/event1','PUT',{type:'draw_commit',ts:Date.now()},student);
